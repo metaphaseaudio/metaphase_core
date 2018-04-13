@@ -31,9 +31,7 @@ if (APPLE)
 
 endif(APPLE)
 
-set(SPDLOG ${META_PATH}/third_party/spdlog/include/spdlog)
-
-add_library(metaphase_core STATIC ${META_SHARED_SRC} ${SPDLOG}/spdlog.h)
+add_library(metaphase_core STATIC ${META_SHARED_SRC})
 include_directories(${META_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/inc/ )
 
 target_include_directories(metaphase_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/inc)

@@ -46,7 +46,7 @@ namespace meta
 
                     NumericType phase = denominator * meta::NumericConstants<NumericType>().PI;
 
-                    table[i] += std::sin(phase) * gain;
+                    table[i] += sin(phase) * gain;
                 }
             }
 
