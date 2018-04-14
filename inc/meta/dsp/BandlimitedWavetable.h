@@ -42,8 +42,7 @@ namespace meta
                 for (int i = TableSize; --i >= 0;)
                 {
                     NumericType denominator = static_cast<NumericType>(i * 2 * partial)
-                                              / static_cast<NumericType>(TableSize);
-
+                                            / static_cast<NumericType>(TableSize);
                     NumericType phase = denominator * meta::NumericConstants<NumericType>().PI;
 
                     table[i] += sin(phase) * gain;
