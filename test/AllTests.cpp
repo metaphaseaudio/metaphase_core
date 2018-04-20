@@ -3,8 +3,10 @@
  *      Author: Matt Zapp
  */
 #include <gtest/gtest.h>
+#include "test/tests/util/test_FixedPoint.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

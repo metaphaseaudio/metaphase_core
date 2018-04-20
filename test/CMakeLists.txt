@@ -4,7 +4,12 @@ message("-- Building Metaphase Core Test Suite")
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_executable(run_metaphase_core_tests AllTests.cpp)
+file(GLOB_RECURSE METACORE_TEST_SHARED_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h
+                                              ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
+list(SORT METACORE_TEST_SHARED_SOURCE)
+
+add_executable(run_metaphase_core_tests ${METACORE_TEST_SHARED_SOURCE} AllTests.cpp)
+target_include_directories(run_metaphase_core_tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 target_link_libraries(run_metaphase_core_tests
         ${GTEST_LIBRARIES}

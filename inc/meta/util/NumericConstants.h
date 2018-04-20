@@ -11,8 +11,8 @@ namespace meta
     struct NumericConstants
     {};
 
-
     template <>
     struct NumericConstants<float>
     { const float PI = 3.14159f; };
+
 }

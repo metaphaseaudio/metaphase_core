@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <meta/util/BitSize.h>
+
 namespace meta
 {
     /**
@@ -40,6 +42,18 @@ namespace meta
             m_LastValue = m_Value;
             m_Value = (m_LastValue * m_Mult) + m_Inc;
             return m_Value;
+        }
+
+        /**
+         * Calculates the optimal increment value from the equation:
+         * (.5 - (0.1666 * sqrt(3)) * modulusOfWord
+         * @return the increment value
+         */
+        static constexpr IntType generateIncrement()
+        {
+            constexpr const auto wordSize = meta::wordSizeInBits<IntType>();
+            constexpr const IntType
+
         }
 
         IntType getCurrentValue() const { return m_Value; }
