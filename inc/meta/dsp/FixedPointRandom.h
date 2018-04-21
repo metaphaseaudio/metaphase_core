@@ -20,6 +20,18 @@ namespace meta
     {
     public:
         /**
+         * Calculates the optimal increment value from the equation:
+         * (.5 - (0.1666 * sqrt(3)) * modulusOfWord
+         * @return the increment value
+         */
+        static constexpr IntType makeIdealIncrement()
+        {
+            return static_cast<IntType>(
+                    (0.5f - ((1.0f / 6.0f) * 1.732050808f))
+                 * (1l << meta::wordSizeInBits<IntType>()));
+        }
+
+        /**
          * Initialize a FixedPointRandom number generator.  Care must be taken
          * when selecting the variables below to ensure that an even
          * distribution of numbers is genrated.
@@ -30,7 +42,7 @@ namespace meta
          *              width of the word. The following equation is suggested:
          *              (.5 - (0.1666 * sqrt(3)) * modulusOfWord
          */
-        FixedPointRandom(IntType seed=21845, IntType mult=31821, IntType increment=13849)
+        FixedPointRandom(IntType seed=21845, IntType mult=31821, IntType increment=makeIdealIncrement())
             : m_Value(seed)
             , m_Inc(increment)
             , m_Mult(mult)
@@ -42,18 +54,6 @@ namespace meta
             m_LastValue = m_Value;
             m_Value = (m_LastValue * m_Mult) + m_Inc;
             return m_Value;
-        }
-
-        /**
-         * Calculates the optimal increment value from the equation:
-         * (.5 - (0.1666 * sqrt(3)) * modulusOfWord
-         * @return the increment value
-         */
-        static constexpr IntType generateIncrement()
-        {
-            constexpr const auto wordSize = meta::wordSizeInBits<IntType>();
-            constexpr const IntType
-
         }
 
         IntType getCurrentValue() const { return m_Value; }
