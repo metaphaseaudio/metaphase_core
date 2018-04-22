@@ -12,3 +12,13 @@ void meta::TestBase::initializeTestFile(const juce::File &f)
     testFile.create();
     m_Writer.reset(meta::AudioFileHelpers::createWriter(testFile, 48000, 2));
 }
+
+void meta::TestBase::TearDown()
+{
+    if (m_Writer != nullptr)
+    {
+        m_Writer->flush();
+        m_Writer.reset(nullptr);
+        if (testFile.exists()) { testFile.deleteFile(); }
+    }
+}

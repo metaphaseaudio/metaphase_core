@@ -3,30 +3,49 @@
 //
 
 #pragma once
-#include <meta/util/FixedPoint.h>
+#include <meta/util/fixed_point/Value.h>
+#include <meta/util/fixed_point/Math.h>
 
-TEST(FixedPointHelpersTest, convert_float_to_fixed)
+TEST(FixedPointValueTest, convert_float_to_fixed)
 {
-    EXPECT_EQ(2, (meta::FixedPointHelpers<int, 2>::floatToFixed(0.5f)));
-    EXPECT_EQ(4, (meta::FixedPointHelpers<int, 3>::floatToFixed(0.5f)));
-    EXPECT_EQ(8, (meta::FixedPointHelpers<int, 4>::floatToFixed(0.5f)));
+    EXPECT_EQ(2, (meta::FixedPointValue<int, 2>(0.5f).raw()));
+    EXPECT_EQ(4, (meta::FixedPointValue<int, 3>(0.5f).raw()));
+    EXPECT_EQ(8, (meta::FixedPointValue<int, 4>(0.5f).raw()));
 }
 
-TEST(FixedPointHelpersTest, convert_fixed_to_float)
+TEST(FixedPointValueTest, convert_fixed_to_float)
 {
-    EXPECT_EQ(0.5, (meta::FixedPointHelpers<int, 2>::fixedToFloat(2)));
-    EXPECT_EQ(0.5, (meta::FixedPointHelpers<int, 3>::fixedToFloat(4)));
-    EXPECT_EQ(0.5, (meta::FixedPointHelpers<int, 4>::fixedToFloat(8)));
-    EXPECT_EQ(0.5, (meta::FixedPointHelpers<int, 2>::fixedToFloatHighPrecision(2)));
-    EXPECT_EQ(0.5, (meta::FixedPointHelpers<int, 3>::fixedToFloatHighPrecision(4)));
-    EXPECT_EQ(0.5, (meta::FixedPointHelpers<int, 4>::fixedToFloatHighPrecision(8)));
+    EXPECT_EQ(0.5f, static_cast<float>(meta::FixedPointValue<int, 2>(2)));
+    EXPECT_EQ(0.5f, static_cast<float>(meta::FixedPointValue<int, 3>(4)));
+    EXPECT_EQ(0.5f, static_cast<float>(meta::FixedPointValue<int, 4>(8)));
+    EXPECT_EQ(0.5f, static_cast<float>(meta::FixedPointValue<int, 2>(2)));
+    EXPECT_EQ(0.5f, static_cast<float>(meta::FixedPointValue<int, 3>(4)));
+    EXPECT_EQ(0.5f, static_cast<float>(meta::FixedPointValue<int, 4>(8)));
 }
 
-TEST(FixedPointHelpersTest, multiply)
+TEST(FixedPointValueTest, add)
 {
-    meta::FixedPointValue<int, 3> a(4);
-    meta::FixedPointValue<int, 3> b(4);
-    int value = a * b;
-    EXPECT_EQ(2, value);
-    EXPECT_EQ(0.25, (meta::FixedPointHelpers<int, 3>::fixedToFloat(value)));
+    meta::FixedPointValue<int, 3> a(0.5f);
+    meta::FixedPointValue<int, 3> b(0.5f);
+    meta::FixedPointValue<int, 3> value = a + b;
+    EXPECT_EQ(8, value.raw());
+    EXPECT_EQ(1.0f, static_cast<float>(value));
+}
+
+TEST(FixedPointValueTest, subtract)
+{
+    meta::FixedPointValue<int, 3> a(0.5f);
+    meta::FixedPointValue<int, 3> b(1.0f);
+    meta::FixedPointValue<int, 3> value = a - b;
+    EXPECT_EQ(-4, value.raw());
+    EXPECT_EQ(-0.5f, static_cast<float>(value));
+}
+
+TEST(FixedPointValueTest, multiply)
+{
+    meta::FixedPointValue<int, 3> a(0.5f);
+    meta::FixedPointValue<int, 3> b(0.5f);
+    meta::FixedPointValue<int, 3> value = a * b;
+    EXPECT_EQ(2, value.raw());
+    EXPECT_EQ(0.25f, static_cast<float>(value));
 }

@@ -13,7 +13,9 @@ namespace meta
     protected:
 
         void initializeTestFile(const juce::File &f);
-        
+
+        void TearDown() override;
+
         std::unique_ptr<juce::AudioFormatWriter> m_Writer;
         juce::File testFile;
     };
