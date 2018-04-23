@@ -2,6 +2,8 @@
 // Created by mzapp on 4/21/18.
 //
 #pragma once
+
+#ifdef META_BUILD_TESTS
 #include <gtest/gtest.h>
 #include <JuceHeader.h>
 
@@ -20,3 +22,4 @@ namespace meta
         juce::File testFile;
     };
 }
+#endif
