@@ -29,7 +29,7 @@ namespace meta
         /**
          * Changes the weights of the integrator based on a frequency and sample rate
          */
-        void setCutoff(double sampleRate, double freq)
+        void setCutoff(float sampleRate, float freq)
         {
             b1 = exp(-2.0 * M_PI * freq / sampleRate);
             a0 = 1.0 - b1;
@@ -39,6 +39,6 @@ namespace meta
         float processSample(float in) { return z1 = in * a0 + z1 * b1; }
 
     protected:
-        double a0, b1, z1;
+        float a0, b1, z1;
     };
 }

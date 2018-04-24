@@ -3,14 +3,12 @@
 
 using namespace meta;
 
-const float Asymp::TARGET_THRESHOLD = 0.000001;
-
 Asymp::Asymp(double sampleRate)
 {
     m_Value = 0.0;
     m_Target = 0.0;
     m_State = 0;
-    m_Factor = exp(-1.0 / (0.3 * sampleRate));
+    m_Factor = float(exp(-1.0 / (0.3 * sampleRate)));
     m_Constant = 0.0;
 }
 
@@ -21,7 +19,7 @@ void Asymp::init(double sampleRate)
     m_Value = 0.0;
     m_Target = 0.0;
     m_State = 0;
-    m_Factor = exp(-1.0 / (0.3 * sampleRate));
+    m_Factor = float(exp(-1.0 / (0.3 * sampleRate)));
     m_Constant = 0.0;
 }
 
@@ -46,14 +44,14 @@ void Asymp::setT60(float t60, float sampleRate)
 {
     if (t60 <= 0.0) { return; }
 
-    setTau(t60 / 6.91, sampleRate);
+    setTau(t60 / 6.91f, sampleRate);
 }
 
 void Asymp::setTarget(float target)
 {
     m_Target = target;
     if (m_Value != m_Target) { m_State = 1; }
-    m_Constant = (1.0 - m_Factor) * m_Target;
+    m_Constant = (1.0f - m_Factor) * m_Target;
 }
 
 void Asymp::setValue(float value)

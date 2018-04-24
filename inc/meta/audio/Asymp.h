@@ -78,7 +78,7 @@ namespace meta
         float m_Constant;
         int m_State;
 
-        static const float TARGET_THRESHOLD;
+        static const constexpr float TARGET_THRESHOLD = 0.000001f;
     };
 
     inline float Asymp::tick(void)
@@ -107,7 +107,5 @@ namespace meta
         }
 
         return m_Value;
-        
-        static const float TARGET_THRESHOLD = 0.000001;
     }
 }
