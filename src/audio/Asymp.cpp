@@ -3,14 +3,22 @@
 
 using namespace meta;
 
+
+Asymp::Asymp()
+    : m_Value(0.0)
+    , m_Target(0.0)
+    , m_State(0)
+    , m_Factor(0.01)
+    , m_Constant(0.0)
+{}
+
 Asymp::Asymp(double sampleRate)
-{
-    m_Value = 0.0;
-    m_Target = 0.0;
-    m_State = 0;
-    m_Factor = float(exp(-1.0 / (0.3 * sampleRate)));
-    m_Constant = 0.0;
-}
+    : m_Value(0.0)
+    , m_Target(0.0)
+    , m_State(0)
+    , m_Factor(float(exp(-1.0 / (0.3 * sampleRate))))
+    , m_Constant(0.0)
+{}
 
 Asymp::~Asymp(void) {}
 

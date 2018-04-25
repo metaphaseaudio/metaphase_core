@@ -32,8 +32,7 @@ namespace meta
     {
     public:
 
-        //! Default constructor.
-        Asymp() {};
+        Asymp();
 
         /// If the sample rate is already known
         explicit Asymp(double sampleRate);

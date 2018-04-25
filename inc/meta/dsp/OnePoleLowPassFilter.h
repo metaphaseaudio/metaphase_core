@@ -31,8 +31,8 @@ namespace meta
          */
         void setCutoff(float sampleRate, float freq)
         {
-            b1 = exp(-2.0 * M_PI * freq / sampleRate);
-            a0 = 1.0 - b1;
+            b1 = float(exp(-2.0 * M_PI * freq / sampleRate));
+            a0 = 1.0f - b1;
         }
 
         /// Runs a sample through the filter, returns the current running sum.
