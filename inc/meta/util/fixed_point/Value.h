@@ -6,11 +6,11 @@
 namespace meta
 {
 //=============================================================================
-    template <typename StorageType, unsigned char PointOffset>
+    template <typename StorageType, unsigned char FractionalBits>
     class FixedPointValue
     {
-        static constexpr StorageType Scale = (StorageType)1 << PointOffset;
-        using LocalType = FixedPointValue<StorageType, PointOffset>;
+        static constexpr StorageType Scale = (StorageType)1 << FractionalBits;
+        using LocalType = FixedPointValue<StorageType, FractionalBits>;
 
     public:
         explicit FixedPointValue(StorageType value) : m_Value(value) {}
@@ -18,7 +18,7 @@ namespace meta
         explicit FixedPointValue(double value) : m_Value(value * Scale) {}
         FixedPointValue(const LocalType& other) : m_Value(other.m_Value) {}
 
-        FixedPointValue<StorageType, PointOffset>& operator=
+        FixedPointValue<StorageType, FractionalBits>& operator=
             (const LocalType& other)
         {
             m_Value = other.m_Value;
