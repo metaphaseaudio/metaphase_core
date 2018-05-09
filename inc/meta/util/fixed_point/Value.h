@@ -3,10 +3,12 @@
 //
 #pragma once
 
+#include <cstdint>
+
 namespace meta
 {
 //=============================================================================
-    template <typename StorageType, size_t Bit>
+    template <typename StorageType, std::size_t Bit>
     struct FixedPointMaskHelpers
     {
         inline static constexpr StorageType getFractional()
@@ -33,9 +35,7 @@ namespace meta
         FixedPointValue() : rawValue(0) {}
         explicit FixedPointValue(StorageType value) : rawValue(value) {}
 
-        explicit FixedPointValue(int value) : rawValue(value * Scale) {}
-        explicit FixedPointValue(long value) : rawValue(value * Scale) {}
-        explicit FixedPointValue(size_t value) : rawValue(value * Scale) {}
+        explicit FixedPointValue(std::size_t value) : rawValue(value * Scale) {}
         explicit FixedPointValue(float value) : rawValue(value * Scale) {}
         explicit FixedPointValue(double value) : rawValue(value * Scale) {}
 

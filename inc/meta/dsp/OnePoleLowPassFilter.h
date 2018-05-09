@@ -8,6 +8,7 @@
 
 #pragma once
 #include <meta/util/NumericConstants.h>
+#include <math.h>
 
 namespace meta
 {
@@ -29,7 +30,7 @@ namespace meta
          */
         void setCutoff(float sampleRate, float freq)
         {
-            b1 = float(expf(-2.0f * NumericConstants<float>::PI * freq / sampleRate));
+            b1 = expf(-2.0f * NumericConstants<float>::PI * freq / sampleRate);
             a0 = 1.0f - b1;
         }
 
