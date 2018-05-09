@@ -1,9 +1,5 @@
 message("-- Building Metaphase Core Test Suite")
 
-# Locate GTest
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
-
 file(GLOB_RECURSE METACORE_TEST_SHARED_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h
                                               ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
 list(SORT METACORE_TEST_SHARED_SOURCE)

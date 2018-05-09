@@ -5,6 +5,7 @@
 //
 
 #pragma once
+
 namespace meta
 {
     template <typename NumericType>
@@ -13,6 +14,8 @@ namespace meta
 
     template <>
     struct NumericConstants<float>
-    { const float PI = 3.14159f; };
+    { 
+		constexpr static float PI { 3.14159f };
+	};
 
 }

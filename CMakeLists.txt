@@ -28,7 +28,6 @@ if (APPLE)
         ${CRYPTO_LIBRARY}
         ${ICONV_LIBRARY}
     )
-
 endif(APPLE)
 
 add_library(metaphase_core STATIC ${META_SHARED_SRC})

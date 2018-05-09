@@ -5,6 +5,7 @@
 #include "meta/util/testing/TestBase.h"
 #include <meta/util/file/AudioFileHelpers.h>
 
+#ifdef META_BUILD_TESTS
 void meta::TestBase::initializeTestFile(const juce::File &f)
 {
     testFile = f;
@@ -22,3 +23,4 @@ void meta::TestBase::TearDown()
         if (testFile.exists()) { testFile.deleteFile(); }
     }
 }
+#endif

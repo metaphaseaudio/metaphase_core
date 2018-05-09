@@ -62,23 +62,37 @@ namespace meta
          *                       requires a value between 0 and 1;
          * @return an array containing the wavetable
          */
-        static std::array<NumericType, TableSize> makeSquare(int numHarmonics, float gibbsCompAmt)
+        static std::array<NumericType, TableSize> makeSquare
+        (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 1.0f)
         {
             std::array<NumericType, TableSize> out{0};
             gibbsCompAmt = meta::NumericConstants<NumericType>().PI * gibbsCompAmt
                          / static_cast<float>(numHarmonics);
 
-            // generate square table with 30 partials
-            for (int i = 1; i <= 1 + numHarmonics * 2; i += 2)
+            for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic += 2)
             {
-                auto gibbsComp = 0.54 + 0.46 * cos ((i - 0.5 / 30) * gibbsCompAmt);
-                Partial part(i, gibbsComp / static_cast<NumericType>(i));
+                auto gibbsComp = 0.54 + 0.46 * cos ((harmonic - 0.5 / 30) * gibbsCompAmt);
+                Partial part(harmonic, gibbsComp / static_cast<NumericType>(harmonic));
                 part.addToTable(out);
             }
 
             return out;
         };
 
+        /**
+         * Calculates the gain coefficient for an arbitrary partial
+         * @param harmonics the partial number to calculate
+         * @return the gain of that partial in a saw or square wave
+         */
+        static NumericType getPartialGain
+                (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 1.0f)
+        {
+            gibbsCompAmt = meta::NumericConstants<NumericType>().PI * gibbsCompAmt
+                           / static_cast<float>(numHarmonics);
+
+            auto gibbsComp = 0.54 + 0.46 * cos ((harmonics - 0.5 / 30) * gibbsCompAmt);
+            return NumericType(1) / NumericType(harmonics);
+        }
 
         /**
          * Make a bandlimited saw wave containing a specific number of
@@ -89,17 +103,17 @@ namespace meta
          *                       requires a value between 0 and 1;
          * @return an array containing the wavetable
          */
-        static std::array<NumericType, TableSize> makeSaw(int numHarmonics, float gibbsCompAmt)
+        static std::array<NumericType, TableSize> makeSaw
+        (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 1.0f)
         {
             std::array<NumericType, TableSize> out{0};
             gibbsCompAmt = meta::NumericConstants<NumericType>().PI * gibbsCompAmt
                          / static_cast<float>(numHarmonics);
 
-            // generate saw table with 30 partials
-            for (int i = 1; i <= numHarmonics; i++)
+            for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic++)
             {
-                auto gibbsComp = 0.54 + 0.46 * cos ((i - 0.5 / 30) * gibbsCompAmt);
-                Partial part(i, gibbsComp / static_cast<float>(i));
+                auto gibbsComp = 0.54 + 0.46 * cos ((harmonic - 0.5 / 30) * gibbsCompAmt);
+                Partial part(harmonic, gibbsComp / static_cast<float>(harmonic));
                 part.addToTable(out);
             }
 
