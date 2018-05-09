@@ -18,4 +18,8 @@ namespace meta
 
         return lower + fmodf(x - lower, range);
     }
+
+    template <typename NumericType>
+    constexpr NumericType limit(NumericType low, NumericType high, NumericType value)
+    { return value < low ? low : (high < value ? high : value); }
 }
