@@ -28,7 +28,7 @@ namespace meta
         {
             return static_cast<IntType>(
                     (0.5f - ((1.0f / 6.0f) * 1.732050808f))
-                 * (1l << meta::wordSizeInBits<IntType>()));
+                 * (1l << meta::WordSizeInBits<IntType>::Value));
         }
 
         /**

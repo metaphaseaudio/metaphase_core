@@ -43,7 +43,7 @@ namespace meta
                 {
                     NumericType denominator = static_cast<NumericType>(i * 2 * partial)
                                             / static_cast<NumericType>(TableSize);
-                    NumericType phase = denominator * meta::NumericConstants<NumericType>().PI;
+                    NumericType phase = denominator * meta::NumericConstants<NumericType>::PI;
 
                     table[i] += sin(phase) * gain;
                 }
@@ -66,7 +66,7 @@ namespace meta
         (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 1.0f)
         {
             std::array<NumericType, TableSize> out{0};
-            gibbsCompAmt = meta::NumericConstants<NumericType>().PI * gibbsCompAmt
+            gibbsCompAmt = meta::NumericConstants<NumericType>::PI * gibbsCompAmt
                          / static_cast<float>(numHarmonics);
 
             for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic += 2)
@@ -87,7 +87,7 @@ namespace meta
         static NumericType getPartialGain
                 (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 1.0f)
         {
-            gibbsCompAmt = meta::NumericConstants<NumericType>().PI * gibbsCompAmt
+            gibbsCompAmt = meta::NumericConstants<NumericType>::PI * gibbsCompAmt
                            / static_cast<float>(numHarmonics);
 
             auto gibbsComp = 0.54 + 0.46 * cos ((harmonics - 0.5 / 30) * gibbsCompAmt);

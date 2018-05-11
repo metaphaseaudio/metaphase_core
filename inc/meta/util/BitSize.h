@@ -9,6 +9,8 @@
 namespace meta
 {
     template <typename T>
-    constexpr std::size_t wordSizeInBits() noexcept
-        { return sizeof(T) * CHAR_BIT; }
+    struct WordSizeInBits
+    {
+        static constexpr std::size_t Value() { return sizeof(T) * CHAR_BIT; };
+    };
 }

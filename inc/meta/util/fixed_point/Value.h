@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <meta/util/BitSize.h>
 
 namespace meta
 {
@@ -32,9 +33,10 @@ namespace meta
     public:
         static constexpr StorageType Radix = PointOffset;
 
+        StorageType sign() const { return 1 * rawValue & meta::WordSizeInBits<StorageType>::Value; }
         FixedPointValue() : rawValue(0) {}
-        explicit FixedPointValue(StorageType value) : rawValue(value) {}
 
+        explicit FixedPointValue(int value) : rawValue(value * Scale) {}
         explicit FixedPointValue(std::size_t value) : rawValue(value * Scale) {}
         explicit FixedPointValue(float value) : rawValue(value * Scale) {}
         explicit FixedPointValue(double value) : rawValue(value * Scale) {}
@@ -53,16 +55,22 @@ namespace meta
             return *this;
         }
 
-        inline LocalType& operator=(float value)
+        inline LocalType& operator=(float value) { rawValue = value * Scale; return *this; }
+
+        inline LocalType& operator+=(LocalType other) { rawValue += other.rawValue; return *this; }
+
+        inline LocalType operator+(LocalType other)
         {
-            rawValue = value * Scale;
-            return *this;
+            LocalType out;
+            out.rawValue = rawValue + other.rawValue;
+            return out;
         }
 
-        inline LocalType& operator+=(LocalType other)
+        inline LocalType operator-(LocalType other)
         {
-            rawValue += other.rawValue;
-            return *this;
+            LocalType out;
+            out.rawValue = rawValue - other.rawValue;
+            return out;
         }
 
         inline constexpr static LocalType fromRaw(const StorageType& in)
@@ -92,6 +100,9 @@ namespace meta
             return static_cast<double>(rawValue)
                  / static_cast<double>(Scale);
         }
+
+        inline constexpr float toFloat() const { return static_cast<float>(*this); }
+        inline constexpr float toDouble() const { return static_cast<double>(*this); }
 
         inline constexpr bool operator < (const LocalType& other) { return rawValue < other.rawValue; }
         inline constexpr bool operator <= (const LocalType& b) { return rawValue <= b.rawValue; }
