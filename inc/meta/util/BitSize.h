@@ -11,6 +11,9 @@ namespace meta
     template <typename T>
     struct WordSizeInBits
     {
-        static constexpr std::size_t Value() { return sizeof(T) * CHAR_BIT; };
+        static constexpr std::size_t Value = sizeof(T) * CHAR_BIT;;
     };
+
+    template <typename T>
+    constexpr std::size_t WordSizeInBits<T>::Value;
 }

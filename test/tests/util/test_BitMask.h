@@ -14,16 +14,11 @@ TEST(BitMaskHelpersTest, mask_bits)
 
 TEST(BitMaskTest, mask_bottom_16)
 {
-    ASSERT_EQ(0xFFFF, meta::BitMask<uint32_t>::Right<16>());
-}
-
-TEST(BitMaskTest, mask_top_16)
-{
-    ASSERT_EQ(0xFFFF0000, meta::BitMask<uint32_t>::Left<16>());
+    ASSERT_EQ(0xFFFF, (meta::BitMask<uint32_t, 16>::Right));
 }
 
 TEST(BitMaskTest, sign)
 {
-    ASSERT_EQ(0,  meta::BitMask<int32_t>::Sign(300));
-    ASSERT_EQ(-0, meta::BitMask<int32_t>::Sign(-20));
+    ASSERT_EQ(1,  meta::signOf(300));
+    ASSERT_EQ(-1, meta::signOf(-20));
 }

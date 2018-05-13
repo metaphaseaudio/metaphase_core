@@ -12,34 +12,34 @@ namespace meta
     {
         inline static constexpr WordType maskBits()
         { return ((WordType)1 << Bit) | BitMaskHelpers<WordType, Bit - 1>::maskBits(); }
+
+        static constexpr WordType maskBitsAbove(unsigned char stopBit)
+        { return ((WordType)(Bit > stopBit ? 1 : 0) << Bit) | BitMaskHelpers<WordType, Bit -
+                    1>::maskBitsAbove(stopBit); }
+
     };
 
     template <typename WordType>
     struct BitMaskHelpers<WordType, 0>
     {
         inline static constexpr WordType maskBits() { return (WordType)1; }
+
+        static constexpr WordType maskBitsAbove(unsigned char stopBit) { return (WordType)0; }
     };
 
-    template <typename WordType>
+    template <typename WordType, std::size_t BitsToMask>
     struct BitMask
     {
-        template <std::size_t BitsToMask>
-        inline static constexpr WordType Right()
-        {
-            return BitMaskHelpers<WordType, BitsToMask - 1>::maskBits();
-        }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshift-overflow"
-        template <std::size_t BitsToMask>
-        inline static constexpr WordType Left()
-        {
-            return BitMaskHelpers<WordType, BitsToMask>::maskBits()
-                << (WordSizeInBits<WordType>::Value() - BitsToMask);
-        }
-#pragma clang diagnostic pop
-
-        inline static constexpr WordType Sign(WordType in)
-            { return in & BitMask<WordType>::Left<1>() & 1; }
+        static constexpr WordType Right = BitMaskHelpers<WordType, BitsToMask - 1>::maskBits();
     };
+
+    template <typename WordType, std::size_t BitsToMask>
+    constexpr WordType BitMask<WordType, BitsToMask>::Right;
+
+
+    template <typename WordType>
+    inline static constexpr WordType signOf(WordType in)
+    {
+        return (in & (1 << (WordSizeInBits<WordType>::Value - 1))) < 0 ? - 1 : 1;
+    }
 }
