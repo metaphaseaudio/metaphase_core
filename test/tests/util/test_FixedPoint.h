@@ -6,6 +6,15 @@
 #include <meta/util/fixed_point/Value.h>
 #include <meta/util/fixed_point/Math.h>
 
+TEST(FixedPointValueTest, min_signed)
+{
+    EXPECT_EQ(-8.0f, static_cast<float>(meta::FixedPointValue<int8_t, 4>::minSigned()));
+}
+TEST(FixedPointValueTest, max_signed)
+{
+    EXPECT_EQ(7.9375f, static_cast<float>(meta::FixedPointValue<int8_t, 4>::maxSigned()));
+}
+
 TEST(FixedPointValueTest, convert_float_to_fixed)
 {
     EXPECT_EQ(2, (meta::FixedPointValue<int, 2>(0.5f).raw()));

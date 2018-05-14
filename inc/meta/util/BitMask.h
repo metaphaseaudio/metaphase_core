@@ -14,8 +14,8 @@ namespace meta
         { return ((WordType)1 << Bit) | BitMaskHelpers<WordType, Bit - 1>::maskBits(); }
 
         static constexpr WordType maskBitsAbove(unsigned char stopBit)
-        { return ((WordType)(Bit > stopBit ? 1 : 0) << Bit) | BitMaskHelpers<WordType, Bit -
-                    1>::maskBitsAbove(stopBit); }
+        { return ((WordType)(Bit > stopBit ? 1 : 0) << Bit)
+               | BitMaskHelpers<WordType, Bit - 1>::maskBitsAbove(stopBit); }
 
     };
 
@@ -36,9 +36,8 @@ namespace meta
     template <typename WordType, std::size_t BitsToMask>
     constexpr WordType BitMask<WordType, BitsToMask>::Right;
 
-
     template <typename WordType>
-    inline static constexpr WordType signOf(WordType in)
+    inline static constexpr WordType signof(WordType in)
     {
         return (in & (1 << (WordSizeInBits<WordType>::Value - 1))) < 0 ? - 1 : 1;
     }

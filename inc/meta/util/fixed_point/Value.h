@@ -68,17 +68,13 @@ namespace meta
         inline constexpr StorageType raw() const { return rawValue; }
 
         inline constexpr StorageType sign() const
-        { return meta::signOf(rawValue); }
+        { return meta::signof(rawValue); }
 
-        static inline constexpr StorageType minSigned()
-        {
-            return meta::BitMask<StorageType, meta::WordSizeInBits<StorageType>::Value>::Right;
-        }
+        static inline constexpr LocalType minSigned()
+            { return fromRaw(1 << (WordSizeInBits<StorageType>::Value - 1)); }
 
-        static inline constexpr StorageType maxSigned()
-        {
-            return meta::BitMask<StorageType, meta::WordSizeInBits<StorageType>::Value - 1>::Right;
-        }
+        static inline constexpr LocalType maxSigned()
+            { return fromRaw(BitMask<StorageType, WordSizeInBits<StorageType>::Value - 1>::Right); }
 
         inline constexpr StorageType integral() const { return rawValue >> PointOffset; }
 
@@ -100,8 +96,7 @@ namespace meta
         inline constexpr float toFloat() const { return static_cast<float>(*this); }
         inline constexpr float toDouble() const { return static_cast<double>(*this); }
 
-        inline constexpr LocalType operator-() const
-            { return fromRaw(rawValue * -1); }
+        inline constexpr LocalType operator-() const { return fromRaw(rawValue * -1); }
 
         template <typename ST, std::size_t S>
         using FPV = FixedPointValue<ST,S>;

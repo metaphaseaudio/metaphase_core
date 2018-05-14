@@ -19,6 +19,6 @@ TEST(BitMaskTest, mask_bottom_16)
 
 TEST(BitMaskTest, sign)
 {
-    ASSERT_EQ(1,  meta::signOf(300));
-    ASSERT_EQ(-1, meta::signOf(-20));
+    ASSERT_EQ(1, meta::signof(300));
+    ASSERT_EQ(-1, meta::signof(-20));
 }
