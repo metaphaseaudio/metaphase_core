@@ -143,7 +143,7 @@ namespace meta
             (const FixedPointValue <StorageType, PointOffset> &a,
              const FixedPointValue <StorageType, PointOffset> &b)
     {
-        const long value = long(a.rawValue) * b.rawValue >> PointOffset;
+        const auto value = Expand<StorageType>::cast(a.rawValue) * b.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -152,7 +152,8 @@ namespace meta
             (const FixedPointValue <StorageType, PointOffset> &a,
              const FixedPointValue <StorageType, PointOffset> &b)
     {
-        const long value = (long(a.rawValue) << PointOffset) / b.rawValue;
+		const auto expanded = Expand<StorageType>::cast(a.rawValue) << PointOffset;
+        const auto value = expanded / b.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -181,7 +182,7 @@ namespace meta
             (const FixedPointValue <StorageType, PointOffset> &a, StorageType b)
     {
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
-        const long value = long(a.rawValue) * bFixed.rawValue >> PointOffset;
+        const auto value = Expand<StorageType>::cast(a.rawValue) * bFixed.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -190,7 +191,7 @@ namespace meta
             (const FixedPointValue <StorageType, PointOffset> &a, StorageType b)
     {
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
-        const long value = (a.rawValue << PointOffset) / bFixed.rawValue;
+        const auto value = (a.rawValue << PointOffset) / bFixed.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -218,7 +219,7 @@ namespace meta
             (StorageType a, const FixedPointValue <StorageType, PointOffset> &b)
     {
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
-        const long value = long(aFixed.rawValue) * b.rawValue >> PointOffset;
+        const auto value = Expand<StorageType>::cast(aFixed.rawValue) * b.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -227,7 +228,7 @@ namespace meta
             (StorageType a, const FixedPointValue <StorageType, PointOffset> &b)
     {
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
-        const long value = (aFixed.rawValue << PointOffset) / b.rawValue;
+        const auto value = (Expand<StorageType>::cast(aFixed.rawValue) << PointOffset) / b.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -255,7 +256,7 @@ namespace meta
             (const FixedPointValue <StorageType, PointOffset> &a, double b)
     {
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
-        const long value = long(a.rawValue) * bFixed.rawValue >> PointOffset;
+        const auto value = Expand<StorageType>::cast(a.rawValue) * bFixed.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -264,7 +265,7 @@ namespace meta
             (const FixedPointValue <StorageType, PointOffset> &a, double b)
     {
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
-        const long value = (a.rawValue << PointOffset) / bFixed.rawValue;
+        const auto value = (Expand<StorageType>::cast(a.rawValue) << PointOffset) / bFixed.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -292,7 +293,7 @@ namespace meta
     (double a, const FixedPointValue <StorageType, PointOffset>& b)
     {
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
-        const long value = long(aFixed.rawValue) * b.rawValue >> PointOffset;
+        const auto value = Expand<StorageType>::cast(aFixed.rawValue) * b.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
@@ -301,7 +302,7 @@ namespace meta
     (double a, const FixedPointValue <StorageType, PointOffset>& b)
     {
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
-        const long value = (aFixed.rawValue << PointOffset) / b.rawValue;
+        const auto value = (Expand<StorageType>::cast(aFixed.rawValue) << PointOffset) / b.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
     };
 
