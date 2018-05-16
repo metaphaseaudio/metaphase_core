@@ -3,13 +3,13 @@
 //
 #pragma once
 
-#include <climits>   // CHAR_BIT
-#include <cstddef>   // std::size_t
+#include <climits>
+#include <cstdint>
 
 namespace meta
 {
     template <typename T>
-    struct WordSizeInBits { static constexpr std::size_t Value = sizeof(T) * CHAR_BIT;; };
+    struct WordSizeInBits { static constexpr std::size_t Value = sizeof(T) * CHAR_BIT; };
 
     template <typename T>
     constexpr std::size_t WordSizeInBits<T>::Value;

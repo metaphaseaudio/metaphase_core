@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <meta/util/BitSize.h>
+#include <meta/util/WordSize.h>
 
 namespace meta
 {

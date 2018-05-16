@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cstdint>
-#include <meta/util/BitSize.h>
+#include <meta/util/WordSize.h>
 #include <meta/util/BitMask.h>
 
 namespace meta
@@ -15,16 +15,16 @@ namespace meta
     {
         inline static constexpr StorageType getFractional()
         {
-            return ((StorageType)1 << Bit) + FixedPointMaskHelpers<StorageType, Bit - 1>::getFractional();
+            return ((StorageType)1 << Bit)
+                 + FixedPointMaskHelpers<StorageType, Bit - 1>::getFractional();
         }
     };
 
     template <typename StorageType>
     struct FixedPointMaskHelpers<StorageType, 0>
-    {
-        inline static constexpr StorageType getFractional() { return 1; }
-    };
+    { inline static constexpr StorageType getFractional() { return 1; } };
 
+//=============================================================================
     template <typename StorageType, std::size_t PointOffset>
     class FixedPointValue
     {
@@ -32,8 +32,22 @@ namespace meta
         using LocalType = FixedPointValue<StorageType, PointOffset>;
 
     public:
+		static inline constexpr LocalType fromRaw(const StorageType& in)
+		{
+			LocalType out;
+			out.rawValue = in;
+			return out;
+		}
+
         static constexpr StorageType Radix = PointOffset;
 
+		static constexpr LocalType minSigned() 
+		    { return fromRaw(1 << (WordSizeInBits<StorageType>::Value - 1)); }
+
+		static constexpr LocalType maxSigned()
+		    { return fromRaw(BitMask<StorageType, WordSizeInBits<StorageType>::Value - 1>::Right); }
+
+        //=====================================================================
         FixedPointValue() : rawValue(0) {}
         explicit FixedPointValue(int value) : rawValue(value * Scale) {}
         explicit FixedPointValue(std::size_t value) : rawValue(value * Scale) {}
@@ -58,28 +72,17 @@ namespace meta
 
         inline LocalType& operator+=(LocalType other) { rawValue += other.rawValue; return *this; }
 
-        inline constexpr static LocalType fromRaw(const StorageType& in)
-        {
-            LocalType out;
-            out.rawValue = in;
-            return out;
-        }
+        inline constexpr LocalType operator-() const { return fromRaw(rawValue * -1); }
 
         inline constexpr StorageType raw() const { return rawValue; }
 
-        inline constexpr StorageType sign() const
-        { return meta::signof(rawValue); }
-
-        static inline constexpr LocalType minSigned()
-            { return fromRaw(1 << (WordSizeInBits<StorageType>::Value - 1)); }
-
-        static inline constexpr LocalType maxSigned()
-            { return fromRaw(BitMask<StorageType, WordSizeInBits<StorageType>::Value - 1>::Right); }
+        inline constexpr StorageType sign() const { return meta::signof(rawValue); }
 
         inline constexpr StorageType integral() const { return rawValue >> PointOffset; }
 
         inline constexpr StorageType fractional() const
             { return rawValue & FixedPointMaskHelpers<StorageType, PointOffset>::getFractional(); }
+
 
         inline constexpr explicit operator float() const
         {
@@ -87,16 +90,15 @@ namespace meta
                  / static_cast<float>(Scale);
         }
 
+        inline constexpr float toFloat() const  { return static_cast<float>(*this);  }
+
         inline constexpr explicit operator double() const
         {
             return static_cast<double>(rawValue)
                  / static_cast<double>(Scale);
         }
 
-        inline constexpr float toFloat() const { return static_cast<float>(*this); }
         inline constexpr float toDouble() const { return static_cast<double>(*this); }
-
-        inline constexpr LocalType operator-() const { return fromRaw(rawValue * -1); }
 
         template <typename ST, std::size_t S>
         using FPV = FixedPointValue<ST,S>;
@@ -133,6 +135,7 @@ namespace meta
         template <typename T, std::size_t S> friend constexpr bool operator >  (const FPV<T,S>& a, const FPV<T,S>& b);
         template <typename T, std::size_t S> friend constexpr bool operator >= (const FPV<T,S>& a, const FPV<T,S>& b);
 
+        // TODO: implement the logical operators
         friend bool operator <  (const LocalType& a, const StorageType& b);
         friend bool operator <= (const LocalType& a, const StorageType& b);
         friend bool operator >  (const LocalType& a, const StorageType& b);
@@ -150,5 +153,5 @@ namespace meta
 
     private:
         StorageType rawValue;
-    };
+    }; 
 }

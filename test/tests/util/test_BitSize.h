@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <meta/util/BitSize.h>
+#include <meta/util/WordSize.h>
 
 TEST(BitSizeTest, get_bit_size_8)  { ASSERT_EQ(8,  meta::WordSizeInBits<uint8_t>::Value); }
 TEST(BitSizeTest, get_bit_size_16) { ASSERT_EQ(16, meta::WordSizeInBits<uint16_t>::Value); }
