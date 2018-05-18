@@ -307,8 +307,16 @@ namespace meta
     };
 
     //=========================================================================
+	template<typename StorageType, std::size_t PointOffset>
+	constexpr FixedPointValue<StorageType, PointOffset> abs
+	(const FixedPointValue<StorageType, PointOffset>& in)
+	{
+		const auto sign = in.sign();
+		return FixedPointValue<StorageType, PointOffset>(sign > 0 ? in.integral() : (-in).integral());
+	};
+
     template<typename StorageType, std::size_t PointOffset>
-    constexpr FixedPointValue <StorageType, PointOffset> abs
+    constexpr FixedPointValue <StorageType, PointOffset> fabs
     (const FixedPointValue <StorageType, PointOffset>& in)
     {
         const auto sign = in.sign();

@@ -14,6 +14,7 @@ public:
     fp1616_t half = fp1616_t(0.5f);
     fp1616_t one = fp1616_t(1.0);
     fp1616_t two = fp1616_t(2);
+	fp1616_t twoPointFive = fp1616_t(2.5f);
 };
 
 TEST_F(FixedPointMathTest, add_fixed_fixed) { ASSERT_EQ(1.5f, static_cast<float>(half + one)); }
@@ -46,7 +47,14 @@ TEST_F(FixedPointMathTest, div_fixed_fixed) { ASSERT_EQ(0.5f, static_cast<float>
 
 TEST_F(FixedPointMathTest, abs)
 {
-    fp1616_t negTwo(-2);
-    EXPECT_EQ(2.0f, static_cast<float>(meta::abs(two)));
-    EXPECT_EQ(2.0f, static_cast<float>(meta::abs(negTwo)));
+    fp1616_t negTwoPointFive(-2.5f);
+    EXPECT_EQ(2.0f, static_cast<float>(meta::abs(twoPointFive)));
+    EXPECT_EQ(2.0f, static_cast<float>(meta::abs(negTwoPointFive)));
+}
+
+TEST_F(FixedPointMathTest, fabs)
+{
+	fp1616_t negTwoPointFive(-2.5f);
+	EXPECT_EQ(2.5f, static_cast<float>(meta::fabs(twoPointFive)));
+	EXPECT_EQ(2.5f, static_cast<float>(meta::fabs(negTwoPointFive)));
 }

@@ -16,7 +16,7 @@ namespace meta
         inline static constexpr StorageType getFractional()
         {
             return ((StorageType)1 << Bit)
-                 + FixedPointMaskHelpers<StorageType, Bit - 1>::getFractional();
+                 | FixedPointMaskHelpers<StorageType, Bit - 1>::getFractional();
         }
     };
 
