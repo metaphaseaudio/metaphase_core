@@ -23,9 +23,8 @@ namespace meta
     constexpr NumericType limit(NumericType low, NumericType high, NumericType value)
     { return value < low ? low : (high < value ? high : value); }
 
-    template <typename NumericType>
-    NumericType fabs(NumericType a) { return std::fabs(a); }
-
+	 template <typename T> T abs(T i) { return std::abs(i); }
+	template <typename T> T fabs(T i) { return std::fabs(i); }
 
     template <typename NumericType>
     struct Interpolate
@@ -36,8 +35,8 @@ namespace meta
         static constexpr NumericType parabolic
         (NumericType a, NumericType b, NumericType weight, NumericType exponent=2)
         {
-            if (meta::fabs(exponent) < 0.001) { return linear(a, b, weight); }
-            auto ratio = meta::exp(exponent * weight) / meta::exp(exponent);
+            if (fabs(exponent) < 0.001) { return linear(a, b, weight); }
+            auto ratio = (1 - exp(exponent * weight)) / (1 - exp(exponent));
             return a + (b - a) * ratio;
         }
     };
