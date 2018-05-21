@@ -20,7 +20,6 @@ void meta::TestBase::TearDown()
     {
         m_Writer->flush();
         m_Writer.reset(nullptr);
-        if (testFile.exists()) { testFile.deleteFile(); }
     }
 }
 #endif

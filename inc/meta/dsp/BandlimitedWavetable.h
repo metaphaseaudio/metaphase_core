@@ -19,6 +19,41 @@
 
 namespace meta
 {
+
+    /**
+     * Calculates the gain coefficient for an arbitrary partial
+     * @param harmonics the partial number to calculate
+     * @return the gain of that partial in a saw or square wave
+     */
+    template <typename NumericType>
+    static constexpr NumericType getLinearPartialGain
+    (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
+    {
+        gibbsCompAmt = meta::NumericConstants<NumericType>::PI
+                     * gibbsCompAmt
+                     / static_cast<NumericType>(numHarmonics);
+
+        auto gibbsComp = 0.54 + 0.46 * cos((harmonics - 0.5 / 30) * gibbsCompAmt);
+        return (NumericType(1) / NumericType(harmonics)) * gibbsComp;
+    }
+
+    /**
+     * Calculates the gain coefficient for an arbitrary partial
+     * @param harmonics the partial number to calculate
+     * @return the gain of that partial in a saw or square wave
+     */
+    template <typename NumericType>
+    static constexpr NumericType getTrianglePartialGain
+    (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
+    {
+        gibbsCompAmt = meta::NumericConstants<NumericType>::PI
+                       * gibbsCompAmt
+                       / static_cast<NumericType>(numHarmonics);
+
+        const auto gibbsComp = 0.54 + 0.46 * cos((harmonics - 0.5 / 30) * gibbsCompAmt);
+        return (NumericType(1) / NumericType(harmonics)) * gibbsComp;
+    }
+
     template <typename NumericType, size_t TableSize>
     struct BandlimitedWavetable
     {
@@ -78,21 +113,6 @@ namespace meta
 
             return out;
         };
-
-        /**
-         * Calculates the gain coefficient for an arbitrary partial
-         * @param harmonics the partial number to calculate
-         * @return the gain of that partial in a saw or square wave
-         */
-        static NumericType getPartialGain
-                (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 1.0f)
-        {
-            gibbsCompAmt = meta::NumericConstants<NumericType>::PI * gibbsCompAmt
-                           / static_cast<float>(numHarmonics);
-
-            auto gibbsComp = 0.54 + 0.46 * cos ((harmonics - 0.5 / 30) * gibbsCompAmt);
-            return NumericType(1) / NumericType(harmonics);
-        }
 
         /**
          * Make a bandlimited saw wave containing a specific number of
