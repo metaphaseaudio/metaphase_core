@@ -38,6 +38,9 @@ namespace meta
         float processSample(float in) { return z1 = in * a0 + z1 * b1; }
 
     protected:
+        // a0 = input sample gain coefficient
+        // b1 = last sample gain coefficient
+        // z1 = last sample;
         float a0, b1, z1;
     };
 }

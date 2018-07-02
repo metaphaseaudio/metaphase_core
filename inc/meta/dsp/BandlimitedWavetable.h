@@ -21,37 +21,38 @@ namespace meta
 {
 
     /**
-     * Calculates the gain coefficient for an arbitrary partial
-     * @param harmonics the partial number to calculate
+     * Calculates the gain coefficient for an arbitrary partial with a linear amplitude decay
+     * @param harmonic the partial number to calculate
      * @return the gain of that partial in a saw or square wave
      */
     template <typename NumericType>
     static constexpr NumericType getLinearPartialGain
-    (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
+    (size_t harmonic, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
     {
         gibbsCompAmt = meta::NumericConstants<NumericType>::PI
                      * gibbsCompAmt
                      / static_cast<NumericType>(numHarmonics);
 
-        auto gibbsComp = 0.54 + 0.46 * cos((harmonics - 0.5 / 30) * gibbsCompAmt);
-        return (NumericType(1) / NumericType(harmonics)) * gibbsComp;
+        const auto gibbsComp = 0.54 + 0.46 * cos((harmonic - 0.5 / 30) * gibbsCompAmt);
+        return (NumericType(1) / NumericType(harmonic)) * gibbsComp;
     }
 
     /**
      * Calculates the gain coefficient for an arbitrary partial
-     * @param harmonics the partial number to calculate
+     * @param harmonic the partial number to calculate
      * @return the gain of that partial in a saw or square wave
      */
     template <typename NumericType>
     static constexpr NumericType getTrianglePartialGain
-    (size_t harmonics, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
+            (size_t harmonic, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
     {
         gibbsCompAmt = meta::NumericConstants<NumericType>::PI
                        * gibbsCompAmt
                        / static_cast<NumericType>(numHarmonics);
 
-        const auto gibbsComp = 0.54 + 0.46 * cos((harmonics - 0.5 / 30) * gibbsCompAmt);
-        return (NumericType(1) / NumericType(harmonics)) * gibbsComp;
+        const auto gibbsComp = 0.54 + 0.46 * cos((harmonic - 0.5 / 30) * gibbsCompAmt);
+        const auto invert = NumericType((harmonic + 1 % 4) ? 1 : -1);
+        return invert / (NumericType(harmonic) * NumericType(harmonic)) * gibbsComp;
     }
 
     template <typename NumericType, size_t TableSize>
@@ -127,7 +128,7 @@ namespace meta
         (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 1.0f)
         {
             std::array<NumericType, TableSize> out{0};
-            gibbsCompAmt = meta::NumericConstants<NumericType>().PI * gibbsCompAmt
+            gibbsCompAmt =  meta::NumericConstants<NumericType>::PI * gibbsCompAmt
                          / static_cast<float>(numHarmonics);
 
             for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic++)
