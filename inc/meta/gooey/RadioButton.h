@@ -31,6 +31,7 @@ namespace meta
                 m_Btns.at(i).addListener(this);
                 addAndMakeVisible(m_Btns.at(i));
             }
+            m_Btns.at(0).setToggleState(true, juce::dontSendNotification);
         }
 
         void setOrientation(const Orientation& orientation)
@@ -63,10 +64,10 @@ namespace meta
             {
                 auto& btn = m_Btns.at(i);
                 if (&btn == clicked) { m_Selection = i; }
-                btn.setToggleState(false, juce::NotificationType::dontSendNotification);
+                btn.setToggleState(false, juce::dontSendNotification);
             }
 
-            clicked->setToggleState(true, juce::NotificationType::dontSendNotification);
+            clicked->setToggleState(true, juce::dontSendNotification);
             sendChangeMessage();
         }
 
