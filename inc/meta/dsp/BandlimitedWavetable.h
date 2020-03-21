@@ -19,7 +19,6 @@
 
 namespace meta
 {
-
     /**
      * Calculates the gain coefficient for an arbitrary partial with a linear amplitude decay
      * @param harmonic the partial number to calculate
@@ -40,7 +39,7 @@ namespace meta
     /**
      * Calculates the gain coefficient for an arbitrary partial
      * @param harmonic the partial number to calculate
-     * @return the gain of that partial in a saw or square wave
+     * @return the gain of that partial in a triangle wave
      */
     template <typename NumericType>
     static constexpr NumericType getTrianglePartialGain
@@ -87,6 +86,25 @@ namespace meta
 
             const int partial;
             const NumericType gain;
+        };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+         * Make a bandlimited square wave containing a specific number of
+         * partials. Contains only odd harmonics.
+         *
+         * @param numHarmonics - the number of partials to be used in the wave
+         * @param gibbsCompAmt - smooths the waveform to eliminate overshoot.
+         *                       requires a value between 0 and 1;
+         * @return an array containing the wavetable
+         */
+        static constexpr std::array<NumericType, TableSize> makeSin()
+        {
+            std::array<NumericType, TableSize> out{0};
+            Partial part(1, 1);
+            part.addToTable(out);
+            return out;
         };
 
         /**
