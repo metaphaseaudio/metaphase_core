@@ -23,7 +23,7 @@ namespace meta
     constexpr NumericType limit(NumericType low, NumericType high, NumericType value)
     { return value < low ? low : (high < value ? high : value); }
 
-	 template <typename T> T abs(T i) { return std::abs(i); }
+	template <typename T> T abs(T i) { return std::abs(i); }
 	template <typename T> T fabs(T i) { return std::fabs(i); }
 
     template <typename NumericType>
@@ -40,4 +40,9 @@ namespace meta
             return a + (b - a) * ratio;
         }
     };
+
+	template <typename NumericType>
+	constexpr NumericType power(NumericType base, size_t exponent)
+	{ return exponent == 0 ? 1 : base * power(base, exponent - 1);}
+
 }
