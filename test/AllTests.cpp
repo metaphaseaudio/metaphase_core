@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "test/tests/util/test_math.h"
-#include "test/tests/util/test_vector_math.h"
+#include "test/tests/util/test_simd_ops.h"
 #include "test/tests/util/test_BitSize.h"
 #include "test/tests/util/test_BitMask.h"
 #include "test/tests/util/test_FixedPoint.h"

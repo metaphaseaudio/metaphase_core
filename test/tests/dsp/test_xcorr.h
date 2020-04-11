@@ -6,78 +6,75 @@
 #include <algorithm>
 #include <JuceHeader.h>
 #include <meta/dsp/xcorr.h>
+#include <meta/util/simd_ops.h>
 #include <meta/util/container_helpers/vector.h>
 
-
-
-TEST(CrossCorrelationTest, xcorr_5_samps)
+template <typename T>
+T calculate_normalization_denominator(const T* x, size_t xn, const T* y, size_t yn)
 {
-	std::vector<float> x{ 1, 0, 0, 0, 0 };
-	std::vector<float> y{ 1, 2, 3, 4, 5 };
-	std::vector<float> test{ 0, 0, 0, 0, 1, 2, 3, 4, 5 };
-	auto xcorr = meta::xcorr(x, y);
-	EXPECT_EQ(xcorr, test);
+	meta::simd<T>::pow(tmp_data, x, xn, 2);
+	auto sum_x = meta::simd<T>::accumulate(tmp_data, x.getNumSamples());
+
+	meta::simd<T>::pow(tmp_data, y_data, y.getNumSamples(), 2);
+	auto sum_y = meta::simd<T>::accumulate(tmp_data, y.getNumSamples());
+
+	return std::sqrt(sum_x * sum_y);
 }
 
-
-TEST(CrossCorrelationTest, xcorr_lenth_mismatch_2_to_5)
+template <typename T>
+T calculate_normalization_denominator(const juce::AudioBuffer<T> x, const juce::AudioBuffer<T>& y)
 {
-	juce::dsp::ProcessSpec spec = {1, 100, 1};
-	float refarr[] = { 1, 0, 0 };
-	float caparr[] = { 0, 0, 1, 2, .5, 0, 0 };
-	float power[20];
-	float* refp = refarr;
-	float* capp = caparr;
-	auto sizeref = sizeof(refarr) / sizeof(float);
-	auto sizecap = sizeof(caparr) / sizeof(float);
+	juce::AudioBuffer<float> tmp(1, x.getNumSamples() + y.getNumSamples());
+	auto tmp_data = tmp.getArrayOfWritePointers()[0];
 
-	juce::AudioBuffer<float> ref(&refp , 1, sizeref);
-	juce::AudioBuffer<float> cap(&capp, 1, sizecap);
-	juce::AudioBuffer<float> outb(1, sizeref + sizecap - 1);
-	juce::dsp::AudioBlock<float> in_block(cap);
-	juce::dsp::AudioBlock<float> out_block(outb);
+	const T* x_data = x.getArrayOfReadPointers()[0];
+	meta::simd<T>::pow(tmp_data, x_data, x.getNumSamples(), 2);
+	auto sum_x = meta::simd<T>::accumulate(tmp_data, x.getNumSamples());
 
-	juce::dsp::ProcessContextNonReplacing<float> context(in_block, out_block);
+	const T* y_data = y.getArrayOfReadPointers()[0];
+	meta::simd<T>::pow(tmp_data, y_data, y.getNumSamples(), 2);
+	auto sum_y = meta::simd<T>::accumulate(tmp_data, y.getNumSamples());
 
-	juce::FloatVectorOperations::multiply(capp, capp, sizecap);
+	return std::sqrt(sum_x * sum_y);
+}
 
-
+template <typename T>
+void xcorr_impulse(juce::AudioBuffer<T>& dst, juce::AudioBuffer<T>& cap, const juce::AudioBuffer<T>& ref)
+{
+	juce::dsp::ProcessSpec spec = { 1, std::max(cap.getNumSamples(), ref.getNumSamples()) * 2, 1 };
 	juce::dsp::Convolution conv;
 	conv.prepare(spec);
 
-	ref.reverse(0, ref.getNumSamples());
-	conv.copyAndLoadImpulseResponseFromBuffer(ref, 1, false, false, false, sizeref);
+	juce::AudioBuffer<float> ref_cp(ref);
+	ref_cp.reverse(0, ref_cp.getNumSamples());
+	conv.copyAndLoadImpulseResponseFromBuffer(ref_cp, 1, false, false, false, ref.getNumSamples());
+
+    // Convolve
+	juce::dsp::AudioBlock<float> in_block(cap);
+	juce::dsp::AudioBlock<float> out_block(dst);
+	juce::dsp::ProcessContextNonReplacing<float> context(in_block, out_block);
 	conv.process(context);
+
+	// Normalize
+	auto denom = calculate_normalization_denominator(ref, cap);
+	meta::simd<float>::div(dst.getArrayOfWritePointers()[0], denom, dst.getNumSamples());
+
+	// Slice
 }
 
-
-template<typename T>
-std::vector<T>
-conv(std::vector<T> const &f, std::vector<T> const &g) {
-	int const nf = f.size();
-	int const ng = g.size();
-	int const n = nf + ng - 1;
-	std::vector<T> out(n, T());
-	for (auto i(0); i < n; ++i) {
-		int const jmn = (i >= ng - 1) ? i - (ng - 1) : 0;
-		int const jmx = (i < nf - 1) ? i : nf - 1;
-		for (auto j(jmn); j <= jmx; ++j) {
-			out[i] += (f[j] * g[i - j]);
-		}
-	}
-	return out;
-}
-
-
-TEST(VectorConvolution, vector_convolution)
+TEST(CrossCorrelationTest, xcorr_lenth_mismatch_2_to_5)
 {
-	std::vector<float> ref{ 1, 0, 0 };
-	std::vector<float> cap{ 0, 0, 0, 1, 0, 5, 0 };
-	std::reverse(ref.begin(), ref.end());
-	auto out = conv(cap, ref);	
-	auto impulse = std::get<1>(meta::split(out, ref.size() - 1));
-	auto reconvolved = conv(ref, impulse);
-	auto trimmed = std::get<1>(meta::split(reconvolved, ref.size()));
+	std::array<float, 3> refarr = { 1, 0, 0 };
+	std::array<float, 7> caparr = { 0, 0, 1, 0, .5, 0, 0 };
+	std::array<float, 20> tmp;
+	float* refp = refarr.data();
+	float* capp = caparr.data();
+	auto sizeref = sizeof(refarr) / sizeof(float);
+	auto sizecap = sizeof(caparr) / sizeof(float);
+	juce::AudioBuffer<float> ref(&refp , 1, refarr.size());
+	juce::AudioBuffer<float> cap(&capp, 1, caparr.size());
+	juce::AudioBuffer<float> out(1, sizeref + sizecap - 1);
 
-	ASSERT_EQ(reconvolved, trimmed);
+	xcorr_impulse(out, cap, ref);
 }
+
