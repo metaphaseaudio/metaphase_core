@@ -23,13 +23,9 @@ namespace meta
 				concat_array(std::get<0>(last_sequence), std::get<1>(last_sequence)),
 				concat_array(std::get<0>(last_sequence), negate_array(std::get<1>(last_sequence))));
 		}
-	
-		static constexpr complementary_sequence<power(2, N)> generate()
-		{ 
-			return extend_sequence(Golay<N - 1>::generate());
-		}
-		
+				
 		static constexpr size_t size = static_power<2, N>::value;
+		static constexpr complementary_sequence<size> value = extend_sequence(Golay<N - 1>::value);		
 	};	
 
 	template <>
@@ -39,5 +35,6 @@ namespace meta
 		{ return std::make_tuple(std::array<int, 1>{ 1 }, std::array<int, 1>{ 1 }); }
 
         static constexpr size_t size = 1;
+		static constexpr complementary_sequence<size> value = std::make_tuple(std::array<int, 1>{ 1 }, std::array<int, 1>{ 1 });
 	};
 }

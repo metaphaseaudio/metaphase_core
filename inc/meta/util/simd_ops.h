@@ -6,7 +6,6 @@
 #include <stdint.h>
 
 
-
 namespace meta
 {	
 	struct SIMDOps32
@@ -25,7 +24,7 @@ namespace meta
 
 		static forcedinline ParallelType mul(ParallelType a, ParallelType b) noexcept { return _mm_mul_ps(a, b); }
 		static forcedinline ParallelType div(ParallelType a, ParallelType b) noexcept { return _mm_div_ps(a, b); }
-		static forcedinline ParallelType hadd(ParallelType a, ParallelType b) noexcept { return _mm_add_ps(a, b); }
+		static forcedinline ParallelType hadd(ParallelType a, ParallelType b) noexcept { return _mm_hadd_ps(a, b); }
 
 		static forcedinline ParallelType cmpeq(ParallelType a, ParallelType b)  noexcept { return _mm_cmpeq_ps(a, b); }
 		static forcedinline int movemask(ParallelType a) noexcept { return _mm_movemask_ps(a); }
