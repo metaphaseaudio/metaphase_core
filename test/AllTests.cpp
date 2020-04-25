@@ -12,9 +12,8 @@
 #include "test/tests/util/test_FixedPointMath.h"
 #include "test/tests/util/container_helpers/test_Vector.h"
 #include "test/tests/util/container_helpers/test_Array.h"
-#include "test/tests/generators/test_Golay.h"
+#include "test/tests/generators/test_complementary_sequence.h"
 #include "test/tests/dsp/test_WavetableOscillator.h"
-#include "test/tests/dsp/test_xcorr.h"
 #include "test/tests/generators/test_LinearRamp.h"
 
 

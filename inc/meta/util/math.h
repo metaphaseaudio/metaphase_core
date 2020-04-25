@@ -8,6 +8,10 @@
 
 namespace meta
 {
+    template <typename Type, Type Value>
+    struct static_negate { static constexpr Type value = -Value; };
+
+
     template <typename NumericType>
     NumericType wrap(NumericType x, NumericType lower, NumericType upper)
     {
@@ -45,4 +49,10 @@ namespace meta
 	constexpr NumericType power(NumericType base, size_t exponent)
 	{ return exponent == 0 ? 1 : base * power(base, exponent - 1);}
 
+	template <size_t base, size_t exponent>
+	struct static_power {
+	    static constexpr size_t value = base * static_power<base, exponent - 1>::value;
+	};
+
+    template <size_t base> struct static_power<base, 0> { static constexpr size_t value = 1; };
 }

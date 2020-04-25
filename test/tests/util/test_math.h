@@ -15,3 +15,14 @@ TEST(MetaMath, power)
 {
 	ASSERT_EQ(meta::power(2, 2), 4);
 }
+
+
+TEST(MetaMath, static_power)
+{
+    ASSERT_EQ((meta::static_power<2, 2>::value), 4);
+}
+
+TEST(MetaMath, static_negate)
+{
+    ASSERT_EQ((meta::static_negate<int, 2>::value), -2);
+}

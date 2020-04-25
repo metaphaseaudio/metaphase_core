@@ -25,7 +25,7 @@ namespace meta
 
 		static forcedinline ParallelType mul(ParallelType a, ParallelType b) noexcept { return _mm_mul_ps(a, b); }
 		static forcedinline ParallelType div(ParallelType a, ParallelType b) noexcept { return _mm_div_ps(a, b); }
-		static forcedinline ParallelType hadd(ParallelType a, ParallelType b) noexcept { return _mm_hadd_ps(a, b); }
+		static forcedinline ParallelType hadd(ParallelType a, ParallelType b) noexcept { return _mm_add_ps(a, b); }
 
 		static forcedinline ParallelType cmpeq(ParallelType a, ParallelType b)  noexcept { return _mm_cmpeq_ps(a, b); }
 		static forcedinline int movemask(ParallelType a) noexcept { return _mm_movemask_ps(a); }
@@ -50,18 +50,19 @@ namespace meta
 	};
 
 
-	template<int typeSize> struct ModeType    { using Mode = SIMDOps32; };
-	template<>             struct ModeType<8> { using Mode = SIMDOps64; };
 
-
-	
 	template <typename T>
 	struct simd
 	{
-		
-		inline static bool isAligned(const void* p) noexcept { return (((std::int64_t)p) & 15) == 0; }		
+        template<int typeSize> struct ModeType    { using Mode = SIMDOps32; };
+        template<>             struct ModeType<8> { using Mode = SIMDOps64; };
 
+        inline static bool isAligned(const void* p) noexcept { return (((std::int64_t)p) & 15) == 0; }
 		inline static void inc_ptr(T*& ptr) noexcept { ptr += (16 / sizeof(*dest)); }
+
+//		inline static std::function<ModeType<sizeof(T*)>::Mode::ParallelType>
+//        getLoadFunction(T* x)
+//        { return (isAligned(dst)) ? Mode::load_aligned : Mode::load_unaligned; }
 
 		template <typename Op, typename VOp>
 		inline static void do_op_src_const(const Op& op, const VOp& vop, T* dst, const T& src, long n)
@@ -181,18 +182,18 @@ namespace meta
 			const int nSIMDOps = n / Mode::numParallel;
 
 			T tmp[4] = { 0, 0, 0, 0 };
-			const auto srcaLoad = (isAligned(src)) ? Mode::load_aligned : Mode::load_unaligned;
-			const auto srcbLoad = (isAligned(tmp)) ? Mode::load_aligned : Mode::load_unaligned;
+			const auto srcLoad = (isAligned(src)) ? Mode::load_aligned : Mode::load_unaligned;
 			const auto tmpStore = (isAligned(tmp)) ? Mode::store_aligned : Mode::store_unaligned;
 
+			Mode::ParallelType running_sum = Mode::load_one(0);
 			for (int i = 0; i < nSIMDOps; i++)
 			{
-				const Mode::ParallelType sa = srcaLoad(tmp);
-				const Mode::ParallelType sb = srcbLoad(src);
-				tmpStore(tmp, Mode::hadd(sa, sb));
+				const Mode::ParallelType s = srcLoad(src);
+				running_sum = Mode::hadd(running_sum, s);
 				src += (16 / sizeof(*src));
 			}
 
+			tmpStore(tmp, running_sum);
 			n &= (Mode::numParallel - 1);
 			T sum = tmp[0] + tmp[1] + tmp[2] + tmp[3];
 
