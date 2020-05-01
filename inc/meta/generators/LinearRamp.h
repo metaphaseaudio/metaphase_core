@@ -6,18 +6,19 @@
 
 namespace meta 
 {
+    template <typename NumericType>
 	class LinearRamp
 	{
 	public:
-		LinearRamp(size_t start = 0, size_t end = 1, size_t ticks = 0)
+		LinearRamp(NumericType start = 0, NumericType end = 1, size_t ticks = 0)
 			: m_Start(start)
 			, m_End(end)
 			, m_Ticks(ticks)
 			, m_Remaining(ticks)
 		{};
 
-		void setStart(size_t start) { m_Start = start; };
-		void setEnd(size_t end) { m_End = end; };
+		void setStart(NumericType start) { m_Start = start; };
+		void setEnd(NumericType end) { m_End = end; };
 		void setTicks(size_t ticks)
 		{
 			m_Ticks = ticks; 
@@ -26,7 +27,7 @@ namespace meta
 
 		void reset() { m_Remaining = m_Ticks; }
 
-		float tick() 
+        virtual float tick()
 		{
 			if (m_Remaining > 0 && m_Ticks > 0) 
 			{ 
@@ -40,8 +41,8 @@ namespace meta
 		float getProgress() { return 1.0f - (float(m_Remaining) / float(m_Ticks)); }
 
 	private:
-		size_t m_Start;
-		size_t m_End;
+		NumericType m_Start;
+		NumericType m_End;
 		size_t m_Ticks;
 		size_t m_Remaining;
 	};

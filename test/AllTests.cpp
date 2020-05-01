@@ -15,6 +15,7 @@
 #include "test/tests/generators/test_complementary_sequence.h"
 #include "test/tests/dsp/test_WavetableOscillator.h"
 #include "test/tests/generators/test_LinearRamp.h"
+#include "test/tests/generators/test_SineSweep.h"
 
 
 int main(int argc, char **argv)

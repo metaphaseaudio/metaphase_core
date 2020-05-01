@@ -53,7 +53,7 @@ namespace meta
             }
         }
 
-        virtual void gridButtonClicked(juce::Button*) = 0;
+        virtual void gridButtonClicked(juce::Button*) {};
 
     protected:
         virtual void buttonClicked(juce::Button* btn) override

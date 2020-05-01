@@ -22,7 +22,7 @@ public:
 		meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f));
 	}
 
-	meta::LinearRamp m_Ramp;
+	meta::LinearRamp<float> m_Ramp;
 };
 
 
