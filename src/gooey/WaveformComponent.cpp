@@ -4,10 +4,9 @@
 #include <meta/gooey/WaveformComponent.h>
 
 
-meta::WaveformComponent::WaveformComponent
-(juce::AudioFormatManager& mgr, size_t cacheSize, size_t sampsPerPixel)
+meta::WaveformComponent::WaveformComponent(size_t cacheSize, size_t sampsPerPixel)
     : m_ThumbCache(cacheSize)
-    , m_Thumbnail(sampsPerPixel, mgr, m_ThumbCache)
+    , m_Thumbnail(sampsPerPixel, m_DummyManager, m_ThumbCache)
 {}
 
 
@@ -17,6 +16,7 @@ void meta::WaveformComponent::paint(juce::Graphics& g)
     g.setColour(juce::Colours::lightgrey);
     g.fillRect(bounds);
     const auto len = m_Thumbnail.getTotalLength();
+    g.setColour(juce::Colours::black);
     m_Thumbnail.drawChannels(g, bounds.reduced(5), 0, len, 1.0);
 }
 

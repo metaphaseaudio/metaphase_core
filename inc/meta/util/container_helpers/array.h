@@ -22,12 +22,6 @@ namespace meta
 	{
 	    return std::array<T, N>({ -x[Is]... });
 	}
-//
-//    template <size_t N, size_t... Is>
-//    constexpr std::array<char, N> negate_array_impl(const std::array<char, N>& x, const std::index_sequence<Is...>)
-//    {
-//        return { -x[Is]... };
-//    }
 
 
     template <typename T, size_t N, typename Is = std::make_index_sequence<N>>
