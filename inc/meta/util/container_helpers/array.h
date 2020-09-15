@@ -19,11 +19,21 @@ namespace meta
 
 	template <typename T, size_t N, size_t... Is>
 	constexpr std::array<T, N> negate_array_impl(const std::array<T, N>& x, const std::index_sequence<Is...>)
-	{
-	    return std::array<T, N>({ -x[Is]... });
-	}
+	{ return std::array<T, N>({ -x[Is]... }); }
 
 
     template <typename T, size_t N, typename Is = std::make_index_sequence<N>>
-	constexpr std::array<T, N> negate_array(const std::array<T, N>& x) { return negate_array_impl<T, N>(x, Is{}); }
+	constexpr std::array<T, N> negate_array(const std::array<T, N>& x)
+	{ return negate_array_impl<T, N>(x, Is{}); }
+
+
+
+    template <typename T, std::size_t N, size_t... Is, typename... Args>
+    constexpr std::array<T, N> make_initialized_array_impl(const std::index_sequence<Is...>&, Args&&... args)
+    { return std::array<T, N>{ ((void)Is, T{args...})... }; }
+
+
+    template <typename T, std::size_t N, typename... Args>
+    constexpr std::array<T, N> make_initialized_array(Args&&... args)
+    { return make_initialized_array_impl<T, N>(std::make_index_sequence<N>{}, args...); }
 }

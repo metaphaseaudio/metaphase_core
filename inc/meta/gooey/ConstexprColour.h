@@ -7,23 +7,10 @@
 
 namespace meta
 {
-    class ConstexprColour
+    template <uint8_t R, uint8_t G, uint8_t B, uint8_t A>
+    class ColourType
     {
     public:
-        constexpr ConstexprColour(uint8_t rin, uint8_t gin, uint8_t bin, uint8_t ain)
-            : r(rin), g(gin), b(bin), a(ain)
-        {};
-
-        constexpr ConstexprColour(const juce::Colour& c)
-            : r(c.getRed())
-            , g(c.getGreen())
-            , b(c.getBlue())
-            , a(c.getAlpha())
-        {}
-
-        juce::Colour operator()() const { return juce::Colour(r,g,b,a); }
-
-    private:
-        uint8_t r,g,b,a;
+        juce::Colour operator()() const { return juce::Colour(R,G,B,A); }
     };
 }
