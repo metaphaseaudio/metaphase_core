@@ -9,7 +9,7 @@
 
 namespace meta
 {
-    template <typename ComponentType, size_t ROWS, size_t COLS>
+    template <typename ComponentType, size_t ROWS, size_t COLS, size_t MARGIN=5>
     class ComponentGrid
         : public juce::Component
     {
@@ -28,21 +28,19 @@ namespace meta
 
         void resized() override
         {
-            const auto sequencerBounds = getLocalBounds().reduced(2);
-            const float margin = 5;
-
-            const auto height = (getHeight() / static_cast<float>(ROWS)) - margin;
-            const auto width = (getWidth() / static_cast<float>(COLS)) - margin;
+            const auto bounds = getLocalBounds();
+            const auto height = (getHeight() - (MARGIN * (ROWS - 1))) / static_cast<float>(ROWS);
+            const auto width = (getHeight() - (MARGIN * (COLS - 1))) / static_cast<float>(COLS);
             const juce::Rectangle<float> btnDimensions(width, height);
 
             for (int row = 0; row < ROWS; row++)
             {
                 const auto firstID = COLS * row;
-                const auto rowTop = ((row + 1) * margin) + (row * height);
+                const auto rowTop = (row * MARGIN) + (row * height);
 
                 for (int col = 0; col < COLS; col++)
                 {
-                    const auto colLeft = ((col + 1) * margin) + (col * width);
+                    const auto colLeft = (col * MARGIN) + (col * width);
                     const auto childID = firstID + col;
                     auto& child = m_Children.at(childID);
                     child->Component::setBounds(btnDimensions.toNearestInt());

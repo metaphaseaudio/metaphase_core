@@ -7,9 +7,9 @@
 
 namespace meta
 {
-    template <typename ButtonType, size_t ROWS, size_t COLS>
+    template <typename ButtonType, size_t ROWS, size_t COLS, size_t MARGIN=5>
     class RadioGrid
-        : public ButtonGrid<ButtonType, ROWS, COLS>
+        : public ButtonGrid<ButtonType, ROWS, COLS, MARGIN>
     {
     public:
         RadioGrid() { this->m_Children.at(0)->setToggleState(true, juce::dontSendNotification); }

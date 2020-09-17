@@ -9,9 +9,9 @@
 
 namespace meta
 {
-    template <typename ButtonType, size_t ROWS, size_t COLS>
+    template <typename ButtonType, size_t ROWS, size_t COLS, size_t MARGIN=5>
     class ButtonGrid
-        : public ComponentGrid<ButtonType, ROWS, COLS>
+        : public ComponentGrid<ButtonType, ROWS, COLS, MARGIN>
         , public juce::ChangeBroadcaster
         , juce::Button::Listener
     {
