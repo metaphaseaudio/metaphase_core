@@ -14,7 +14,8 @@ namespace meta
     {
     public:
         explicit TimedParameterListener(juce::AudioProcessorParameter& param)
-            : r_Parameter (param)
+            : m_value_changed(true)
+            , r_Parameter(param)
         {
             r_Parameter.addListener (this);
             startTimer (100);
@@ -28,25 +29,13 @@ namespace meta
 
     private:
         //==============================================================================
-        void parameterValueChanged (int, float) override { parameterValueHasChanged = true; }
+        void parameterValueChanged (int, float) override { m_value_changed = true; }
         void parameterGestureChanged (int, bool) override {}
 
         //==============================================================================
-        void timerCallback() override
-        {
-            if (parameterValueHasChanged)
-            {
-                handleNewParameterValue();
-                startTimerHz(50);
-            }
-            else
-            {
-                // backoff refresh
-                startTimer(std::min(250, getTimerInterval() + 10));
-            }
-        }
+        void timerCallback() override;
 
-        std::atomic_bool parameterValueHasChanged;
+        std::atomic<bool> m_value_changed;
         juce::AudioProcessorParameter& r_Parameter;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TimedParameterListener)
     };
