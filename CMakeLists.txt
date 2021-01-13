@@ -35,7 +35,7 @@ include_directories(${META_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/inc/ )
 
 target_include_directories(metaphase_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 
-target_link_libraries(metaphase_core juce ${META_SHARED_LIBS})
+target_link_libraries(metaphase_core juce::juce_audio_utils ${META_SHARED_LIBS})
 
 # this is a required compiler flag for any project that may be build into a
 # shared library or DLL.

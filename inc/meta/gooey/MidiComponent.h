@@ -2,7 +2,8 @@
 // Created by Matt on 9/12/2020.
 //
 #pragma once
-#include <JuceHeader.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_basics/juce_audio_basics.h>
 #include <meta/midi/MidiState.h>
 
 

@@ -4,7 +4,7 @@
 
 #pragma once
 #include <mutex>
-#include <JuceHeader.h>
+#include <juce_audio_basics/juce_audio_basics.h>
 
 
 namespace meta

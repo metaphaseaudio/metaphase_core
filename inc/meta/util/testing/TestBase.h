@@ -5,7 +5,7 @@
 
 #ifdef META_BUILD_TESTS
 #include <gtest/gtest.h>
-#include <JuceHeader.h>
+#include <juce_audio_formats/juce_audio_formats.h>
 
 namespace meta
 {
