@@ -27,6 +27,9 @@ namespace meta
 
         virtual void handleNewParameterValue() = 0;
 
+    protected:
+        juce::AudioProcessorParameter& r_Parameter;
+
     private:
         //==============================================================================
         void parameterValueChanged (int, float) override { m_value_changed = true; }
@@ -36,7 +39,6 @@ namespace meta
         void timerCallback() override;
 
         std::atomic<bool> m_value_changed;
-        juce::AudioProcessorParameter& r_Parameter;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TimedParameterListener)
     };
 }
