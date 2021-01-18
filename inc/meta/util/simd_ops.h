@@ -2,7 +2,8 @@
 // created by mzapp 4/2/2020
 //
 #pragma once
-#include <JuceHeader.h>
+
+#include <juce_dsp/juce_dsp.h>
 #include <stdint.h>
 
 

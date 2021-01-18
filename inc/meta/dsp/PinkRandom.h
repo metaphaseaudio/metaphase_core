@@ -5,19 +5,17 @@
 //   at http://www.musicdsp.org/files/pink.txt.
 //
 #pragma once
-#include <JuceHeader.h>
-
+#include <random>
 
 namespace meta
 {
     class PinkRandom
     {
     public:
-        PinkRandom() { m_Rand.setSeedRandomly(); }
 
         double tick() noexcept
         {
-            const auto white = (m_Rand.nextDouble() * 2.0) - 1.0;
+            const auto white = double(rand()) / std::minstd_rand::max()
             b0 = 0.99886 * b0 + white * 0.0555179;
             b1 = 0.99332 * b1 + white * 0.0750759;
             b2 = 0.96900 * b2 + white * 0.1538520;
@@ -33,7 +31,7 @@ namespace meta
         }
 
     private:
-        juce::Random m_Rand;
+        std::minstd_rand rand;
         double b0 = 0.0;
         double b1 = 0.0;
         double b2 = 0.0;

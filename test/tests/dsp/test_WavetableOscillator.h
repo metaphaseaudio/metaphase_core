@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <JuceHeader.h>
+
 #include <meta/util/testing/TestBase.h>
 #include <meta/util/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>

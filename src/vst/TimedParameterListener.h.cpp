@@ -7,10 +7,8 @@
 void meta::TimedParameterListener::timerCallback()
 {
     auto t = true;
-    if (m_value_changed.compare_exchange_strong(t, false, std::memory_order_release, std::memory_order_relaxed))
+    if (m_value_changed.compare_exchange_weak(t, false, std::memory_order_release, std::memory_order_relaxed))
     {
-        auto b = m_value_changed.load();
-        std::cout << b;
         handleNewParameterValue();
         startTimerHz(50);
     }

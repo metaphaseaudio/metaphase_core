@@ -2,7 +2,7 @@
 // Created by Matt on 8/1/2020.
 //
 #pragma once
-#include <JuceHeader.h>
+#include <juce_dsp/juce_dsp.h>
 
 namespace meta
 {
