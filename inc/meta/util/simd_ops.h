@@ -58,7 +58,7 @@ namespace meta
         template<>             struct ModeType<8> { using Mode = SIMDOps64; };
 
         inline static bool isAligned(const void* p) noexcept { return (((std::int64_t)p) & 15) == 0; }
-		inline static void inc_ptr(T*& ptr) noexcept { ptr += (16 / sizeof(*dest)); }
+		inline static void inc_ptr(T*& ptr) noexcept { ptr += (16 / sizeof(ptr)); }
 
 //		inline static std::function<ModeType<sizeof(T*)>::Mode::ParallelType>
 //        getLoadFunction(T* x)
