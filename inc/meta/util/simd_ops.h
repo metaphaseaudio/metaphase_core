@@ -67,16 +67,16 @@ namespace meta
 		template <typename Op, typename VOp>
 		inline static void do_op_src_const(const Op& op, const VOp& vop, T* dst, const T& src, long n)
 		{
-			using Mode = ModeType<sizeof(*dst)>::Mode;
+			using Mode = typename ModeType<sizeof(*dst)>::Mode;
 			const int nSIMDOps = n / Mode::numParallel;
 
 			const auto dstLoad = (isAligned(dst)) ? Mode::load_aligned : Mode::load_unaligned;
 			const auto dstStore = (isAligned(dst)) ? Mode::store_aligned : Mode::store_unaligned;
-			const Mode::ParallelType s = Mode::load_one(src);
+			const typename Mode::ParallelType s = Mode::load_one(src);
 
 			for (int i = 0; i < nSIMDOps; i++)
 			{				
-				const Mode::ParallelType d = dstLoad(dst);
+				const typename Mode::ParallelType d = dstLoad(dst);
 				dstStore(dst, vop(d, s));
 				dst += (16 / sizeof(*dst));
 			}
@@ -90,7 +90,7 @@ namespace meta
 		template <typename Op, typename VOp>
 		inline static void do_op_src_dst(const Op& op, const VOp& vop, T* dst, const T* src, long n)
 		{
-			using Mode = ModeType<sizeof(*dst)>::Mode;
+			using Mode = typename ModeType<sizeof(*dst)>::Mode;
 			const int nSIMDOps = n / Mode::numParallel;
 
 			const auto srcLoad  = (isAligned(src)) ? Mode::load_aligned : Mode::load_unaligned;
@@ -99,8 +99,8 @@ namespace meta
 
 			for (int i = 0; i < nSIMDOps; i++)
 			{
-				const Mode::ParallelType s = srcLoad(src);
-				const Mode::ParallelType d = dstLoad(dst);
+				const typename Mode::ParallelType s = srcLoad(src);
+				const typename Mode::ParallelType d = dstLoad(dst);
 				dstStore(dst, vop(d, s));
 				dst += (16 / sizeof(*dst)); src += (16 / sizeof(*dst));
 			}
@@ -114,7 +114,7 @@ namespace meta
 		template <typename Op, typename VOp>
 		inline static void do_op_src_src_dst(const Op& op, const VOp& vop, T* dst, const T* srca, const T* srcb, long n)
 		{
-			using Mode = ModeType<sizeof(*dst)>::Mode;
+			using Mode = typename ModeType<sizeof(*dst)>::Mode;
 			const int nSIMDOps = n / Mode::numParallel;
 
 			const auto srcaLoad = (isAligned(srca)) ? Mode::load_aligned : Mode::load_unaligned;
@@ -123,8 +123,8 @@ namespace meta
 
 			for (int i = 0; i < nSIMDOps; i++)
 			{
-				const Mode::ParallelType sa = srcaLoad(srca);
-				const Mode::ParallelType sb = srcbLoad(srcb);
+				const typename Mode::ParallelType sa = srcaLoad(srca);
+				const typename Mode::ParallelType sb = srcbLoad(srcb);
 				dstStore(dst, vop(sa, sb));
 				dst += (16 / sizeof(*dst)); srca += (16 / sizeof(*dst)); srcb += (16 / sizeof(*dst));
 			}
@@ -154,7 +154,7 @@ namespace meta
 
 		inline static bool eq(const T* srca, const T* srcb, long n)
 		{
-			using Mode = ModeType<sizeof(*srca)>::Mode;
+			using Mode = typename ModeType<sizeof(*srca)>::Mode;
 			const int nSIMDOps = n / Mode::numParallel;
 
 			const auto srcaLoad = (isAligned(srca)) ? Mode::load_aligned : Mode::load_unaligned;
@@ -162,8 +162,8 @@ namespace meta
 			
 			for (int i = 0; i < nSIMDOps; i++)
 			{
-				const Mode::ParallelType sa = srcaLoad(srca);
-				const Mode::ParallelType sb = srcbLoad(srcb);
+				const typename Mode::ParallelType sa = srcaLoad(srca);
+				const typename Mode::ParallelType sb = srcbLoad(srcb);
 				const auto mask = Mode::movemask(Mode::cmpeq(sa, sb));
 				if (mask != 0xF) { return false; }
 				srca += (16 / sizeof(*srca)); srcb += (16 / sizeof(*srcb));
@@ -178,17 +178,17 @@ namespace meta
 
 		inline static T accumulate(const T* src, long n)
 		{
-			using Mode = ModeType<sizeof(*src)>::Mode;
+			using Mode = typename ModeType<sizeof(*src)>::Mode;
 			const int nSIMDOps = n / Mode::numParallel;
 
 			T tmp[4] = { 0, 0, 0, 0 };
 			const auto srcLoad = (isAligned(src)) ? Mode::load_aligned : Mode::load_unaligned;
 			const auto tmpStore = (isAligned(tmp)) ? Mode::store_aligned : Mode::store_unaligned;
 
-			Mode::ParallelType running_sum = Mode::load_one(0);
+			typename Mode::ParallelType running_sum = Mode::load_one(0);
 			for (int i = 0; i < nSIMDOps; i++)
 			{
-				const Mode::ParallelType s = srcLoad(src);
+				const typename Mode::ParallelType s = srcLoad(src);
 				running_sum = Mode::hadd(running_sum, s);
 				src += (16 / sizeof(*src));
 			}
