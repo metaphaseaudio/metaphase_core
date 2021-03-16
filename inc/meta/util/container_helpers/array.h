@@ -36,4 +36,16 @@ namespace meta
     template <typename T, std::size_t N, typename... Args>
     constexpr std::array<T, N> make_initialized_array(Args&&... args)
     { return make_initialized_array_impl<T, N>(std::make_index_sequence<N>{}, args...); }
+
+    template <typename T, size_t N, size_t... Is>
+    constexpr std::array<std::pair<size_t, T>, N> enumerate_impl(const std::index_sequence<Is...>&, std::array<T, N>&& x)
+	{
+		return {std::make_pair(Is, x[Is])...};
+	};
+
+    template <typename T, size_t N>
+    constexpr std::array<std::pair<size_t, T>, N> enumerate(std::array<T, N>&& x)
+	{
+    	return enumerate_impl<T, N>(std::make_index_sequence<N>{}, std::forward(x));
+	}
 }

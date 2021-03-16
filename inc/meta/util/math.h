@@ -55,4 +55,9 @@ namespace meta
 	};
 
     template <size_t base> struct static_power<base, 0> { static constexpr size_t value = 1; };
+
+    template <typename NumericType, NumericType in>
+    struct static_abs {
+        static constexpr NumericType value = (in >= 0) ? in : - in;
+    };
 }

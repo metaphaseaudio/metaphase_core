@@ -21,12 +21,21 @@
 
 namespace meta
 {
+    template <typename NumericType, size_t TableSize>
+    struct WaveTable
+    {
+        NumericType sample_rate;
+        std::array<NumericType, TableSize> table;
+    };
+
+
     template <typename NumericType>
     static NumericType gibbsCompensationValue(NumericType partial_number, NumericType total_partials)
     {
         const auto x = (partial_number * meta::NumericConstants<NumericType>::PI) / total_partials;
         return sin(x) / x;
     }
+
 
     template <typename NumericType>
     constexpr static NumericType overshoot_compensation_coeff() { return 1.0f - (2.0f * GIBBS_CONSTANT); }
@@ -38,11 +47,14 @@ namespace meta
      * @return the gain of that partial in a saw or square wave
      */
     template <typename NumericType>
-    static constexpr NumericType getLinearPartialGain
-    (size_t harmonic, NumericType numHarmonics = 1.0f, NumericType gibbsCompAmt = 0.5f)
-    {
-        return (NumericType(1) / NumericType(harmonic)) * gibbsCompensationValue<NumericType>(harmonic, numHarmonics);
-    }
+    static constexpr NumericType getSquarePartialGain(size_t k, NumericType n = 1)
+        { return (pow(NumericType(1), NumericType(1) / n) / NumericType(k)) * overshoot_compensation_coeff<NumericType>(); }
+
+
+    template <typename NumericType>
+    static constexpr NumericType getSawPartialGain(size_t k, NumericType n = 1)
+        { return 2 / (k * meta::NumericConstants<NumericType>::PI) * overshoot_compensation_coeff<NumericType>(); }
+
 
     /**
      * Calculates the gain coefficient for an arbitrary partial
@@ -50,19 +62,13 @@ namespace meta
      * @return the gain of that partial in a triangle wave
      */
     template <typename NumericType>
-    static constexpr NumericType getTrianglePartialGain
-            (size_t harmonic, size_t n_harmonics, NumericType gibbsCompAmt = 0.5f)
-    {
-        const auto on = (harmonic % 2 == 1) ? 8.0f / std::pow(meta::NumericConstants<NumericType>::PI, 2) : 0;
-        const auto inv = (harmonic + 3) % 4;
-        const auto mult = on * NumericType(inv == 0 ? -1 : 1);
-        return  (mult / pow(harmonic, 2)) * gibbsCompensationValue<NumericType>(harmonic, n_harmonics / 2);
-    }
+    static constexpr NumericType getTrianglePartialGain(size_t k)
+        { return (8 / (pow(k * meta::NumericConstants<NumericType>::PI, 2))) * ((k + 3) % 4 ? -1 : 1); }
+
 
     template <typename NumericType, size_t TableSize>
     struct BandlimitedWavetable
     {
-
         /**
          * fills a table with a sine wave using a particular gain coefficient
          */
@@ -109,6 +115,7 @@ namespace meta
             return out;
         };
 
+
         /**
          * Make a bandlimited square wave containing a specific number of
          * partials. Contains only odd harmonics.
@@ -118,18 +125,18 @@ namespace meta
          *                       requires a value between 0 and 1;
          * @return an array containing the wavetable
          */
-        static std::array<NumericType, TableSize> makeSquare
-        (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 1.0f)
+        static std::array<NumericType, TableSize> makeSquare (int numHarmonics)
         {
             std::array<NumericType, TableSize> out{0};
-            for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic += 2)
+            for (int harmonic = 1; harmonic <= numHarmonics * 2; harmonic += 2)
             {
-                Partial part(harmonic, getLinearPartialGain<NumericType>(harmonic, numHarmonics, gibbsCompAmt));
+                Partial part(harmonic, getSquarePartialGain<NumericType>(harmonic, numHarmonics));
                 part.addToTable(out);
             }
 
             return out;
         };
+
 
         /**
          * Make a bandlimited saw wave containing a specific number of
@@ -140,15 +147,12 @@ namespace meta
          *                       requires a value between 0 and 1;
          * @return an array containing the wavetable
          */
-        static std::array<NumericType, TableSize> makeSaw
-        (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 1.0f)
+        static std::array<NumericType, TableSize> makeSaw(int numHarmonics)
         {
             std::array<NumericType, TableSize> out{0};
-            const auto overshoot_comp = 1.0f - (2.0f * GIBBS_CONSTANT);
-            for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic++)
+            for (int harmonic = 1; harmonic <= numHarmonics; harmonic++)
             {
-                auto b = (-2.0f / (meta::NumericConstants<NumericType>::PI  * harmonic)) * (std::pow(-1.0f, harmonic));
-                Partial part(harmonic, b * overshoot_comp * gibbsCompensationValue<NumericType>(harmonic, numHarmonics));// * getLinearPartialGain<NumericType>(harmonic, numHarmonics, gibbsCompAmt));
+                Partial part(harmonic, getSawPartialGain<NumericType>(harmonic, numHarmonics));
                 part.addToTable(out);
             }
 
@@ -165,14 +169,12 @@ namespace meta
          *                       requires a value between 0 and 1;
          * @return an array containing the wavetable
          */
-        static std::array<NumericType, TableSize> makeTriangle
-                (int numHarmonics, int startingHarmonic = 1, float gibbsCompAmt = 0.0f)
+        static std::array<NumericType, TableSize> makeTriangle(int numHarmonics)
         {
             std::array<NumericType, TableSize> out{0};
-            auto const_gain = 1.0f - (1.0f / numHarmonics);
-            for (int harmonic = startingHarmonic; harmonic <= numHarmonics; harmonic += 2)
+            for (int harmonic = 1; harmonic <= numHarmonics * 2; harmonic += 2)
             {
-                Partial part(harmonic, getTrianglePartialGain<NumericType>(harmonic, numHarmonics, gibbsCompAmt));
+                Partial part(harmonic, getTrianglePartialGain<NumericType>(harmonic));
                 part.addToTable(out);
             }
 

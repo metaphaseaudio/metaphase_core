@@ -5,6 +5,7 @@
 #pragma once
 
 #include <juce_core/juce_core.h>
+#include <meta/util/math.h>
 
 namespace meta
 {
@@ -14,4 +15,5 @@ namespace meta
         return out_range.getStart() + (x - in_range.getStart()) *
                (out_range.getEnd() - out_range.getStart()) / (in_range.getEnd() - in_range.getStart());
     }
+
 }
