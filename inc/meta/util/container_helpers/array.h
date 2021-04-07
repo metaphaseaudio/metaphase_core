@@ -37,15 +37,26 @@ namespace meta
     constexpr std::array<T, N> make_initialized_array(Args&&... args)
     { return make_initialized_array_impl<T, N>(std::make_index_sequence<N>{}, args...); }
 
-    template <typename T, size_t N, size_t... Is>
-    constexpr std::array<std::pair<size_t, T>, N> enumerate_impl(const std::index_sequence<Is...>&, std::array<T, N>&& x)
-	{
-		return {std::make_pair(Is, x[Is])...};
-	};
 
-    template <typename T, size_t N>
-    constexpr std::array<std::pair<size_t, T>, N> enumerate(std::array<T, N>&& x)
-	{
-    	return enumerate_impl<T, N>(std::make_index_sequence<N>{}, std::forward(x));
-	}
+    template <typename T, typename TIter = decltype(std::begin(std::declval<T>())), typename = decltype(std::end(std::declval<T>()))>
+    constexpr auto enumerate(T && iterable)
+    {
+        struct iterator
+        {
+            size_t i;
+            TIter iter;
+            bool operator != (const iterator & other) const { return iter != other.iter; }
+            void operator ++ () { ++i; ++iter; }
+            auto operator * () const { return std::tie(i, *iter); }
+        };
+
+        struct iterable_wrapper
+        {
+            T iterable;
+            auto begin() { return iterator{ 0, std::begin(iterable) }; }
+            auto end() { return iterator{ 0, std::end(iterable) }; }
+        };
+
+        return iterable_wrapper{ std::forward<T>(iterable) };
+    }
 }

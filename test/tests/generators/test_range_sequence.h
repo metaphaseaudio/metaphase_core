@@ -7,10 +7,10 @@
 
 TEST(RangeSequenceTest, integer_sequence)
 {
-	constexpr auto a = meta::range_sequence<int, 0, 10, 2>::value;
-	ASSERT_EQ(a.size(), 5);
-	for (auto item : meta::enumerate(a))
+    constexpr auto a = meta::range_sequence<int, 0, 10, 2>::value;
+    ASSERT_EQ(a.size(), 5);
+    for (auto item : meta::enumerate(a))
     {
-        std::cout << item.first << item.second << std::endl;
+        std::cout << std::get<0>(item) << std::get<1>(item) << std::endl;
     }
 }
