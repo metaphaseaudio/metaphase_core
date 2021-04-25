@@ -4,10 +4,11 @@ file(GLOB_RECURSE META_SHARED_SRC ${META_PATH} src/*.cpp inc/meta/*.h)
 list(SORT META_SHARED_SRC)
 
 
-add_library(metaphase_core STATIC ${META_SHARED_SRC})
+add_library(metaphase_core STATIC)
 include_directories(${META_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/inc/ )
 
 target_include_directories(metaphase_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+target_sources(metaphase_core PRIVATE ${META_SHARED_SRC})
 target_link_libraries(metaphase_core juce::juce_audio_utils gtest)
 target_compile_definitions(metaphase_core
     PUBLIC
