@@ -33,7 +33,7 @@ namespace meta
     class WavetableReader
     {
     public:
-        explicit WavetableReader(std::array<NumericType, TableSize>& wavetable, WavetableState<NumericType> state)
+        explicit WavetableReader(std::array<NumericType, TableSize>& wavetable, WavetableState<NumericType>& state)
             : r_Wavetable(wavetable)
             , r_State(state)
         {}

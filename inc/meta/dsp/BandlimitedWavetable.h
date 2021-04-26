@@ -53,7 +53,9 @@ namespace meta
 
     template <typename NumericType>
     static constexpr NumericType getSawPartialGain(size_t k, NumericType n = 1)
-        { return 2 / (k * meta::NumericConstants<NumericType>::PI) * overshoot_compensation_coeff<NumericType>(); }
+    {
+        return 2 / (k * meta::NumericConstants<NumericType>::PI) * overshoot_compensation_coeff<NumericType>();
+    }
 
 
     /**
@@ -63,7 +65,9 @@ namespace meta
      */
     template <typename NumericType>
     static constexpr NumericType getTrianglePartialGain(size_t k)
-        { return (8 / (pow(k * meta::NumericConstants<NumericType>::PI, 2))) * ((k + 3) % 4 ? -1 : 1); }
+    {
+        return (8 / (pow(k * meta::NumericConstants<NumericType>::PI, 2))) * ((k + 3) % 4 ? -1 : 1);
+    }
 
 
     template <typename NumericType, size_t TableSize>

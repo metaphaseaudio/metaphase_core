@@ -95,7 +95,8 @@ namespace meta
                     m_Value = m_Target;
                     m_State = 0;
                 }
-            } else
+            }
+            else
             {
                 if (m_Value - m_Target <= TARGET_THRESHOLD)
                 {
