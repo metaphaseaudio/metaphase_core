@@ -41,4 +41,13 @@ namespace meta
     {
         return (in & (1 << (WordSizeInBits<WordType>::Value - 1))) < 0 ? - 1 : 1;
     }
+
+    template <size_t Bits>
+    struct bitfill { static constexpr size_t value = (static_cast<size_t>(1) << Bits - 1) | bitfill<Bits - 1>::value; };
+
+    template <>
+    struct bitfill<1> { static constexpr size_t value = 1; };
+
+    template <>
+    struct bitfill<0> { static constexpr size_t value = 0; };
 }

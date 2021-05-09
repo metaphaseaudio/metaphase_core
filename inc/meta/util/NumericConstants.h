@@ -5,9 +5,29 @@
 //
 
 #pragma once
+#include <meta/util/BitMask.h>
+
 
 namespace meta
 {
+    template <size_t Bits, bool IsSigned=false>
+    struct BitInfo
+    {
+        static constexpr long long Max = IsSigned ? bitfill<Bits - 1>::value : bitfill<Bits>::value;
+        static constexpr long long Min = IsSigned ? -(static_cast<long long>(1) << (Bits - 1)) : 0;
+    };
+
+
+    template <typename T>
+    struct NumInfo
+    {
+        static constexpr size_t Bytes = sizeof(T);
+        static constexpr size_t Bits = Bytes * 8;
+        static constexpr bool IsSigned = std::is_signed<T>::value;
+        static constexpr T Max = BitInfo<Bits, IsSigned>::Max;
+        static constexpr T Min = BitInfo<Bits, IsSigned>::Min;
+    };
+
     template <typename NumericType>
     struct NumericConstants
     {};
