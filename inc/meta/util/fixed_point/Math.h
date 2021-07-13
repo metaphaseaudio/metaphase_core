@@ -127,7 +127,7 @@ namespace meta
     {
         const auto out = static_cast<StorageType>(a.rawValue + b.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator-
@@ -136,7 +136,7 @@ namespace meta
     {
         const auto out = static_cast<StorageType>(a.rawValue - b.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator*
@@ -145,7 +145,7 @@ namespace meta
     {
         const auto value = Expand<StorageType>::cast(a.rawValue) * b.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator/
@@ -155,7 +155,7 @@ namespace meta
 		const auto expanded = Expand<StorageType>::cast(a.rawValue) << PointOffset;
         const auto value = expanded / b.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
 
     // Arithmetic -- Storage Type ================================================
@@ -166,7 +166,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto out = static_cast<StorageType>(a.rawValue + bFixed.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator-
@@ -175,7 +175,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto out = static_cast<StorageType>(a.rawValue - bFixed.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator*
@@ -184,7 +184,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto value = Expand<StorageType>::cast(a.rawValue) * bFixed.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator/
@@ -193,7 +193,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto value = (a.rawValue << PointOffset) / bFixed.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     // Inverse
     template<typename StorageType, std::size_t PointOffset>
@@ -203,7 +203,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto out = static_cast<StorageType>(aFixed.rawValue + b.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     constexpr FixedPointValue <StorageType, PointOffset> operator-
@@ -212,7 +212,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto out = static_cast<StorageType>(aFixed.rawValue - b.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator*
@@ -221,7 +221,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto value = Expand<StorageType>::cast(aFixed.rawValue) * b.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator/
@@ -230,7 +230,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto value = (Expand<StorageType>::cast(aFixed.rawValue) << PointOffset) / b.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     // Arithmetic -- Double Type ==============================================
     template<typename StorageType, std::size_t PointOffset>
@@ -240,7 +240,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto out = static_cast<StorageType>(a.rawValue + bFixed.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator-
@@ -249,7 +249,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto out = static_cast<StorageType>(a.rawValue - bFixed.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator*
@@ -258,7 +258,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto value = Expand<StorageType>::cast(a.rawValue) * bFixed.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator/
@@ -267,7 +267,7 @@ namespace meta
         const auto bFixed = FixedPointValue<StorageType, PointOffset>(b);
         const auto value = (Expand<StorageType>::cast(a.rawValue) << PointOffset) / bFixed.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     // Inverse
     template<typename StorageType, std::size_t PointOffset>
@@ -277,7 +277,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto out = static_cast<StorageType>(aFixed.rawValue + b.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator-
@@ -286,7 +286,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto out = static_cast<StorageType>(aFixed.rawValue - b.rawValue);
         return FixedPointValue<StorageType, PointOffset>::fromRaw(out);
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator*
@@ -295,7 +295,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto value = Expand<StorageType>::cast(aFixed.rawValue) * b.rawValue >> PointOffset;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     template<typename StorageType, std::size_t PointOffset>
     inline constexpr FixedPointValue <StorageType, PointOffset> operator/
@@ -304,7 +304,7 @@ namespace meta
         const auto aFixed = FixedPointValue<StorageType, PointOffset>(a);
         const auto value = (Expand<StorageType>::cast(aFixed.rawValue) << PointOffset) / b.rawValue;
         return FixedPointValue<StorageType, PointOffset>::fromRaw(static_cast<StorageType>(value));
-    };
+    }
 
     //=========================================================================
 	template<typename StorageType, std::size_t PointOffset>
@@ -313,7 +313,7 @@ namespace meta
 	{
 		const auto sign = in.sign();
 		return FixedPointValue<StorageType, PointOffset>(sign > 0 ? in.integral() : (-in).integral());
-	};
+	}
 
     template<typename StorageType, std::size_t PointOffset>
     constexpr FixedPointValue <StorageType, PointOffset> fabs
@@ -321,5 +321,5 @@ namespace meta
     {
         const auto sign = in.sign();
         return sign > 0 ? in : -in;
-    };
+    }
 }

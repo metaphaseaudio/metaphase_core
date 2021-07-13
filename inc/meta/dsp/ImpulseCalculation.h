@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include <JuceHeader.h>
 #include <meta/generators/complementary_sequence.h>
 #include <meta/dsp/FindInSignal.h>
 
@@ -43,14 +42,6 @@ namespace dsp
             for (int i = 0; i < n; ++i) { x_sum += x[i] * x[i]; }
 
             return x_sum;
-        }
-
-
-        template <size_t GolaySize>
-        static juce::AudioBuffer<NumType> fromGolay(const juce::AudioBuffer<NumType>& capture)
-        {
-            constexpr auto refGolay = Golay<GolaySize>::value;
-            const auto a_location = find_in_signal<NumType>()
         }
     };
 }

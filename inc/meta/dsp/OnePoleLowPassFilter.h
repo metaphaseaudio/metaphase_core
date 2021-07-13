@@ -8,7 +8,7 @@
 
 #pragma once
 #include <meta/util/NumericConstants.h>
-#include <math.h>
+#include <cmath>
 
 namespace meta
 {

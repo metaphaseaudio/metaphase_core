@@ -80,7 +80,7 @@ namespace meta
         static const constexpr float TARGET_THRESHOLD = 0.000001f;
     };
 
-    inline float Asymp::tick(void)
+    inline float Asymp::tick()
     {
         if (m_State)
         {

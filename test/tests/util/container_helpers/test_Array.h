@@ -5,6 +5,26 @@
 #pragma once
 #include <meta/util/container_helpers/array.h>
 
+
+struct TestObject
+{
+    TestObject(int a, int b): val_a(a), val_b(b) {};
+
+    int val_a;
+    int val_b;
+};
+
+TEST(ArrayHelpersTest, make_initialized)
+{
+    auto initialized = meta::make_initialized_array<TestObject, 4>(1, 2);
+    for (auto obj : initialized)
+    {
+        ASSERT_EQ(obj.val_a, 1);
+        ASSERT_EQ(obj.val_b, 2);
+    }
+}
+
+
 TEST(ArrayHelpersTest, concatenate)
 {
 	constexpr std::array<int, 3> x{ 1, 2, 3 };

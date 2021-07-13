@@ -19,10 +19,12 @@ TEST(MetaMath, power)
 
 TEST(MetaMath, static_power)
 {
-    ASSERT_EQ((meta::static_power<2, 2>::value), 4);
+    constexpr auto value = meta::static_power<2, 2>::value;
+    ASSERT_EQ(value, 4);
 }
 
 TEST(MetaMath, static_negate)
 {
-    ASSERT_EQ((meta::static_negate<int, 2>::value), -2);
+    constexpr auto value = meta::static_negate<int, 2>::value;
+    ASSERT_EQ(value, -2);
 }

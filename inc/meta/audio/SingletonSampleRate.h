@@ -25,6 +25,9 @@ namespace meta
         static NumericType& getValue()
             { return getInstance().value; }
 
+        static void setValue(NumericType x)
+            { getInstance().value = x; }
+
         SingletonSampleRate(const SingletonSampleRate&) = delete;
         SingletonSampleRate& operator=(const SingletonSampleRate&) = delete;
 

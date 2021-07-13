@@ -36,8 +36,8 @@ namespace meta
 			const auto i = static_cast<int>(m_Phase) % TableSize;
             const auto f = m_Phase - static_cast<int>(m_Phase);
             const auto j = (i == TableSize - 1) ? 0 : i + 1;
-            const auto a = r_Wavetable[i];
-            const auto b = r_Wavetable[j];
+            const auto a = r_Wavetable.at(i);
+            const auto b = r_Wavetable.at(j);
             m_Phase = i + f;
             return (a * (1 - f)) + (b * f);
         }

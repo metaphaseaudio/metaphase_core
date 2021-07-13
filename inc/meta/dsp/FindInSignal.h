@@ -4,7 +4,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include <meta/util/container_helpers/comparisons.h>
-
+#include <juce_dsp/juce_dsp.h>
 
 namespace meta
 {
