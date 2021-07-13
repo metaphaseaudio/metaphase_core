@@ -49,7 +49,8 @@ namespace meta
 	constexpr NumericType power(NumericType base, size_t exponent)
 	{ return exponent == 0 ? 1 : base * power(base, exponent - 1);}
 
-	template <size_t base, size_t exponent>
+
+    template <size_t base, size_t exponent>
 	struct static_power {
 	    static constexpr size_t value = base * static_power<base, exponent - 1>::value;
 	};
