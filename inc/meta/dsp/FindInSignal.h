@@ -2,6 +2,8 @@
 // Created by Matt on 8/1/2020.
 //
 #pragma once
+#include <JuceHeader.h>
+#include <meta/util/container_helpers/comparisons.h>
 #include <juce_dsp/juce_dsp.h>
 
 namespace meta
@@ -9,35 +11,41 @@ namespace meta
 namespace dsp
 {
     template <typename SampleType>
-    void prepare_convolution_from_reference_and_capture(
-            juce::dsp::Convolution& conv,
-            const juce::AudioBuffer<SampleType>& cap,
-            const juce::AudioBuffer<SampleType>& ref)
+    void prepare_convolution(
+            const juce::AudioBuffer<SampleType>& impulse,
+            juce::dsp::Convolution& to_prepare,
+            const int max_block_size=0)
     {
-        // Prep reference stream
-        juce::AudioBuffer<float> ref_cp(ref);
-        ref_cp.reverse(0, ref_cp.getNumSamples());
+        // Prep reference stream  We assume IRs need to be reversed.
+        juce::AudioBuffer<float> imp_cp(impulse);
+        imp_cp.reverse(0, imp_cp.getNumSamples());
 
         // Prep convolution
-        juce::dsp::ProcessSpec spec = { 1, std::max(cap.getNumSamples(), ref_cp.getNumSamples()) * 2, 1 };
-        conv.prepare(spec);
-        conv.copyAndLoadImpulseResponseFromBuffer(ref_cp, 1, false, false, false, ref.getNumSamples());
+        juce::dsp::ProcessSpec spec = { 1, std::max(impulse.getNumSamples(), max_block_size), 1 };
+        to_prepare.prepare(spec);
+        to_prepare.copyAndLoadImpulseResponseFromBuffer(imp_cp, 1, false, false, false, impulse.getNumSamples());
     }
 
-    template <typename SampleType>
-    void one_shot_convolution(
-            juce::dsp::Convolution& conv,
-            const juce::AudioBuffer<SampleType>& cap,
-            const juce::AudioBuffer<SampleType>& ref)
-    {
-        // Prep reference stream
-        juce::AudioBuffer<float> ref_cp(ref);
-        ref_cp.reverse(0, ref_cp.getNumSamples());
 
-        // Prep convolution
-        juce::dsp::ProcessSpec spec = { 1, std::max(cap.getNumSamples(), ref_cp.getNumSamples()) * 2, 1 };
-        conv.prepare(spec);
-        conv.copyAndLoadImpulseResponseFromBuffer(ref_cp, 1, false, false, false, ref.getNumSamples());
+    /**
+     * Locates a convolution-prepared signal x in another signal y.
+     *
+     * @tparam SampleType the sample type in the audio buffer
+     * @param x The target signal
+     * @param y the signal to search
+     * @return
+     */
+    template <typename SampleType>
+    std::pair<long, long> find_in_signal(const juce::dsp::Convolution& conv, const juce::AudioBuffer<SampleType>& y)
+    {
+//        juce::dsp::AudioBlock<float> in_block(cap.getArrayOfWritePointers() + chan, 1, 0, cap.getNumSamples());
+//        juce::dsp::AudioBlock<float> out_block(tmp);
+//        juce::dsp::ProcessContextNonReplacing<float> context(in_block, out_block);
+//        conv.process(context);
+//        auto context = juce::dsp::ProcessContextNonReplacing<SampleType>();
+//        conv.process();
+//        auto max = argmax()
+        return std::make_pair(0,0);
     }
 
     /**
@@ -49,17 +57,10 @@ namespace dsp
      * @return
      */
     template <typename SampleType>
-    std::pair<long, long> find_in_signal(const juce::dsp::Convolution& conv, const juce::AudioBuffer<SampleType>& x)
+    std::pair<long, long> find_in_signal(const juce::AudioBuffer<SampleType>& x, const juce::AudioBuffer<SampleType>& y)
     {
-        auto tmp = juce::AudioBuffer<float>(1, total_length);
-        auto out = juce::AudioBuffer<float>(cap.getNumChannels(), total_length);
-        out.clear();
 
-
-        long start = 0;
-        long end = 0;
-
-        return std::make_pair(start, end);
+        return std::make_pair(0,0);
     }
 }
 }

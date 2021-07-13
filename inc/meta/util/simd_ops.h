@@ -27,6 +27,8 @@ namespace meta
 		static forcedinline ParallelType div(ParallelType a, ParallelType b) noexcept { return _mm_div_ps(a, b); }
 		static forcedinline ParallelType hadd(ParallelType a, ParallelType b) noexcept { return _mm_hadd_ps(a, b); }
 
+        static forcedinline ParallelType max(ParallelType a, ParallelType b) noexcept { return _mm_max_ps(a, b); }
+
 		static forcedinline ParallelType cmpeq(ParallelType a, ParallelType b)  noexcept { return _mm_cmpeq_ps(a, b); }
 		static forcedinline int movemask(ParallelType a) noexcept { return _mm_movemask_ps(a); }
 	};
@@ -58,11 +60,8 @@ namespace meta
         template<>             struct ModeType<8> { using Mode = SIMDOps64; };
 
         inline static bool isAligned(const void* p) noexcept { return (((std::int64_t)p) & 15) == 0; }
-		inline static void inc_ptr(T*& ptr) noexcept { ptr += (16 / sizeof(ptr)); }
+		inline static void inc_ptr(T*& ptr) noexcept { ptr += (16 / sizeof(*ptr)); }
 
-//		inline static std::function<ModeType<sizeof(T*)>::Mode::ParallelType>
-//        getLoadFunction(T* x)
-//        { return (isAligned(dst)) ? Mode::load_aligned : Mode::load_unaligned; }
 
 		template <typename Op, typename VOp>
 		inline static void do_op_src_const(const Op& op, const VOp& vop, T* dst, const T& src, long n)
@@ -134,11 +133,10 @@ namespace meta
 			for (int i = 0; i < n; ++i) { op(dst[i], srca[i], srcb[i]); }
 		}
 
+		///////////////////////////////////////////////////////////////////////
 
 		static void div(T* dst, const T& src, size_t n)
-		{
-			do_op_src_const([](T& x, const T& y) { x /= y; }, ModeType<sizeof(*dst)>::Mode::div, dst, src, n);
-		}
+		{ do_op_src_const([](T& x, const T& y) { x /= y; }, ModeType<sizeof(*dst)>::Mode::div, dst, src, n); }
 
 		static void div(T* dst, const T* src, size_t n)
 		{ do_op_src_dst([](T& x, const T& y) { x /= y; }, ModeType<sizeof(*dst)>::Mode::div, dst, src, n); }
@@ -215,6 +213,6 @@ namespace meta
 					juce::FloatVectorOperations::multiply(out, out, in, n); 
 				} 
 			}
-		}		
+		}
 	};
 }

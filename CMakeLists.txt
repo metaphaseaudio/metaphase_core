@@ -9,7 +9,10 @@ include_directories(${META_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/inc/ )
 
 target_include_directories(metaphase_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 target_sources(metaphase_core PRIVATE ${META_SHARED_SRC})
-target_link_libraries(metaphase_core juce::juce_audio_utils gtest)
+target_link_libraries(metaphase_core
+        juce::juce_audio_utils
+        juce::juce_dsp
+        gtest)
 target_compile_definitions(metaphase_core
     PUBLIC
         JUCE_WEB_BROWSER=0
