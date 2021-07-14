@@ -5,8 +5,8 @@
 #include <meta/generators/complementary_sequence.h>
 #include <meta/dsp/FindInSignal.h>
 
-#define GOLAY_N 15
-#define PAUSE_SAMPS 500
+#define GOLAY_N 2
+#define PAUSE_SAMPS 10
 
 
 TEST(FindInSignalTest, find_golay)
@@ -36,12 +36,12 @@ TEST(FindInSignalTest, find_golay)
         burst_b.setSample(0, burst_i, samp); burst_i++;
     }
 
-    auto range_pair_a = meta::dsp::find_in_signal(test_signal, burst_a);
-    auto range_pair_b = meta::dsp::find_in_signal(test_signal, burst_b);
+    auto range_pair_a = meta::dsp::find_in_signal(burst_a, test_signal);
+    auto range_pair_b = meta::dsp::find_in_signal(burst_b, test_signal);
 
     ASSERT_EQ(range_pair_a.first, PAUSE_SAMPS);
-    ASSERT_EQ(range_pair_a.second, PAUSE_SAMPS + a.size());
+    ASSERT_EQ(range_pair_a.second, PAUSE_SAMPS + a.size() - 1);
 
     ASSERT_EQ(range_pair_b.first, (PAUSE_SAMPS * 2) + a.size());
-    ASSERT_EQ(range_pair_b.second, (PAUSE_SAMPS * 2) + a.size() + b.size());
+    ASSERT_EQ(range_pair_b.second, (PAUSE_SAMPS * 2) + a.size() + b.size() - 1);
 }

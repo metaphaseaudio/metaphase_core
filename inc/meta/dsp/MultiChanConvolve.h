@@ -13,7 +13,7 @@ namespace dsp
     {
     public:
         MultiChanConvolve(juce::AudioBuffer<float>&& impulse, size_t max_block_size)
-            : m_Spec{ 1, static_cast<juce::uint32>(max_block_size), 1 }
+            : m_Spec{ 44100, static_cast<juce::uint32>(max_block_size), 1 }
             , m_IRLength(impulse.getNumSamples())
             , m_Conv(impulse.getNumChannels())
             , m_Tmp(1, m_IRLength + max_block_size)
@@ -23,7 +23,7 @@ namespace dsp
                 juce::AudioBuffer<float> tmp(1, m_IRLength);
                 tmp.copyFrom(0, 0, impulse, c, 0, m_IRLength);
                 m_Conv.at(c).loadImpulseResponse(
-                        std::move(tmp), 1,
+                        std::move(tmp), 44100,
                         juce::dsp::Convolution::Stereo::no,
                         juce::dsp::Convolution::Trim::no,
                         juce::dsp::Convolution::Normalise::no);
@@ -31,7 +31,7 @@ namespace dsp
             }
         }
 
-        juce::AudioBuffer<float> convolve(juce::AudioBuffer<float>& in, bool include_tail=true)
+        juce::AudioBuffer<float> convolve(const juce::AudioBuffer<float>& in, bool include_tail=true)
         {
             auto total_length = in.getNumSamples() + (include_tail ? m_IRLength : 0);
             juce::AudioBuffer<float> rv(m_Conv.size(), total_length);
@@ -73,6 +73,7 @@ namespace dsp
             }
         }
 
+        int get_ir_length() const { return m_IRLength; }
     private:
         int m_IRLength;
         juce::dsp::ProcessSpec m_Spec;
