@@ -9,8 +9,6 @@ target_include_directories(run_metaphase_core_tests PUBLIC ${CMAKE_CURRENT_SOURC
 
 target_link_libraries(run_metaphase_core_tests
         ${GTEST_LIBRARIES}
-        ${JUCE_LIBRARIES}
-        ${META_SHARED_LIBS}
         metaphase_core)
 
 set_target_properties(run_metaphase_core_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY

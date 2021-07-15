@@ -32,4 +32,25 @@ namespace meta
         static constexpr size_t size = 1;
 		static constexpr complementary_sequence<size> value = std::make_tuple(std::array<signed, 1>{ 1 }, std::array<signed, 1>{ 1 });
 	};
+
+	template <typename NumType=float>
+	static std::pair<std::vector<NumType>, std::vector<NumType>> generate_golay_dynamic(int golay_n)
+    {
+	    std::vector<NumType> a{1, 1};
+        std::vector<NumType> b{1, -1};
+
+        for (int i = golay_n; --i > 0;)
+        {
+            // copy A for later, and append B
+            auto last_a = a;
+            a.insert(a.end(), b.begin(), b.end());
+
+            // invert B, save it appended to the last A
+            juce::FloatVectorOperations::negate(&*b.begin(), &*b.begin(), b.size());
+            last_a.insert(last_a.end(), b.begin(), b.end());
+            b = last_a;
+        }
+
+        return std::make_pair(a, b);
+    }
 }

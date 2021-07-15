@@ -15,7 +15,7 @@ namespace meta
 
         double tick() noexcept
         {
-            const auto white = double(rand()) / std::minstd_rand::max()
+            const auto white = double(rand()) / std::minstd_rand::max();
             b0 = 0.99886 * b0 + white * 0.0555179;
             b1 = 0.99332 * b1 + white * 0.0750759;
             b2 = 0.96900 * b2 + white * 0.1538520;
