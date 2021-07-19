@@ -7,7 +7,15 @@
 namespace meta
 {
     template <class iterator>
-    iterator argmax(iterator& begin, const iterator& end)
+    iterator argmin(iterator begin, iterator end)
+    {
+        iterator min = begin;
+        for (auto itr = begin; itr < end; itr++) { min = *itr < *min ? itr : min; }
+        return min;
+    }
+
+    template <class iterator>
+    iterator argmax(iterator begin, iterator end)
     {
         iterator max = begin;
         for (auto itr = begin; itr < end; itr++) { max = *itr > *max ? itr : max; }
