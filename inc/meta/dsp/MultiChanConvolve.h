@@ -33,6 +33,8 @@ namespace dsp
 
         juce::AudioBuffer<float> convolve(const juce::AudioBuffer<float>& in, bool include_tail=true)
         {
+            jassert(in.getNumChannels() == m_Conv.size());
+
             auto total_length = in.getNumSamples() + (include_tail ? m_IRLength : 0);
             juce::AudioBuffer<float> rv(m_Conv.size(), total_length);
             juce::AudioBuffer<float> extended_in;
