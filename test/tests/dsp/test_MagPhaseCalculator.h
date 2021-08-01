@@ -3,8 +3,9 @@
 //
 
 #pragma once
-#include <inc/meta/dsp/BandlimitedWavetable.h>
-#include <inc/meta/dsp/WavetableReader.h>
+#include <meta/dsp/BandlimitedWavetable.h>
+#include <meta/dsp/WavetableReader.h>
+#include <meta/dsp/MagPhaseCalculator.h>
 
 
 class MagPhaseCalculatorTest
@@ -39,31 +40,16 @@ public:
 
 TEST_F(MagPhaseCalculatorTest, calculate)
 {
-    osc.setFrequency(SAMPLE_RATE, 100);
+    osc.setFrequency(SAMPLE_RATE, 1000);
     init_signal_buffer(10000);
-
-    juce::dsp::FFT fft(10);
-    juce::dsp::WindowingFunction<float> window(FFT_SIZE, juce::dsp::WindowingFunction<float>::hann);
     juce::AudioBuffer<float> test_buffer(1, FFT_SIZE * 2);
     test_buffer.clear();
     test_buffer.copyFrom(0,0, buffer, 0, 0, FFT_SIZE);
-    window.multiplyWithWindowingTable(test_buffer.getWritePointer(0), FFT_SIZE);
+    meta::dsp::MagPhaseCalculator<float, 10> calc;
+    auto result = calc.calculate(test_buffer);
+    auto magnitude = std::get<0>(result);
 
-    std::array<std::complex<float>, FFT_SIZE> in, out;
-
-    for (int i = FFT_SIZE; --i >=0;) { in.at(i) = test_buffer.getSample(0, i); }
-
-
-    fft.perform(in.data(), out.data(), false);
-
-    std::array<float, FFT_SIZE> mag, phase;
-    for (int i = FFT_SIZE; --i >=0;)
-    {
-        mag.at(i) = std::abs(out.at(i));
-        phase.at(i) = std::abs(out.at(i)) <= std::numeric_limits<float>::epsilon() ? 0 : std::atan2(out.at(i).imag(), out.at(i).real());
-    }
-
-    auto argmax = meta::argmax(mag.begin(), mag.end());
-    auto distance = std::distance(mag.begin(), argmax);
-    ASSERT_EQ(distance, 100);
+    auto argmax = meta::argmax(magnitude.begin(), magnitude.end());
+    auto distance = std::distance(magnitude.begin(), argmax);
+    ASSERT_EQ(distance, 21);
 }
