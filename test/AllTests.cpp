@@ -31,7 +31,7 @@
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
-//    meta::TestingJUCEMessageThreadHandler handler;
+    meta::TestingJUCEMessageThreadHandler handler;
 	const auto result = RUN_ALL_TESTS();
 	return result;
 }

@@ -13,6 +13,7 @@ class TestingComponentVisualizer
 {
 public:
     explicit TestingComponentVisualizer(juce::Component* owned_component = nullptr)
+        : is_closed(false)
     {
         juce::MessageManager::getInstance()->callAsync([this, owned_component](){
             window = std::make_unique<CloseSignalingWindow>(owned_component, "New Window", juce::Colours::black, juce::DocumentWindow::allButtons);
@@ -30,26 +31,21 @@ public:
 
             window->setResizable(false, false);
             window->addChangeListener(this);
+            window->setVisible(true);
         });
     };
 
     void show()
     {
-        juce::MessageManager::getInstance()->callAsync([this](){ this->window->setVisible(true); });
-        juce::MessageManager::getInstance()->runDispatchLoop();
-        juce::DeletedAtShutdown::deleteAll();
+        while (!is_closed) {}
     }
 
-    ~TestingComponentVisualizer()
-    {
-        juce::MessageManager::deleteInstance();
-    }
 
 private:
     void changeListenerCallback(juce::ChangeBroadcaster* source) override
     {
         if (source == window.get()) { window.reset(nullptr); }
-        juce::MessageManager::getInstance()->stopDispatchLoop();
+        is_closed = true;
     }
 
     class CloseSignalingWindow
@@ -72,6 +68,7 @@ private:
     };
 
     std::unique_ptr<CloseSignalingWindow> window;
+    std::atomic<bool> is_closed;
 };
 
 
