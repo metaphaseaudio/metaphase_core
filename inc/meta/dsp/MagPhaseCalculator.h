@@ -31,7 +31,7 @@ namespace dsp
         {
             std::array<std::complex<float>, fft_size> in{0};
             std::array<std::complex<float>, fft_size> out{0};
-            for (int i = std::min(x.getNumSamples(), fft_size); --i >=0;) { in.at(i) = x.getSample(0, i) * m_Window.at(i); }
+            for (int i = std::min<int>(x.getNumSamples(), fft_size); --i >=0;) { in.at(i) = x.getSample(0, i) * m_Window.at(i); }
             m_FFT.perform(in.data(), out.data(), false);
 
             std::array<T, fft_size> mag, phase;

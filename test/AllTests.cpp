@@ -3,7 +3,9 @@
  *      Author: Matt Zapp
  */
 #include <gtest/gtest.h>
+#include <inc/meta/util/testing/TestingJUCEMessageThreadHandler.h>
 
+#include "test/tests/util/test_graphing_plot.h"
 #include "test/tests/util/test_math.h"
 #include "test/tests/util/test_range.h"
 #include "test/tests/util/test_simd_ops.h"
@@ -29,6 +31,7 @@
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
+//    meta::TestingJUCEMessageThreadHandler handler;
 	const auto result = RUN_ALL_TESTS();
 	return result;
 }
