@@ -27,3 +27,8 @@ set_property(TARGET metaphase_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 if (BUILD_TESTS)
     add_subdirectory(${META_PATH}/test)
 endif()
+
+
+if (BUILD_META_HELPER_APP_FILE_VIEWER)
+    add_subdirectory(${META_PATH}/helper_apps/file_viewer)
+endif()

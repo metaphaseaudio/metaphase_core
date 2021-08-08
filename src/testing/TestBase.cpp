@@ -2,7 +2,7 @@
 // Created by mzapp on 4/21/18.
 //
 
-#include "meta/util/testing/TestBase.h"
+#include "meta/testing/TestBase.h"
 #include <meta/util/file/AudioFileHelpers.h>
 
 #ifdef META_BUILD_TESTS

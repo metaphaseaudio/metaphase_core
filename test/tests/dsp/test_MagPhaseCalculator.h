@@ -46,7 +46,7 @@ TEST_F(MagPhaseCalculatorTest, calculate)
     test_buffer.clear();
     test_buffer.copyFrom(0,0, buffer, 0, 0, FFT_SIZE);
     meta::dsp::MagPhaseCalculator<float, 10> calc;
-    auto result = calc.calculate(test_buffer);
+    auto result = calc.calculate_window(test_buffer);
     auto magnitude = std::get<0>(result);
 
     auto argmax = meta::argmax(magnitude.begin(), magnitude.end());

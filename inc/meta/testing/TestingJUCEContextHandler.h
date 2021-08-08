@@ -7,11 +7,11 @@
 
 namespace meta
 {
-    class TestingJUCEMessageThreadHandler
+    class TestingJUCEContextHandler
     {
     public:
-        TestingJUCEMessageThreadHandler();
-        ~TestingJUCEMessageThreadHandler();
+        TestingJUCEContextHandler();
+        ~TestingJUCEContextHandler();
     private:
         std::unique_ptr<std::thread> message_thread;
     };

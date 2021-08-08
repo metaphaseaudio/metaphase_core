@@ -2,7 +2,8 @@
 // Created by Matt on 8/2/2021.
 //
 
-#include "inc/meta/util/testing/TestingComponentViewer.h"
+#include <meta/testing/TestingComponentViewer.h>
+
 
 meta::TestingComponentVisualizer::TestingComponentVisualizer(juce::Component* owned_component)
     : is_closed(true)

@@ -3,10 +3,10 @@
 //
 
 #include <juce_events/juce_events.h>
-#include "inc/meta/util/testing/TestingJUCEMessageThreadHandler.h"
+#include "inc/meta/testing/TestingJUCEContextHandler.h"
 
 
-meta::TestingJUCEMessageThreadHandler::TestingJUCEMessageThreadHandler()
+meta::TestingJUCEContextHandler::TestingJUCEContextHandler()
 {
     message_thread = std::make_unique<std::thread>([](){
         juce::MessageManager::getInstance()->setCurrentThreadAsMessageThread();
@@ -16,7 +16,7 @@ meta::TestingJUCEMessageThreadHandler::TestingJUCEMessageThreadHandler()
 }
 
 
-meta::TestingJUCEMessageThreadHandler::~TestingJUCEMessageThreadHandler()
+meta::TestingJUCEContextHandler::~TestingJUCEContextHandler()
 {
     juce::MessageManager::getInstance()->stopDispatchLoop();
     message_thread->join();

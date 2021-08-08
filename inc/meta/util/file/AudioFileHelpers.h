@@ -32,6 +32,15 @@ namespace meta
         static juce::AudioFormatWriter* createWriter
                 (juce::File& f, double sampleRate=48000, int chanCount=2
                 , int bps=24, const juce::StringPairArray& metadata=NULL, int quality=0);
+
+        /**
+         * Creates a juce::AudioFormatReader for the type specified by the
+         * file's extension. the user is responsible for taking ownership of
+         * this object.
+         * @param f - the file to use
+         * @return a pointer to the generated juce::AudioFormatReader
+         */
+        static juce::AudioFormatReader* createReader(const juce::File& f);
     };
 
 }

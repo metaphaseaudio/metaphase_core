@@ -4,7 +4,7 @@
 
 #pragma once
 #include <juce_dsp/juce_dsp.h>
-
+#include <meta/util/math.h>
 
 namespace meta
 {
@@ -15,19 +15,19 @@ namespace dsp
     {
     public:
         constexpr static auto fft_size = meta::static_power<2, order>::value;
+        using FFTFrame = std::array<T, fft_size>;
+        using MagPhaseFrame = std::pair<FFTFrame, FFTFrame>;
 
         MagPhaseCalculator()
             : m_FFT(order)
             , m_Window{0}
-            , m_Fifo{0}
-            , m_FifoIndex(0)
         {
             m_Window.fill(1);
             juce::dsp::WindowingFunction<T> wind(fft_size, juce::dsp::WindowingFunction<T>::hann);
             wind.multiplyWithWindowingTable(m_Window.data(), fft_size);
         }
 
-        std::tuple<std::array<T, fft_size>, std::array<T, fft_size>> calculate(const juce::AudioBuffer<T>& x)
+        MagPhaseFrame calculate_window(const juce::AudioBuffer<T>& x)
         {
             std::array<std::complex<float>, fft_size> in{0};
             std::array<std::complex<float>, fft_size> out{0};
@@ -44,10 +44,11 @@ namespace dsp
             return std::make_pair(mag, phase);
         }
 
+
+
     private:
         juce::dsp::FFT m_FFT;
-        std::array<T, fft_size> m_Fifo, m_Window;
-        int m_FifoIndex;
+        std::array<T, fft_size> m_Window;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MagPhaseCalculator);
     };

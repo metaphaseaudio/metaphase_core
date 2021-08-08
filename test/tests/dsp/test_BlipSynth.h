@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <meta/util/testing/TestBase.h>
-#include <meta/util/testing/TestHelpers.h>
+#include <meta/testing/TestBase.h>
+#include <meta/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <meta/dsp/BandlimitedOsc.h>
 

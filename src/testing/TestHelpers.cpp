@@ -2,7 +2,7 @@
 // Created by mzapp on 4/21/18.
 //
 
-#include "meta/util/testing/TestHelpers.h"
+#include "meta/testing/TestHelpers.h"
 
 
 const juce::File meta::TestHelpers::testFolder

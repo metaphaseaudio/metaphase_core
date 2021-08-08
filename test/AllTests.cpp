@@ -3,7 +3,7 @@
  *      Author: Matt Zapp
  */
 #include <gtest/gtest.h>
-#include <inc/meta/util/testing/TestingJUCEMessageThreadHandler.h>
+#include <inc/meta/testing/TestingJUCEContextHandler.h>
 
 #include "test/tests/util/test_graphing_plot.h"
 #include "test/tests/util/test_math.h"
@@ -31,7 +31,7 @@
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
-    meta::TestingJUCEMessageThreadHandler handler;
+    meta::TestingJUCEContextHandler juce_context_handler;
 	const auto result = RUN_ALL_TESTS();
 	return result;
 }
