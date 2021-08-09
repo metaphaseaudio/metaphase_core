@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <file_viewer/MainComponent.h>
+#include <file_viewer/FileViewerComponent.h>
 #include <file_viewer/MainWindow.h>
 
 //==============================================================================

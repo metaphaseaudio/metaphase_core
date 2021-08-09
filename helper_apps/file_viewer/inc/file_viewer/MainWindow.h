@@ -3,7 +3,8 @@
 //
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
-#include <file_viewer/MainComponent.h>
+#include <file_viewer/FileViewerComponent.h>
+#include "MultiFileViewerComponent.h"
 
 
 class MainWindow
@@ -15,6 +16,7 @@ class MainWindow
 public:
     explicit MainWindow (juce::String name);
     ~MainWindow();
+
     void closeButtonPressed() override;
 
     // Dragon Drop implementation
@@ -37,5 +39,9 @@ public:
     bool perform(const InvocationInfo&) override;
 
 private:
+    void chooseFileToLoad();
+    void load(const juce::File& filepath);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+    MultiFileViewerComponent m_ViewHandler;
 };

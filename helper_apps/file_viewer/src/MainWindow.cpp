@@ -3,7 +3,7 @@
 //
 
 #include <file_viewer/MainWindow.h>
-#include <file_viewer/command_ids.h>
+#include <file_viewer/constants.h>
 #include <file_viewer/forward_declarations.h>
 
 
@@ -12,7 +12,7 @@ MainWindow::MainWindow(juce::String name)
         (name, juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId), DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar(true);
-    setContentOwned(new MainComponent(), true);
+    setContentNonOwned(&m_ViewHandler, true);
 
     #if JUCE_IOS || JUCE_ANDROID
         setFullScreen (true);
@@ -21,7 +21,7 @@ MainWindow::MainWindow(juce::String name)
         centreWithSize(getWidth(), getHeight());
     #endif
 
-    restoreWindowStateFromString (getAppProperties().getUserSettings()->getValue ("mainWindowPos"));
+    restoreWindowStateFromString(getAppProperties().getUserSettings()->getValue(AppState::MAIN_WINDOW_POSITION));
     setVisible(true);
 
     addKeyListener (getCommandManager().getKeyMappings());
@@ -33,7 +33,12 @@ MainWindow::MainWindow(juce::String name)
     #endif
 
     getCommandManager().setFirstCommandTarget (this);
+
+    juce::RecentlyOpenedFilesList openedFilesList;
+    openedFilesList.restoreFromString(getAppProperties().getUserSettings()->getValue(AppState::OPEN_FILES));
+    for (auto filepath : openedFilesList.getAllFilenames()) { load(filepath); }
 }
+
 
 MainWindow::~MainWindow() noexcept
 {
@@ -45,7 +50,12 @@ MainWindow::~MainWindow() noexcept
         #endif
     #endif
 }
-void MainWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
+void MainWindow::closeButtonPressed()
+{
+    const auto file_list = m_ViewHandler.listFiles();
+    getAppProperties().getUserSettings()->setValue(AppState::OPEN_FILES, file_list.toString());
+    juce::JUCEApplication::getInstance()->systemRequestedQuit();
+}
 
 void MainWindow::filesDropped(const juce::StringArray& files, int, int)
 {
@@ -67,6 +77,13 @@ juce::PopupMenu MainWindow::getMenuForIndex(int topLevelMenuIndex, const juce::S
     {
         menu.addCommandItem(&cmd_mgr, CommandIDs::open_file);
         menu.addCommandItem(&cmd_mgr, CommandIDs::close_file);
+
+        juce::RecentlyOpenedFilesList recentFiles;
+        recentFiles.restoreFromString(getAppProperties().getUserSettings()->getValue (AppState::RECENT_FILES));
+
+        juce::PopupMenu recentFilesMenu;
+        recentFiles.createPopupMenuItems (recentFilesMenu, 100, true, true);
+        menu.addSubMenu ("Recent files", recentFilesMenu);
     }
 
     if (topLevelMenuIndex == 1) // Window
@@ -79,7 +96,23 @@ juce::PopupMenu MainWindow::getMenuForIndex(int topLevelMenuIndex, const juce::S
     return menu;
 };
 
-void MainWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex) {};
+void MainWindow::menuItemSelected(int menuItemID, int topLevelMenuIndex)
+{
+    if (topLevelMenuIndex == 0) // File
+    {
+        if (menuItemID >= 100 && menuItemID < 200)
+        {
+            juce::RecentlyOpenedFilesList recentFiles;
+            recentFiles.restoreFromString(getAppProperties().getUserSettings()->getValue(AppState::RECENT_FILES));
+            load(recentFiles.getFile(menuItemID - 100));
+        }
+    }
+
+    else if (topLevelMenuIndex == 1)  // Window
+    {
+
+    }
+};
 
 // Application command implementation
 juce::ApplicationCommandTarget* MainWindow::getNextCommandTarget() { return findFirstTargetParentComponent(); };
@@ -127,8 +160,44 @@ void MainWindow::getCommandInfo (int cmd_id, juce::ApplicationCommandInfo& resul
             result.setInfo("About", "Opens the About Panel", category, 0);
             result.defaultKeypresses.add(juce::KeyPress(juce::KeyPress::F1Key));
             break;
+
+        default:
+            break;
     }
 };
 
+bool MainWindow::perform (const InvocationInfo& info)
+{
+    switch (info.commandID)
+    {
+        case CommandIDs::open_file:
+            chooseFileToLoad();
+            break;
+    }
+    return true;
+}
 
-bool MainWindow::perform (const InvocationInfo&) { return true; };
+void MainWindow::chooseFileToLoad()
+{
+    juce::FileChooser chooser("Select an audio file...", juce::File(), "*.wav");
+    if (chooser.browseForFileToOpen()) { load(chooser.getResult()); }
+}
+
+
+void MainWindow::load(const juce::File& filepath)
+{
+    if (!m_ViewHandler.fileIsOpen(filepath))
+    {
+        juce::AudioFormatManager mgr;
+        mgr.registerBasicFormats();
+        std::unique_ptr<juce::AudioFormatReader> reader(mgr.createReaderFor(filepath));
+        auto n_chans = reader->getChannelLayout().size();
+        juce::AudioBuffer<float> data(n_chans, reader->lengthInSamples);
+        reader->read(data.getArrayOfWritePointers(), n_chans, 0, reader->lengthInSamples);
+        m_ViewHandler.addFile(filepath, data, reader->sampleRate);
+    }
+
+    juce::RecentlyOpenedFilesList recentFiles;
+    recentFiles.addFile(filepath);
+    getAppProperties().getUserSettings()->setValue(AppState::RECENT_FILES, recentFiles.toString());
+}

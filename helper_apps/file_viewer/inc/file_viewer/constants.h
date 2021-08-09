@@ -12,3 +12,10 @@ namespace CommandIDs
     static const int spectrogram_settings = 0x30300;
     static const int about                = 0x30400;
 }
+
+namespace AppState
+{
+    static const std::string OPEN_FILES = "open_files";
+    static const std::string RECENT_FILES = "recent_files";
+    static const std::string MAIN_WINDOW_POSITION = "main_window_position";
+}
