@@ -8,7 +8,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <meta/dsp/MagPhaseCalculator.h>
 
-using FFTCalc = meta::dsp::MagPhaseCalculator<float, 10>;
+using FFTCalc = meta::dsp::MagPhaseCalculator<float>;
 using FFTFrame = FFTCalc::MagPhaseFrame;
 
 class SpectrogramComponent
@@ -18,7 +18,7 @@ public:
     SpectrogramComponent(const std::vector<FFTFrame>& frames)
         : r_Frames(frames)
     {
-        setSize(92, FFTCalc::fft_size / 2.0f);
+        setSize(92, 1024 / 2.0f);
         m_Gradient.clearColours();
         m_Gradient.addColour(0, juce::Colours::black);
         m_Gradient.addColour(1, juce::Colours::white);
@@ -49,7 +49,7 @@ public:
         g.fillAll(juce::Colours::red);
         for (int x = 0; x < r_Frames.size(); x++)
         {
-            for (int y = 0; y < FFTCalc::fft_size; y++)
+            for (int y = 0; y < 1024; y++)
             {
                 const auto pixel_value = r_Frames.at(x).first.at(y);
                 const auto light_dark_ratio = pixel_value / m_AmpDepth.getEnd();
@@ -72,7 +72,7 @@ private:
 
 TEST(GraphingPlot, basic_window)
 {
-    FFTCalc window_calc;
+    FFTCalc window_calc(10);
     auto file = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userHomeDirectory)
                            .getChildFile("Downloads/car_interior_impulse_response.wav");
     std::unique_ptr<juce::AudioFormatReader> reader(meta::AudioFileHelpers::createReader(file));
@@ -83,19 +83,19 @@ TEST(GraphingPlot, basic_window)
 
     auto spectrogram = std::make_unique<SpectrogramComponent>(frames);
 
-    for (int i = 0; i < std::ceil(in_data.getNumSamples() / FFTCalc::fft_size); i++)
+    for (int i = 0; i < std::ceil(in_data.getNumSamples() / window_calc.fft_size); i++)
     {
-        juce::AudioBuffer<float> tmp(1, FFTCalc::fft_size);
+        juce::AudioBuffer<float> tmp(1, window_calc.fft_size);
         tmp.clear();
-        const auto start = i * FFTCalc::fft_size;
-        const auto copy_len = std::min(FFTCalc::fft_size, in_data.getNumSamples() - start);
+        const auto start = i * window_calc.fft_size;
+        const auto copy_len = std::min(window_calc.fft_size, in_data.getNumSamples() - start);
         tmp.copyFrom(0, 0, in_data, 0, start, copy_len);
-        frames.push_back(window_calc.calculate_window(tmp));
+        frames.push_back(window_calc.calculate_window(tmp, 0, 0));
     }
 
     const auto start_frame = 0;
     const auto n_frames = frames.size();
-    spectrogram->render(start_frame, n_frames, 0, FFTCalc::fft_size / 2);
+    spectrogram->render(start_frame, n_frames, 0, window_calc.fft_size / 2);
     auto viz = std::make_unique<meta::TestingComponentVisualizer>(spectrogram.release());
     viz->show();
 }

@@ -10,45 +10,58 @@ namespace meta
 {
 namespace dsp
 {
-    template <typename T, size_t order>
+    template <typename T>
     class MagPhaseCalculator
     {
     public:
-        constexpr static auto fft_size = meta::static_power<2, order>::value;
-        using FFTFrame = std::array<T, fft_size>;
+        const size_t fft_size;
+        using FFTFrame = std::vector<T>;
         using MagPhaseFrame = std::pair<FFTFrame, FFTFrame>;
 
-        MagPhaseCalculator()
-            : m_FFT(order)
-            , m_Window{0}
+        MagPhaseCalculator(size_t fft_order)
+            : m_FFT(fft_order)
+            , fft_size(std::pow(2, fft_order))
+            , m_Window(fft_size)
         {
-            m_Window.fill(1);
+            std::fill(m_Window.begin(), m_Window.end(), 1);
             juce::dsp::WindowingFunction<T> wind(fft_size, juce::dsp::WindowingFunction<T>::hann);
             wind.multiplyWithWindowingTable(m_Window.data(), fft_size);
         }
 
-        MagPhaseFrame calculate_window(const juce::AudioBuffer<T>& x)
+
+        MagPhaseFrame calculate_window(juce::AudioBuffer<T>& x, int chan, int start_sample)
         {
-            std::array<std::complex<float>, fft_size> in{0};
-            std::array<std::complex<float>, fft_size> out{0};
-            for (int i = std::min<int>(x.getNumSamples(), fft_size); --i >=0;) { in.at(i) = x.getSample(0, i) * m_Window.at(i); }
+            juce::dsp::AudioBlock<T> y(x);
+            return calculate_window(y, chan, start_sample);
+        }
+
+
+        MagPhaseFrame calculate_window(const juce::dsp::AudioBlock<T>& x, int chan, int start_sample)
+        {
+            jassert(chan <= x.getNumChannels() && chan >= 0);
+            jassert(start_sample <= x.getNumSamples() && start_sample >=0);
+
+            std::vector<std::complex<T>> in(fft_size);
+            std::vector<std::complex<T>> out(fft_size);
+
+            for (int i = std::min<int>(x.getNumSamples() - start_sample, fft_size); --i >=0;)
+                { in.at(i) = x.getSample(chan, i + start_sample) * m_Window.at(i); }
+
             m_FFT.perform(in.data(), out.data(), false);
 
-            std::array<T, fft_size> mag, phase;
+            std::vector<T> mag, phase;
             for (int i = fft_size; --i >=0;)
             {
-                mag.at(i) = std::abs(out.at(i));
-                phase.at(i) = std::abs(out.at(i)) <= std::numeric_limits<float>::epsilon() ? 0 : std::atan2(out.at(i).imag(), out.at(i).real());
+                mag.push_back(std::abs(out.at(i)));
+                phase.push_back(std::abs(out.at(i)) <= std::numeric_limits<float>::epsilon() ? 0 : std::atan2(out.at(i).imag(), out.at(i).real()));
             }
 
             return std::make_pair(mag, phase);
         }
 
-
-
     private:
         juce::dsp::FFT m_FFT;
-        std::array<T, fft_size> m_Window;
+        std::vector<T> m_Window;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MagPhaseCalculator);
     };
