@@ -37,17 +37,11 @@ public:
 
 };
 
-void add_two(std::vector<int>::iterator to_amend)
-{
-    *to_amend = *to_amend + 2;
-    to_amend++;
-    *to_amend = *to_amend +2;
-}
 
 TEST_F(MagPhaseCalculatorTest, calculate)
 {
     osc.setFrequency(SAMPLE_RATE, 1000);
-    init_signal_buffer(10000);
+    init_signal_buffer(1050);
     juce::AudioBuffer<float> test_buffer(1, FFT_SIZE * 2);
     test_buffer.clear();
     test_buffer.copyFrom(0,0, buffer, 0, 0, FFT_SIZE);
@@ -57,9 +51,5 @@ TEST_F(MagPhaseCalculatorTest, calculate)
 
     auto argmax = meta::argmax(magnitude.begin(), magnitude.end());
     auto distance = std::distance(magnitude.begin(), argmax);
-//    ASSERT_EQ(distance, 20);
-
-    std::vector<int> x = {0, 1, 2, 3, 4};
-    add_two(x.begin());
-    ASSERT_EQ(x[0], 2);
+    ASSERT_EQ(distance, 21);
 }
