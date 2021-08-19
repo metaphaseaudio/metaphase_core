@@ -4,8 +4,6 @@
 #pragma once
 #include <meta/generators/complementary_sequence.h>
 #include <meta/dsp/FindInSignal.h>
-
-#define GOLAY_N 2
 #define PAUSE_SAMPS 10
 
 

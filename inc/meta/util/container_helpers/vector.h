@@ -7,7 +7,14 @@
 
 namespace meta
 {
-
+    /**
+     * Splits a vector into two at a given index
+     *
+     * @tparam T the type of the vector
+     * @param x the vector to split
+     * @param index the index at which to split
+     * @return a tuple of the first segment and second segment
+     */
 	template <typename T>
 	std::tuple<std::vector<T>, std::vector<T>> split(const std::vector<T>& x, size_t index)
 	{

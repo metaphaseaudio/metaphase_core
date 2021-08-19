@@ -4,29 +4,34 @@
 
 #include <file_viewer/SpectrogramComponent.h>
 #include <utility>
-SpectrogramChunkCalculator::SpectrogramChunkCalculator(
-        const juce::dsp::AudioBlock<float>& data,
-        std::vector<std::vector<FFTFrame>>::iterator& output,
-        int fft_order, int x_overlap
-)
+
+static const int num_threads = 2;
+
+MagPhaseChunkCalculator::MagPhaseChunkCalculator(
+        const juce::dsp::AudioBlock<float>& data, juce::dsp::AudioBlock<float>& magnitude_out,
+        juce::dsp::AudioBlock<float>& phase_out, int fft_order, int x_overlap)
     : juce::Thread("SpectrogramChunkCalc")
     , m_Calculator(fft_order)
     , r_Data(data)
-    , r_Output(std::move(output))
+    , r_Mag(magnitude_out)
+    , r_Phase(phase_out)
     , m_FFTSize(m_Calculator.fft_size)
     , m_XOverlap(x_overlap)
 {}
 
-
-void SpectrogramChunkCalculator::run()
+void MagPhaseChunkCalculator::run()
 {
-    const auto frames_per_chan = std::ceil(r_Data.getNumSamples() / m_Calculator.fft_size);
+    const auto frames_to_calculate = std::ceil(r_Data.getNumSamples() / m_Calculator.fft_size);
     for (int c = 0; c < r_Data.getNumChannels(); c++)
     {
-        for (int i = 0; i < frames_per_chan; i++)
+        for (int f = 0; f < frames_to_calculate; f++)
         {
             if (threadShouldExit()){ return; }
-            *(r_Output + c) = m_Calculator.calculate_window(r_Data, c, i * int(m_Calculator.fft_size));
+            const auto frame_start = f * m_FFTSize;
+            const auto n_samps = std::min<int>(r_Data.getNumSamples() - frame_start, m_FFTSize);
+            auto mag = r_Mag.getChannelPointer(c) + frame_start;
+            auto phase = r_Phase.getChannelPointer(c) + frame_start;
+            m_Calculator.calculate_window_unchecked(r_Data.getChannelPointer(c) + (f * m_FFTSize), n_samps, mag, phase);
         }
     }
 }
@@ -37,6 +42,7 @@ SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, int f
     , m_FFTOrder(fftOrder)
     , m_FFTSize(std::pow(2, fftOrder))
     , m_XOverlap(xOverlap)
+    , m_NFrames(std::ceil((r_Data.getNumSamples() * r_Data.getNumChannels() * m_XOverlap) / m_FFTSize))
 {
     m_Gradient.clearColours();
     m_Gradient.addColour(0, juce::Colours::black);
@@ -56,14 +62,35 @@ void SpectrogramComponent::resetFrames()
 {
     removeAllChildren();
     m_Components.clear();
-    m_Frames.clear();
-    const auto frames_per_chan = std::ceil(r_Data.getNumSamples() / m_FFTSize);
-    m_Frames.resize(r_Data.getNumChannels() * frames_per_chan);
+    m_Calculations.clear();
 
-    for (auto frame : m_Frames)
+    m_MagData.setSize(r_Data.getNumChannels(), m_NFrames * m_XOverlap * m_FFTSize);
+    m_PhaseData.setSize(r_Data.getNumChannels(), m_NFrames * m_XOverlap * m_FFTSize);
+    m_ColourData.realloc(r_Data.getNumChannels() * m_NFrames * m_FFTSize, sizeof(juce::Colour));
+
+    m_MagData.clear(); m_PhaseData.clear();
+    m_MagData.setSize(r_Data.getNumChannels(), r_Data.getNumSamples() * m_XOverlap);
+    m_PhaseData.setSize(r_Data.getNumChannels(), r_Data.getNumSamples() * m_XOverlap);
+
+    const int colourSampsPerChunk = m_NFrames * m_FFTSize;
+
+    for (int i = num_threads; --i >= 0;)
     {
-        m_Components.push_back(std::make_unique<FFTFrameComponent>(&frame, m_FFTSize, m_Gradient));
+        m_Components.emplace_back(
+            m_ColourData.twoD(),
+            r_Data.getNumChannels(), colourSampsPerChunk, m_XOverlap);
         addAndMakeVisible(m_Components.back().get());
+    }
+}
+
+void SpectrogramComponent::recalculateFrames()
+{
+    for (int t = 0; t < num_threads; t++)
+    {
+        juce::dsp::AudioBlock<float> in_block(r_Data, t * (r_Data.getNumSamples() / num_threads));
+        juce::dsp::AudioBlock<float> mag_block(r_Data, t * (r_Data.getNumSamples() / num_threads));
+        juce::dsp::AudioBlock<float> phase_block(r_Data, t * (r_Data.getNumSamples() / num_threads));
+        m_Calculations.emplace_back(in_block, mag_block, phase_block);
     }
 }
 
@@ -87,17 +114,6 @@ void SpectrogramComponent::resized()
     }
 }
 
-void SpectrogramComponent::recalculateFrames()
-{
-    const auto max_num_threads = 2;
-    m_Calculations.clear();
-    for (int t = 0; t < max_num_threads; t++)
-    {
-        juce::dsp::AudioBlock<float> block(r_Data, t * (r_Data.getNumSamples() / max_num_threads));
-        m_Calculations.emplace_back(block);
-    }
-}
-
 SpectrogramComponent::~SpectrogramComponent()
 {
     for (auto& thread : m_Calculations) { thread.stopThread(); }
@@ -108,47 +124,51 @@ void SpectrogramComponent::paint(juce::Graphics& g)
     Component::paint(g);
 }
 
-FFTFrameComponent::FFTFrameComponent(FFTFrameComponent::FFTFrame* data, int fft_size, juce::ColourGradient  gradient)
-    : m_FFTSize(fft_size)
-    , m_Gradient(std::move(gradient))
-    , p_Frame(data)
+
+SpectrogramChunkComponent::SpectrogramChunkComponent(const juce::Colour** data, int nY, int nX, int xOverlap)
+    : m_Data(data)
+    , m_Y(nY)
+    , m_X(nX)
+    , m_XOverlap(xOverlap)
 {}
 
+void SpectrogramChunkComponent::dataRefreshed(){}
 
-void FFTFrameComponent::paint(juce::Graphics& g)
+void SpectrogramChunkComponent::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colours::red);
-    const auto max = float(m_FFTSize) / 2.0f; // 1/2 FFT size is the maximum value for both + and - frequencies
-    const auto bin_height = float(getHeight()) / (m_FFTSize / 2);
-    auto local_bounds = getLocalBounds().toFloat();
-    for (int i = 0; i < m_FFTSize / 2; i ++)
-    {
-        const auto bin_value = p_Frame->first.at(i) * 10;
-        const auto light_dark_ratio = bin_value / max;
-        const auto colour = m_Gradient.getColourAtPosition(light_dark_ratio);
-        g.setColour(colour);
-        const auto to_fill = local_bounds.removeFromBottom(bin_height);
-        g.fillRect(to_fill);
-        g.drawRect(to_fill);
-    }
+//    const auto max = float(m_FFTSize) / 2.0f; // 1/2 FFT size is the maximum value for both + and - frequencies
+//    const auto bin_height = float(getHeight()) / (m_FFTSize / 2);
+//    auto local_bounds = getLocalBounds().toFloat();
+//    for (int i = 0; i < m_FFTSize / 2; i ++)
+//    {
+//        const auto bin_value = p_Frame->first.at(i) * 10;
+//        const auto light_dark_ratio = bin_value / max;
+//        const auto colour = m_Gradient.getColourAtPosition(light_dark_ratio);
+//        g.setColour(colour);
+//        const auto to_fill = local_bounds.removeFromBottom(bin_height);
+//        g.fillRect(to_fill);
+//        g.drawRect(to_fill);
+//    }
 }
 
 
-std::vector<std::vector<juce::Colour>>
-SpectrogramChunk::colourizeFrame(const std::vector<FFTFrame>& to_draw, const juce::ColourGradient& gradient, int fft_size)
-{
-    std::vector<SpectrogramFrame> rv;
-    const auto max = float(fft_size) / 2.0f; // 1/2 FFT size is the maximum value for both + and - frequencies
-    for (auto frame : to_draw)
-    {
-        SpectrogramFrame colour_frame;
-        for (auto bin_value : frame.first)
-        {
-            const auto light_dark_ratio = bin_value / max;
-            colour_frame.emplace_back(gradient.getColourAtPosition(light_dark_ratio));
-        }
-        rv.push_back(colour_frame)
-    }
-    return rv;
-}
+
+//std::vector<std::vector<juce::Colour>>
+//SpectrogramChunk::colourizeFrame(const std::vector<FFTFrame>& to_draw, const juce::ColourGradient& gradient, int fft_size)
+//{
+//    std::vector<SpectrogramFrame> rv;
+//    const auto max = float(fft_size) / 2.0f; // 1/2 FFT size is the maximum value for both + and - frequencies
+//    for (auto frame : to_draw)
+//    {
+//        SpectrogramFrame colour_frame;
+//        for (auto bin_value : frame.first)
+//        {
+//            const auto light_dark_ratio = bin_value / max;
+//            colour_frame.emplace_back(gradient.getColourAtPosition(light_dark_ratio));
+//        }
+//        rv.push_back(colour_frame)
+//    }
+//    return rv;
+//}
 

@@ -6,7 +6,7 @@
 #include <meta/dsp/BandlimitedWavetable.h>
 #include <meta/dsp/WavetableReader.h>
 #include <meta/dsp/MagPhaseCalculator.h>
-
+#include <valarray>
 
 class MagPhaseCalculatorTest
     : public testing::Test
@@ -53,3 +53,4 @@ TEST_F(MagPhaseCalculatorTest, calculate)
     auto distance = std::distance(magnitude.begin(), argmax);
     ASSERT_EQ(distance, 21);
 }
+

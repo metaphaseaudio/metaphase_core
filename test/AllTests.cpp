@@ -13,6 +13,7 @@
 #include "test/tests/util/test_BitMask.h"
 #include "test/tests/util/test_FixedPoint.h"
 #include "test/tests/util/test_FixedPointMath.h"
+#include "test/tests/util/container_helpers/test_TwoDimensionalHeap.h"
 #include "test/tests/util/container_helpers/test_comparisons.h"
 #include "test/tests/util/container_helpers/test_Vector.h"
 #include "test/tests/util/container_helpers/test_Array.h"

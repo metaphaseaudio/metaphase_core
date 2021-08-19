@@ -30,7 +30,7 @@ namespace dsp
 
         MagPhaseFrame calculate_window(juce::AudioBuffer<T>& x, int chan, int start_sample) const
             { return calculate_window(juce::dsp::AudioBlock<T>(x), chan, start_sample); }
-            
+
         MagPhaseFrame calculate_window(const juce::dsp::AudioBlock<T>& x, int chan, int start_sample) const
         {
             std::vector<T> mag(fft_size), phase(fft_size);
