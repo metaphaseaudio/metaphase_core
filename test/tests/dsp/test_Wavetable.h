@@ -40,7 +40,6 @@ public:
             samples -= chunk_size;
             m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
         }
-
     }
 
     std::array<float, 1000> table = meta::BandlimitedWavetable<float, 1000>::makeSquare(100);
