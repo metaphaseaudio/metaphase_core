@@ -6,7 +6,7 @@
 #include <utility>
 
 //static const int num_threads = 2;
-static const int max_frames_per_thread = (44100 * 10) / 1024; // Guess at this (1 second of 48k, 2chan with a 2^10 frame) -- it can be futz'd w/.
+static const int max_frames_per_thread = (44100 * 2) / 1024; // Guess at this (1 second of 48k, 2chan with a 2^10 frame) -- it can be futz'd w/.
 
 MagPhaseChunkCalculator::MagPhaseChunkCalculator(
         const juce::dsp::AudioBlock<float> data,
@@ -65,11 +65,11 @@ void SpectrogramComponent::recalculateFrames()
 {
     // just for shorthands
     const int n_chans = r_Data.getNumChannels();
-    const int in_samps = r_Data.getNumSamples();
+    const float in_samps = r_Data.getNumSamples();
 
-    const auto total_in_frames = std::ceil(r_Data.getNumSamples() / m_FFTSize);
+    const auto total_in_frames = std::ceil(in_samps / (float) m_FFTSize);
     const auto n_chunks = std::ceil(total_in_frames / max_frames_per_thread);
-    const int in_chunk_size_samps = std::floor(total_in_frames / n_chunks) * m_FFTSize;
+    const int in_chunk_size_samps = int(total_in_frames / n_chunks) * m_FFTSize;
     const int out_chunk_size_samps = in_chunk_size_samps * m_XOverlap;
     const int out_samps = out_chunk_size_samps * n_chunks;
 
@@ -85,7 +85,7 @@ void SpectrogramComponent::recalculateFrames()
         const auto out_chunk_start = chunk_i * out_chunk_size_samps;
 
         // we need to worry about the end of the stream on input, but not output.
-        juce::dsp::AudioBlock<float> in_block(in_data, n_chans, in_chunk_start, std::min(in_chunk_size_samps, in_samps - in_chunk_start));
+        juce::dsp::AudioBlock<float> in_block(in_data, n_chans, in_chunk_start, std::min<int>(in_chunk_size_samps, in_samps - in_chunk_start));
         juce::dsp::AudioBlock<float> mag_block(mag_data, n_chans, out_chunk_start, out_chunk_size_samps);
         juce::dsp::AudioBlock<float> phase_block(phase_data, n_chans, out_chunk_start, out_chunk_size_samps);
 
@@ -133,9 +133,9 @@ SpectrogramChunkComponent::SpectrogramChunkComponent(
 
 void SpectrogramChunkComponent::recalculateSpectrogramImage()
 {
-    const auto x_size = r_MagData.getNumSamples() / m_FFTSize;
+    const auto x_size = int(std::ceil(r_MagData.getNumSamples() / m_FFTSize));
     const auto n_bins = m_FFTSize / 2;  // We only want the positive frequencies
-    p_SpectrogramImage = std::make_unique<juce::Image>(juce::Image::RGB, x_size , n_bins, false);
+    p_SpectrogramImage = std::make_unique<juce::Image>(juce::Image::RGB, x_size , n_bins, true);
 
     for (int s = x_size; --s >=0;)
     {

@@ -7,7 +7,7 @@ FileViewerComponent::FileViewerComponent(juce::File filepath, juce::AudioBuffer<
     , m_Data(data)
     , m_SampleRate(sample_rate)
     , m_Waveform(1)
-    , m_Spectrogram(m_Data, 9, 1)
+    , m_Spectrogram(m_Data, 10, 1)
 {
     m_Waveform.setClip(data, sample_rate);
     addAndMakeVisible(m_Spectrogram);
