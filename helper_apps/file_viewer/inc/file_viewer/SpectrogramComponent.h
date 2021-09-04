@@ -68,8 +68,6 @@ public:
     int getNChunksPerChan() const { return getNFramesPerChan(); }
 
 private:
-    void resetFrames();
-    void resetComponents();
     void recalculateFrames();
 
     juce::AudioBuffer<float>& r_Data;

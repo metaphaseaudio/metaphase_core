@@ -6,7 +6,7 @@
 #include <utility>
 
 //static const int num_threads = 2;
-static const int max_frames_per_thread = (44100 * 3) / 1024; // Guess at this (1 second of 48k, 2chan with a 2^10 frame) -- it can be futz'd w/.
+static const int max_frames_per_thread = (44100 * 10) / 1024; // Guess at this (1 second of 48k, 2chan with a 2^10 frame) -- it can be futz'd w/.
 
 MagPhaseChunkCalculator::MagPhaseChunkCalculator(
         const juce::dsp::AudioBlock<float> data,
@@ -61,32 +61,6 @@ SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, int f
     recalculateFrames();
 }
 
-
-void SpectrogramComponent::resetFrames()
-{
-    removeAllChildren();
-
-    m_Components.clear();
-    m_Calculations.clear();
-
-    const int total_in_frames = std::ceil(r_Data.getNumSamples() / m_FFTSize);
-    const int n_chunks = std::ceil(total_in_frames / max_frames_per_thread);
-    for (int i = n_chunks; --i >= 0;)
-    {
-//        m_Components.emplace_back(new SpectrogramChunkComponent(
-//                juce::dsp::AudioBlock<float>(m_MagData, i * (m_MagData.getNumSamples() / n_chunks)),
-//                m_Gradient, m_XOverlap));
-//        addAndMakeVisible(m_Components.back().get());
-    }
-}
-
-
-void SpectrogramComponent::resetComponents()
-{
-
-
-}
-
 void SpectrogramComponent::recalculateFrames()
 {
     // just for shorthands
@@ -102,6 +76,8 @@ void SpectrogramComponent::recalculateFrames()
     m_MagData.setSize(n_chans, out_samps);
     m_PhaseData.setSize(n_chans, out_samps);
     const auto in_data = r_Data.getArrayOfWritePointers();
+    const auto mag_data = m_MagData.getArrayOfWritePointers();
+    const auto phase_data = m_PhaseData.getArrayOfWritePointers();
 
     for (int chunk_i = 0; chunk_i < n_chunks; chunk_i++)
     {
@@ -110,8 +86,8 @@ void SpectrogramComponent::recalculateFrames()
 
         // we need to worry about the end of the stream on input, but not output.
         juce::dsp::AudioBlock<float> in_block(in_data, n_chans, in_chunk_start, std::min(in_chunk_size_samps, in_samps - in_chunk_start));
-        juce::dsp::AudioBlock<float> mag_block(in_data, n_chans, out_chunk_start, out_chunk_size_samps);
-        juce::dsp::AudioBlock<float> phase_block(in_data, n_chans, out_chunk_start, out_chunk_size_samps);
+        juce::dsp::AudioBlock<float> mag_block(mag_data, n_chans, out_chunk_start, out_chunk_size_samps);
+        juce::dsp::AudioBlock<float> phase_block(phase_data, n_chans, out_chunk_start, out_chunk_size_samps);
 
         m_Components.emplace_back(new SpectrogramChunkComponent(juce::dsp::AudioBlock<float>(
                 m_MagData, out_chunk_start),m_Gradient, m_FFTSize, m_XOverlap));
@@ -158,20 +134,21 @@ SpectrogramChunkComponent::SpectrogramChunkComponent(
 void SpectrogramChunkComponent::recalculateSpectrogramImage()
 {
     const auto x_size = r_MagData.getNumSamples() / m_FFTSize;
-    p_SpectrogramImage = std::make_unique<juce::Image>(juce::Image::RGB, x_size , m_FFTSize , false);
+    const auto n_bins = m_FFTSize / 2;  // We only want the positive frequencies
+    p_SpectrogramImage = std::make_unique<juce::Image>(juce::Image::RGB, x_size , n_bins, false);
 
     for (int s = x_size; --s >=0;)
     {
-        for (int bin = m_FFTSize; --bin > 0;)
+        for (int bin = n_bins; --bin > 0;)
         {
-            const auto in_sample = s * m_FFTSize + bin;
-            auto colour = r_Gradient.getColourAtPosition(r_MagData.getChannelPointer(0)[in_sample]);
-            p_SpectrogramImage->setPixelAt(s, bin, //colour);
-                   bin > m_FFTSize / 2 ?
-                        in_sample < r_MagData.getNumSamples() / 2 ? juce::Colours::green: juce::Colours::blue
-                        :
-                        in_sample < r_MagData.getNumSamples() / 2 ? juce::Colours::purple: juce::Colours::pink);
+            // TODO: This scaling kinda works? it also cuts off the top. we'll see about tweaking this.
+//            const int fft_i = (1.0f - std::exp (std::log ((float) bin / (float) n_bins) * 0.2f)) * n_bins;
+            const auto fft_i = bin + n_bins;
+            const int in_sample = s * m_FFTSize + fft_i;
+            const auto sample_value = r_MagData.getChannelPointer(0)[in_sample];
 
+            auto colour = r_Gradient.getColourAtPosition(sample_value);
+            p_SpectrogramImage->setPixelAt(s, bin, colour);
         }
     }
 }
