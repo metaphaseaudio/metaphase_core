@@ -89,8 +89,7 @@ void SpectrogramComponent::recalculateFrames()
         juce::dsp::AudioBlock<float> mag_block(mag_data, n_chans, out_chunk_start, out_chunk_size_samps);
         juce::dsp::AudioBlock<float> phase_block(phase_data, n_chans, out_chunk_start, out_chunk_size_samps);
 
-        m_Components.emplace_back(new SpectrogramChunkComponent(juce::dsp::AudioBlock<float>(
-                m_MagData, out_chunk_start),m_Gradient, m_FFTSize, m_XOverlap));
+        m_Components.emplace_back(new SpectrogramChunkComponent(mag_block, m_Gradient, m_FFTSize, m_XOverlap));
         addAndMakeVisible(m_Components.back().get());
 
         m_Calculations.emplace_back(new MagPhaseChunkCalculator(in_block, mag_block, phase_block, 10, 0));
