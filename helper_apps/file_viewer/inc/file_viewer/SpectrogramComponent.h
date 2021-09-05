@@ -34,22 +34,15 @@ private:
 
 
 class SpectrogramChunk
-    : public juce::Component
-    , public juce::ChangeListener
+    : public juce::ChangeListener
 {
 public:
     SpectrogramChunk(const juce::dsp::AudioBlock<float>& data, const juce::ColourGradient& grad, int fftSize, int xOverlap);
-    void dataRefreshed();
-
     const juce::Image* getImage() const { return p_SpectrogramImage.get(); };
-
-    void paint(juce::Graphics& g) override;
-
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
-
-private:
     void recalculateSpectrogramImage();
 
+private:
     juce::dsp::AudioBlock<float> r_MagData;
     const juce::ColourGradient& r_Gradient;
     std::unique_ptr<juce::Image> p_SpectrogramImage;
@@ -65,7 +58,6 @@ class SpectrogramComponent
 public:
     SpectrogramComponent(juce::AudioBuffer<float>& data, int fftOrder, int xOverlap);
     ~SpectrogramComponent();
-    void resized() override;
     void paint(juce::Graphics& g) override;
 
     int getNFramesPerChan() const { return std::ceil(r_Data.getNumSamples() / m_FFTSize); }

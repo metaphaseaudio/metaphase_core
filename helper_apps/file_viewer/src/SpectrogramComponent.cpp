@@ -90,7 +90,6 @@ void SpectrogramComponent::recalculateFrames()
         juce::dsp::AudioBlock<float> phase_block(phase_data, n_chans, out_chunk_start, out_chunk_size_samps);
 
         m_Chunks.emplace_back(new SpectrogramChunk(mag_block, m_Gradient, m_FFTSize, m_XOverlap));
-//        addAndMakeVisible(m_Components.back().get());
 
         m_Calculations.emplace_back(new MagPhaseChunkCalculator(in_block, mag_block, phase_block, 10, 0));
         m_Calculations.back()->addChangeListener(m_Chunks.at(chunk_i).get());
@@ -98,17 +97,6 @@ void SpectrogramComponent::recalculateFrames()
     }
 }
 
-void SpectrogramComponent::resized()
-{
-    if (!m_Chunks.size()) { return; }
-    auto local_bounds = getLocalBounds();
-
-    const auto comp_width = local_bounds.getWidth() / m_Chunks.size();
-    for (auto& component : m_Chunks)
-    {
-//        component->setBounds(local_bounds.removeFromLeft(comp_width));
-    }
-}
 
 SpectrogramComponent::~SpectrogramComponent()
 {
@@ -162,21 +150,4 @@ void SpectrogramChunk::recalculateSpectrogramImage()
     }
 }
 
-void SpectrogramChunk::dataRefreshed()
-{
-    recalculateSpectrogramImage();
-    repaint();
-}
-
-void SpectrogramChunk::paint(juce::Graphics& g)
-{
-    g.fillAll(juce::Colours::red);
-    // it is possible to not have the data here ready. Wait until it is.
-    if (p_SpectrogramImage == nullptr) { return; }
-    g.drawImage(*p_SpectrogramImage, getLocalBounds().toFloat());
-}
-
-void SpectrogramChunk::changeListenerCallback(juce::ChangeBroadcaster* source)
-{
-    dataRefreshed();
-}
+void SpectrogramChunk::changeListenerCallback(juce::ChangeBroadcaster* source) { recalculateSpectrogramImage(); }
