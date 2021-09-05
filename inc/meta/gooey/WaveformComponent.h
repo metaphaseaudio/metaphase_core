@@ -15,10 +15,17 @@ namespace meta
         : public juce::Component
     {
     public:
+        enum ColourIds
+        {
+            backgroundColourId          = 0x3001200,
+            foregroundColourId          = 0x3001201
+        };
+
         explicit WaveformComponent(size_t sampsPerPixel, size_t cacheSize=10);
         void paint (juce::Graphics&) override;
         void setClip(const juce::AudioBuffer<float>& clip, double sampleRate);
         void clear() { m_Thumbnail.clear(); };
+
 
     private:
         juce::AudioFormatManager m_DummyManager;

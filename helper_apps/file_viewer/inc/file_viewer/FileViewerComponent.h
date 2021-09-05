@@ -13,6 +13,7 @@
 
 class FileViewerComponent
     : public juce::Component
+    , juce::Slider::Listener
 {
     using FFTFrame = meta::dsp::MagPhaseCalculator<float>::MagPhaseFrame;
 public:
@@ -22,10 +23,12 @@ public:
     juce::File getFilepath() const;
 
 private:
+    void sliderValueChanged(juce::Slider* slider);
     juce::File m_Filepath;
     juce::AudioBuffer<float> m_Data;
     double m_SampleRate;
     meta::WaveformComponent m_Waveform;
     SpectrogramComponent m_Spectrogram;
+    juce::Slider m_SpecWavSlider;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileViewerComponent)
 };

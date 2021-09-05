@@ -12,6 +12,7 @@ MainWindow::MainWindow(juce::String name)
         (name, juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId), DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar(true);
+    m_ViewHandler.setLookAndFeel(&m_LAF);
     setContentNonOwned(&m_ViewHandler, true);
 
     #if JUCE_IOS || JUCE_ANDROID
@@ -42,6 +43,7 @@ MainWindow::MainWindow(juce::String name)
 
 MainWindow::~MainWindow() noexcept
 {
+    m_ViewHandler.setLookAndFeel(nullptr);
     #if ! (JUCE_ANDROID || JUCE_IOS)
         #if JUCE_MAC
             setMacMainMenu (nullptr);

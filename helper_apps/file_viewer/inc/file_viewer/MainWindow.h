@@ -5,6 +5,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <file_viewer/FileViewerComponent.h>
 #include "MultiFileViewerComponent.h"
+#include "LAF.h"
 
 
 class MainWindow
@@ -42,6 +43,8 @@ private:
     void chooseFileToLoad();
     void load(const juce::File& filepath);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     MultiFileViewerComponent m_ViewHandler;
+    LAF m_LAF;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
 };

@@ -9,14 +9,13 @@ meta::WaveformComponent::WaveformComponent(size_t cacheSize, size_t sampsPerPixe
     , m_Thumbnail(sampsPerPixel, m_DummyManager, m_ThumbCache)
 {}
 
-
 void meta::WaveformComponent::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds();
-    g.setColour(juce::Colours::lightgrey);
+    g.setColour(getLookAndFeel().findColour(backgroundColourId));
     g.fillRect(bounds);
     const auto len = m_Thumbnail.getTotalLength();
-    g.setColour(juce::Colours::black);
+    g.setColour(getLookAndFeel().findColour(foregroundColourId));
     m_Thumbnail.drawChannels(g, bounds.reduced(5), 0, len, 1.0);
 }
 

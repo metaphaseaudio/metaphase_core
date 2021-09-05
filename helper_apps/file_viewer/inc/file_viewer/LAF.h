@@ -9,6 +9,8 @@ class LAF
     : public juce::LookAndFeel_V4
 {
 public:
+    LAF();
+
     int getTabButtonBestWidth(juce::TabBarButton& button, int tabDepth) override;
 };
 

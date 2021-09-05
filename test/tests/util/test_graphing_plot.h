@@ -44,22 +44,6 @@ public:
         }
     }
 
-    void paint(juce::Graphics &g) override
-    {
-        g.fillAll(juce::Colours::red);
-        for (int x = 0; x < r_Frames.size(); x++)
-        {
-            for (int y = 0; y < 1024; y++)
-            {
-                const auto pixel_value = r_Frames.at(x).first.at(y);
-                const auto light_dark_ratio = pixel_value / m_AmpDepth.getEnd();
-                g.setColour(m_Gradient.getColourAtPosition(light_dark_ratio));
-                g.fillRect(x * 2, y, 2, 1);
-            }
-        }
-    }
-
-
 private:
     juce::Range<int> m_HorizWindowRange;
     juce::Range<int> m_VertWindowRange;

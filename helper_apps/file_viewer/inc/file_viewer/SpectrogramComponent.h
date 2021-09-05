@@ -8,6 +8,7 @@
 #include <meta/dsp/MagPhaseCalculator.h>
 #include <meta/util/container_helpers/TwoDimensionalHeap.h>
 
+
 class MagPhaseChunkCalculator
     : public juce::Thread
     , public juce::ChangeBroadcaster
@@ -32,13 +33,16 @@ private:
 };
 
 
-class SpectrogramChunkComponent
+class SpectrogramChunk
     : public juce::Component
     , public juce::ChangeListener
 {
 public:
-    SpectrogramChunkComponent(const juce::dsp::AudioBlock<float>& data, const juce::ColourGradient& grad, int fftSize, int xOverlap);
+    SpectrogramChunk(const juce::dsp::AudioBlock<float>& data, const juce::ColourGradient& grad, int fftSize, int xOverlap);
     void dataRefreshed();
+
+    const juce::Image* getImage() const { return p_SpectrogramImage.get(); };
+
     void paint(juce::Graphics& g) override;
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
@@ -51,7 +55,7 @@ private:
     std::unique_ptr<juce::Image> p_SpectrogramImage;
     int m_FFTSize, m_XOverlap;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramChunkComponent);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramChunk);
 };
 
 
@@ -76,7 +80,7 @@ private:
 
     juce::ColourGradient m_Gradient;
 
-    std::vector<std::unique_ptr<SpectrogramChunkComponent>> m_Components;
+    std::vector<std::unique_ptr<SpectrogramChunk>> m_Chunks;
     std::vector<std::unique_ptr<MagPhaseChunkCalculator>> m_Calculations;
 
 };
