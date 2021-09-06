@@ -5,8 +5,7 @@
 #include <file_viewer/SpectrogramComponent.h>
 #include <utility>
 
-//static const int num_threads = 2;
-static const int max_frames_per_thread = (44100 * 2) / 1024; // Guess at this (1 second of 48k, 2chan with a 2^10 frame) -- it can be futz'd w/.
+static const int max_frames_per_thread = 48000 * 2 * 5; // Guess at this (5 seconds of 48k, 2chan) -- it can be futz'd w/.
 
 MagPhaseChunkCalculator::MagPhaseChunkCalculator(
         const juce::dsp::AudioBlock<float> data,
@@ -49,15 +48,27 @@ SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, int f
     , m_FFTSize(std::pow(2, fftOrder))
     , m_XOverlap(xOverlap)
 {
+    std::vector<juce::Colour> colours = {
+        juce::Colours::black,
+        juce::Colours::darkblue,
+        juce::Colours::purple,
+        juce::Colours::darkred,
+        juce::Colours::red,
+        juce::Colours::orange,
+        juce::Colours::yellow,
+        juce::Colours::white,
+    };
+
     m_Gradient.clearColours();
-    m_Gradient.addColour(0, juce::Colours::black);
-    m_Gradient.addColour(0.1428, juce::Colours::darkblue);
-    m_Gradient.addColour(0.2857, juce::Colours::purple);
-    m_Gradient.addColour(0.4285, juce::Colours::darkred);
-    m_Gradient.addColour(0.5714, juce::Colours::red);
-    m_Gradient.addColour(0.7142, juce::Colours::orange);
-    m_Gradient.addColour(0.8571, juce::Colours::yellow);
-    m_Gradient.addColour(1, juce::Colours::white);
+    const auto increment = 1.0f / (colours.size() - 1);
+    float position = 0;
+    for (auto& colour : colours)
+    {
+        const auto log_position = meta::Interpolate<float>::parabolic(0.0f, 1.0f, position, 7);
+        m_Gradient.addColour(log_position, colour);
+        position += increment;
+    }
+
     recalculateFrames();
 }
 
@@ -143,9 +154,9 @@ void SpectrogramChunkCalculator::recalculateSpectrogramImage()
     {
         for (int bin = n_bins; --bin > 0;)
         {
-            // TODO: This scaling kinda works? it also cuts off the top. we'll see about tweaking this.
-            const int fft_i = (1.0f - std::exp (std::log ((float) bin / (float) n_bins) * 0.2f)) * n_bins;
-//            const auto fft_i = bin + n_bins;
+            // TODO: This scaling from the juce tutorial kinda works? it also cuts off the top. we'll see about tweaking this.
+//            const int fft_i = (1.0f - std::exp (std::log ((float) bin / (float) m_FFTSize) * 0.2f)) * n_bins;
+            const int fft_i = bin + n_bins;
             const int in_sample = s * m_FFTSize + fft_i;
             const auto sample_value = r_MagData.getChannelPointer(0)[in_sample];
 

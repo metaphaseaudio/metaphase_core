@@ -18,6 +18,8 @@ public:
 
     void addFile(const juce::File& filepath, juce::AudioBuffer<float>& data, double sample_rate);
     void removeFile(const juce::File& filepath);
+    void viewFile(const juce::File& filepath);
+
     juce::RecentlyOpenedFilesList listFiles() const;
     bool fileIsOpen(const juce::File& filepath) const;
 

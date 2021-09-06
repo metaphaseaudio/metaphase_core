@@ -197,9 +197,10 @@ void MainWindow::load(const juce::File& filepath)
         juce::AudioBuffer<float> data(n_chans, reader->lengthInSamples);
         reader->read(data.getArrayOfWritePointers(), n_chans, 0, reader->lengthInSamples);
         m_ViewHandler.addFile(filepath, data, reader->sampleRate);
+        juce::RecentlyOpenedFilesList recentFiles;
+        recentFiles.restoreFromString(getAppProperties().getUserSettings()->getValue(AppState::RECENT_FILES));
+        recentFiles.addFile(filepath);
+        getAppProperties().getUserSettings()->setValue(AppState::RECENT_FILES, recentFiles.toString());
+        m_ViewHandler.viewFile(filepath);
     }
-
-    juce::RecentlyOpenedFilesList recentFiles;
-    recentFiles.addFile(filepath);
-    getAppProperties().getUserSettings()->setValue(AppState::RECENT_FILES, recentFiles.toString());
 }

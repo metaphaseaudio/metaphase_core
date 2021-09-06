@@ -46,7 +46,14 @@ FileViewerComponent* const* MultiFileViewerComponent::findViewer(const juce::Fil
 bool MultiFileViewerComponent::fileIsOpen(const juce::File& filepath) const
 {
     const auto found = findViewer(filepath);
-    return found != nullptr;
+    return found != nullptr && found != m_Views.end();
+}
+
+void MultiFileViewerComponent::viewFile(const juce::File& filepath)
+{
+    auto found = findViewer(filepath);
+    const auto index = found - m_Views.begin();
+    m_TabHandler.setCurrentTabIndex(index);
 }
 
 void MultiFileViewerComponent::removeFile(const juce::File& filepath)
@@ -65,3 +72,4 @@ juce::RecentlyOpenedFilesList MultiFileViewerComponent::listFiles() const
     for (auto view : m_Views) { files.addFile(view->getFilepath()); }
     return files;
 }
+
