@@ -16,7 +16,7 @@ void meta::WaveformComponent::paint(juce::Graphics& g)
     g.fillRect(bounds);
     const auto len = m_Thumbnail.getTotalLength();
     g.setColour(getLookAndFeel().findColour(foregroundColourId));
-    m_Thumbnail.drawChannels(g, bounds.reduced(5), 0, len, 1.0);
+    m_Thumbnail.drawChannels(g, bounds, 0, len, 1.0);
 }
 
 void meta::WaveformComponent::setClip(const juce::AudioBuffer<float>& clip, double sampleRate)
