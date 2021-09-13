@@ -14,7 +14,7 @@ namespace meta
     {
     public:
         class Display
-            : public juce::Component
+                : public juce::Component
         {
         public:
             explicit Display(const juce::ColourGradient& gradient);
@@ -24,12 +24,11 @@ namespace meta
             const juce::ColourGradient& r_Gradient;
         };
 
-        //////////
-
+        ///////////////////////////////////////////////////////////////////////
         class ColourPoint
-            : public juce::Component
-            , public juce::ChangeBroadcaster
-            , juce::ChangeListener
+                : public juce::Component
+                  , public juce::ChangeBroadcaster
+                  , juce::ChangeListener
         {
         public:
             void mouseDown(const juce::MouseEvent& e) override;
@@ -41,6 +40,7 @@ namespace meta
             void resized() override;
             void paint(juce::Graphics& g) override;
             juce::Colour getPointColour() const { return m_Colour; }
+            float getColourPosition() const;
 
             void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 
@@ -50,8 +50,7 @@ namespace meta
             juce::Colour m_Colour;
         };
 
-        //////////
-
+        ///////////////////////////////////////////////////////////////////////
         GradientDesigner();
         void resized() override;
         void changeListenerCallback(juce::ChangeBroadcaster *source) override;

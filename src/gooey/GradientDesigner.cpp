@@ -58,47 +58,59 @@ void meta::GradientDesigner::ColourPoint::changeListenerCallback(juce::ChangeBro
     repaint();
 }
 
+float meta::GradientDesigner::ColourPoint::getColourPosition() const
+    { return getLocalBounds().toFloat().getCentre().x / getParentComponent()->getLocalBounds().toFloat().getWidth(); }
+
 ///////////////////////////////////////////////////////////////////////////////
-
-
 meta::GradientDesigner::GradientDesigner()
     : m_Display(m_Gradient)
 {
-    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::red));
-    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::green));
-    m_Gradient.isRadial = false;
-    m_Gradient.addColour(0.0f, m_Colours.begin()->get()->getPointColour());
-    m_Gradient.addColour(1.0f, m_Colours.back()->getPointColour());
     addAndMakeVisible(m_Display);
     addAndMakeVisible(m_Track);
 
+    // Setup default gradient
+    m_Gradient.isRadial = false;
+    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::red));
+    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::green));
+    m_Gradient.addColour(0.0f, m_Colours.begin()->get()->getPointColour());
+    m_Gradient.addColour(1.0f, m_Colours.back()->getPointColour());
+
     for (auto& colour : m_Colours)
     {
-        m_Track.addAndMakeVisible(*colour.get());
+        m_Track.addAndMakeVisible(*colour);
         colour->addChangeListener(this);
     }
 }
 
 void meta::GradientDesigner::resized()
 {
-    const auto track_size = 22;
+    const auto point_size = 22;
     auto local_bounds = getLocalBounds();
-    auto display_bounds = local_bounds.removeFromTop(track_size + 6);
-    auto track_bounds = local_bounds.removeFromTop(track_size);
-    track_bounds.removeFromLeft((local_bounds.getHeight() / 2.0f) - (track_size / 2.0f));
-    track_bounds.removeFromRight((local_bounds.getHeight() / 2.0f) - (track_size / 2.0f));
+    auto display_bounds = local_bounds.removeFromTop(point_size + 6);  // TODO: get rid of the +6 and get the border from the display
+    auto track_bounds = local_bounds.removeFromTop(point_size);
 
     m_Display.setBounds(display_bounds);
     m_Track.setBounds(track_bounds);
 
-    for (auto& colour : m_Colours)
+    const auto track_center_left = juce::Point<float>(m_Track.getLocalBounds().getTopLeft().x, m_Track.getLocalBounds().getCentre().y);
+    const auto half_point_size = point_size / 2.0f;
+    const auto track_width = m_Track.getWidth() - point_size;
+
+    for (auto colour_int : meta::enumerate(m_Colours))
     {
-        colour->setSize(track_size, track_size);
-        colour->setCentrePosition(m_Track.getLocalBounds().getCentre());
+        // The first colour may not be at 0. Gradients require it mechanically,
+        // but visually we don't, so now we need to reconcile that.
+        const auto index = std::get<0>(colour_int) + m_Colours.size() == m_Gradient.getNumColours() ? 0 : 1;
+        const auto position = m_Gradient.getColourPosition(index);
+        std::get<1>(colour_int)->setSize(point_size, point_size);
+
+        // The 'end' of the track is width - the token size, everything else we can be judged on the 'position' of the pointer (which is
+        std::get<1>(colour_int)->setCentrePosition(float(position * track_width) + track_center_left.x + half_point_size, track_center_left.y);
     }
 
-    m_Gradient.point1 = m_Track.getBounds().toFloat().getTopLeft();
-    m_Gradient.point2 = m_Track.getBounds().toFloat().getTopRight();
+    m_Gradient.point1 = m_Track.getLocalBounds().toFloat().getTopLeft();
+    m_Gradient.point1 += juce::Point<float>(half_point_size, 0);
+    m_Gradient.point2 = m_Track.getLocalBounds().toFloat().getTopRight() - juce::Point<float>(half_point_size, 0);
 }
 
 void meta::GradientDesigner::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -107,7 +119,7 @@ void meta::GradientDesigner::changeListenerCallback(juce::ChangeBroadcaster* sou
 
     for (auto& colour_pointer : m_Colours)
     {
-        const float proportion = m_Track.getPosition().toFloat().getX() / colour_pointer->getPosition().toFloat().getX();
+        const float proportion = colour_pointer->getPosition().toFloat().getX() / float(m_Track.getWidth() - colour_pointer->getWidth());
         colour_stops.emplace_back(std::make_tuple(colour_pointer->getPointColour(), proportion));
     }
 
