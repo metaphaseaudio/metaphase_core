@@ -72,8 +72,8 @@ meta::GradientDesigner::GradientDesigner()
     m_Gradient.isRadial = false;
     m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::red));
     m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::green));
-    m_Gradient.addColour(0.0f, m_Colours.begin()->get()->getPointColour());
-    m_Gradient.addColour(1.0f, m_Colours.back()->getPointColour());
+    m_Gradient.addColour(0.0f, m_Colours.back()->getPointColour());
+    m_Gradient.addColour(1.0f, m_Colours.begin()->get()->getPointColour());
 
     for (auto& colour : m_Colours)
     {
@@ -98,9 +98,9 @@ void meta::GradientDesigner::resized()
 
     for (auto colour_int : meta::enumerate(m_Colours))
     {
-        // The first colour may not be at 0. Gradients require it mechanically,
-        // but visually we don't, so now we need to reconcile that.
-        const auto index = std::get<0>(colour_int) + m_Colours.size() == m_Gradient.getNumColours() ? 0 : 1;
+        // Gradients require something at 0 and 1 mechanically, but visually
+        // we don't, so now we need to reconcile that OB1.
+        const auto index = std::get<0>(colour_int) + 1;
         const auto position = m_Gradient.getColourPosition(index);
         std::get<1>(colour_int)->setSize(point_size, point_size);
 
@@ -115,19 +115,19 @@ void meta::GradientDesigner::resized()
 
 void meta::GradientDesigner::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    std::vector<std::tuple<juce::Colour, float>> colour_stops;
+    std::sort(m_Colours.begin(), m_Colours.end(), [](auto& a, auto& b){ return a->getPosition().getX() < b->getPosition().getX(); });
+    m_Gradient.clearColours();
+    m_Gradient.addColour(0, m_Colours.front()->getPointColour());
+    m_Gradient.addColour(1, m_Colours.back()->getPointColour());
 
     for (auto& colour_pointer : m_Colours)
     {
-        const float proportion = colour_pointer->getPosition().toFloat().getX() / float(m_Track.getWidth() - colour_pointer->getWidth());
-        colour_stops.emplace_back(std::make_tuple(colour_pointer->getPointColour(), proportion));
+        float proportion = colour_pointer->getPosition().toFloat().getX() / float(m_Track.getWidth() - colour_pointer->getWidth());
+        if (proportion == 0) { proportion += std::numeric_limits<float>::epsilon(); }
+        if (proportion == 1) { proportion -= std::numeric_limits<float>::epsilon(); }
+
+        m_Gradient.addColour(proportion, colour_pointer->getPointColour());
     }
 
-    std::sort(colour_stops.begin(), colour_stops.end(), [](auto& a, auto& b){ return std::get<1>(a) < std::get<1>(b); });
-
-    m_Gradient.clearColours();
-    m_Gradient.addColour(0, std::get<0>(colour_stops.front()));
-    m_Gradient.addColour(1, std::get<0>(colour_stops.back()));
-    for (auto& stop : colour_stops) { m_Gradient.addColour(std::get<1>(stop), std::get<0>(stop)); }
     m_Display.repaint();
 }
