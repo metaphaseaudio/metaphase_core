@@ -10,6 +10,7 @@ namespace meta
 {
     class GradientDesigner
         : public juce::Component
+        , juce::ChangeListener
     {
     public:
         class Display
@@ -53,12 +54,12 @@ namespace meta
 
         GradientDesigner();
         void resized() override;
+        void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 
     private:
         juce::ColourGradient m_Gradient;
         Display m_Display;
         juce::Component m_Track;
-        std::vector<ColourPoint> m_Colours;
-        ColourPoint m_Point, m_Point_2;
+        std::vector<std::unique_ptr<ColourPoint>> m_Colours;
     };
 }
