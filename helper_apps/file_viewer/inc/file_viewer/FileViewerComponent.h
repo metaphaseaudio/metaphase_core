@@ -2,7 +2,7 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <meta/gooey/WaveformComponent.h>
-#include <file_viewer/SpectrogramComponent.h>
+#include <file_viewer/spectrogram/SpectrogramComponent.h>
 
 //==============================================================================
 /*

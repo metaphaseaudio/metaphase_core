@@ -6,7 +6,7 @@
 #include <meta/gooey/WaveformComponent.h>
 
 LAF::LAF()
-    : juce::LookAndFeel_V4()
+    : meta::MetaLookAndFeel()
 {
     setColour(meta::WaveformComponent::ColourIds::backgroundColourId, juce::Colours::transparentBlack);
     setColour(meta::WaveformComponent::ColourIds::foregroundColourId, juce::Colours::greenyellow);

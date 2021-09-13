@@ -3,10 +3,10 @@
 //
 
 #pragma once
-#include <juce_gui_basics/juce_gui_basics.h>
+#include <inc/meta/gooey/MetaLookAndFeel.h>
 
 class LAF
-    : public juce::LookAndFeel_V4
+    : public meta::MetaLookAndFeel
 {
 public:
     LAF();

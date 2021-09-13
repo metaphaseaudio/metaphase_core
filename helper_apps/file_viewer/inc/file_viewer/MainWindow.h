@@ -4,6 +4,7 @@
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <file_viewer/FileViewerComponent.h>
+#include <helper_apps/file_viewer/inc/file_viewer/spectrogram/SpectrogramSettingsWindow.h>
 #include "MultiFileViewerComponent.h"
 #include "LAF.h"
 
@@ -43,7 +44,9 @@ private:
     void chooseFileToLoad();
     void load(const juce::File& filepath);
 
+    std::unique_ptr<SpectrogramSettingsWindow> p_SpectrogramSettingsWindow;
     MultiFileViewerComponent m_ViewHandler;
+
     LAF m_LAF;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)

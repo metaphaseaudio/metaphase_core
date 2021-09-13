@@ -5,6 +5,7 @@
 #include <file_viewer/MainWindow.h>
 #include <file_viewer/constants.h>
 #include <file_viewer/forward_declarations.h>
+#include <helper_apps/file_viewer/inc/file_viewer/spectrogram/SpectrogramSettingsComponent.h>
 
 
 MainWindow::MainWindow(juce::String name)
@@ -174,6 +175,11 @@ bool MainWindow::perform (const InvocationInfo& info)
     {
         case CommandIDs::open_file:
             chooseFileToLoad();
+            break;
+        case CommandIDs::spectrogram_settings:
+            p_SpectrogramSettingsWindow = std::make_unique<SpectrogramSettingsWindow>();
+            p_SpectrogramSettingsWindow->setResizable(true, true);
+            p_SpectrogramSettingsWindow->setVisible(true);
             break;
     }
     return true;

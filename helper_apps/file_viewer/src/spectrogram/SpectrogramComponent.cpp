@@ -2,7 +2,7 @@
 // Created by Matt on 8/9/2021.
 //
 
-#include <file_viewer/SpectrogramComponent.h>
+#include <file_viewer/spectrogram/SpectrogramComponent.h>
 #include <utility>
 
 static const int max_frames_per_thread = 48000 * 2 * 5; // Guess at this (5 seconds of 48k, 2chan) -- it can be futz'd w/.
