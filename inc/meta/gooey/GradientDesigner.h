@@ -62,6 +62,7 @@ namespace meta
         GradientDesigner();
         void refreshGradient();
         void resized() override;
+        void removePoint(ColourPoint* toRemove);
         void mouseDown(const juce::MouseEvent &event) override;
         void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 

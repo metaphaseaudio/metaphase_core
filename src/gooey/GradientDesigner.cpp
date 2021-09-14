@@ -34,6 +34,7 @@ void meta::GradientDesigner::ColourPoint::mouseDown(const juce::MouseEvent& e)
 {
     auto clickCount = e.getNumberOfClicks();
     if (clickCount > 1) { pickColour(); }
+    else if (e.mods.isCtrlDown()) { dynamic_cast<GradientDesigner*>(getParentComponent()->getParentComponent())->removePoint(this); }
     else { drag_context.startDraggingComponent (this, e); }
 }
 
@@ -136,13 +137,10 @@ void meta::GradientDesigner::resized()
     m_Gradient.point2 = m_Track.getLocalBounds().toFloat().getTopRight() - juce::Point<float>(half_icon_size, 0);
 }
 
-void meta::GradientDesigner::changeListenerCallback(juce::ChangeBroadcaster* source) { refreshGradient(); }
-
 void meta::GradientDesigner::mouseDown(const juce::MouseEvent& event)
 {
     if (event.eventComponent == &m_Track && event.getNumberOfClicks() > 1)
     {
-        std::cout << event.x << " : " << std::endl;
         const auto x = juce::jlimit<float>(icon_size / 2.0f, m_Track.getWidth() - (icon_size / 2.0f), event.x);
         const auto proportion = x / float(m_Track.getWidth() - icon_size);
         m_Colours.emplace_back(std::make_unique<ColourPoint>(m_Gradient.getColourAtPosition(proportion)));
@@ -152,4 +150,23 @@ void meta::GradientDesigner::mouseDown(const juce::MouseEvent& event)
         colour->setSize(icon_size, icon_size);
         colour->setCentrePosition(x, icon_size / 2.0f);
     }
+}
+
+void meta::GradientDesigner::changeListenerCallback(juce::ChangeBroadcaster* source) { refreshGradient(); }
+
+void meta::GradientDesigner::removePoint(meta::GradientDesigner::ColourPoint* toRemove)
+{
+    if (m_Colours.size() <= 2) { return; }
+
+    for (int i = 0; i < m_Colours.size(); i++)  // noqa. This is so we can iterate and remove at the same time.
+    {
+        const auto point = m_Colours.at(i).get();
+        if (point == toRemove)
+        {
+            m_Track.removeChildComponent(point);
+            m_Colours.erase(m_Colours.begin() + i);
+            break;
+        }
+    }
+    refreshGradient();
 }
