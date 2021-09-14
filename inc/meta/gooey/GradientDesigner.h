@@ -14,7 +14,7 @@ namespace meta
     {
     public:
         class Display
-                : public juce::Component
+            : public juce::Component
         {
         public:
             explicit Display(const juce::ColourGradient& gradient);
@@ -23,14 +23,22 @@ namespace meta
         private:
             const juce::ColourGradient& r_Gradient;
         };
+//
+//        class PointTrack
+//            : public juce::Component
+//            , public juce::ChangeBroadcaster
+//        {
+//            void mouseDoubleClick(const juce::MouseEvent &event) override;
+//        };
 
         ///////////////////////////////////////////////////////////////////////
         class ColourPoint
-                : public juce::Component
-                  , public juce::ChangeBroadcaster
-                  , juce::ChangeListener
+            : public juce::Component
+            , public juce::ChangeBroadcaster
+            , juce::ChangeListener
         {
         public:
+            void pickColour();
             void mouseDown(const juce::MouseEvent& e) override;
             void mouseDrag(const juce::MouseEvent& e) override;
             void mouseUp(const juce::MouseEvent& event) override;
@@ -52,10 +60,13 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////
         GradientDesigner();
+        void refreshGradient();
         void resized() override;
+        void mouseDown(const juce::MouseEvent &event) override;
         void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 
     private:
+        const int icon_size;
         juce::ColourGradient m_Gradient;
         Display m_Display;
         juce::Component m_Track;
