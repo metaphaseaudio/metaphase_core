@@ -7,6 +7,7 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <meta/dsp/MagPhaseCalculator.h>
 #include <meta/util/container_helpers/TwoDimensionalHeap.h>
+#include "SpectrogramSettings.h"
 
 
 class MagPhaseChunkCalculator
@@ -41,7 +42,7 @@ public:
     SpectrogramChunkCalculator(
             const juce::dsp::AudioBlock<float>& data,
             juce::Image img,
-            const juce::ColourGradient& grad,
+            const juce::ColourGradient* grad,
             int fftSize, int xOverlap);
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
@@ -49,7 +50,7 @@ public:
 
 private:
     juce::dsp::AudioBlock<float> r_MagData;
-    const juce::ColourGradient& r_Gradient;
+    const juce::ColourGradient* p_Gradient;
     juce::Image m_Img;
     int m_FFTSize, m_XOverlap;
 
@@ -59,17 +60,22 @@ private:
 
 class SpectrogramComponent
     : public juce::Component
+    , public SpectrogramSettings::Listener
     , juce::ChangeListener
 {
 public:
     SpectrogramComponent(juce::AudioBuffer<float>& data, int fftOrder, int xOverlap);
     ~SpectrogramComponent();
+
+    void setGradient(const juce::ColourGradient& gradient);
     void paint(juce::Graphics& g) override;
 
     int getNFramesPerChan() const { return std::ceil(r_Data.getNumSamples() / m_FFTSize); }
     int getNChunksPerChan() const { return getNFramesPerChan(); }
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+    void gradientChanged(const SpectrogramSettings* settings) override;
+    void fftChanged(const SpectrogramSettings* settings) override;
 
 private:
     void recalculateFrames();
@@ -78,7 +84,7 @@ private:
     juce::AudioBuffer<float> m_MagData, m_PhaseData;
     int m_FFTOrder, m_FFTSize, m_XOverlap;
 
-    juce::ColourGradient m_Gradient;
+    std::unique_ptr<juce::ColourGradient> p_Gradient;
     std::unique_ptr<juce::Image> p_SpectrogramImage;
     std::vector<std::unique_ptr<SpectrogramChunkCalculator>> m_Chunks;
     std::vector<std::unique_ptr<MagPhaseChunkCalculator>> m_Calculations;

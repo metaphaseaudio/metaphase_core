@@ -19,9 +19,9 @@ public:
         : r_Frames(frames)
     {
         setSize(92, 1024 / 2.0f);
-        m_Gradient.clearColours();
-        m_Gradient.addColour(0, juce::Colours::black);
-        m_Gradient.addColour(1, juce::Colours::white);
+        p_Gradient.clearColours();
+        p_Gradient.addColour(0, juce::Colours::black);
+        p_Gradient.addColour(1, juce::Colours::white);
     }
 
     void render(int start_frame, int n_frames, int start_bin, int n_bins)
@@ -48,7 +48,7 @@ private:
     juce::Range<int> m_HorizWindowRange;
     juce::Range<int> m_VertWindowRange;
     juce::Range<float> m_AmpDepth;
-    juce::ColourGradient m_Gradient;
+    juce::ColourGradient p_Gradient;
     const std::vector<FFTFrame>& r_Frames;
 };
 

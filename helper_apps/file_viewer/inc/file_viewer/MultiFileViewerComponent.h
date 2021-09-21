@@ -6,6 +6,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_basics/juce_audio_basics.h>
 #include "FileViewerComponent.h"
+#include "spectrogram/SpectrogramSettingsComponent.h"
 
 
 class MultiFileViewerComponent
@@ -23,10 +24,10 @@ public:
     juce::RecentlyOpenedFilesList listFiles() const;
     bool fileIsOpen(const juce::File& filepath) const;
 
+    SpectrogramSettings spectrogramSettings;
 private:
     FileViewerComponent* const* findViewer(const juce::File& filepath) const;
     juce::OwnedArray<FileViewerComponent> m_Views;
     juce::TabbedComponent m_TabHandler;
 };
-
 

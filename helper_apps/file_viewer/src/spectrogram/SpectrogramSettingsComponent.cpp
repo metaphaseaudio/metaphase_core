@@ -5,13 +5,17 @@
 #include <file_viewer/spectrogram/SpectrogramSettingsComponent.h>
 
 
-SpectrogramSettingsComponent::SpectrogramSettingsComponent()
+SpectrogramSettingsComponent::SpectrogramSettingsComponent(SpectrogramSettings& settings)
+    : r_Settings(settings)
 {
-    addAndMakeVisible(m_Gradient);
-    setSize(100, 100);
+    addAndMakeVisible(m_GradientDesigner);
+    m_GradientDesigner.addChangeListener(this);
+    setSize(700, 100);
 }
 
-void SpectrogramSettingsComponent::resized()
+void SpectrogramSettingsComponent::resized() { m_GradientDesigner.setBounds(getLocalBounds().reduced(5)); }
+
+void SpectrogramSettingsComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    m_Gradient.setBounds(getLocalBounds().reduced(10));
+    if (source == &m_GradientDesigner) { r_Settings.setGradient(m_GradientDesigner.getGradient()); }
 }

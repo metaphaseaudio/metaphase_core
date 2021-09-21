@@ -7,10 +7,12 @@
 
 void meta::MetaLookAndFeel::drawGradientColourPoint(juce::Graphics& g, const meta::GradientDesigner::ColourPoint& colourPoint)
 {
-    const auto pointerBounds = colourPoint.getLocalBounds().toFloat();
+    const auto pointerBounds = colourPoint.getLocalBounds().reduced(1).toFloat();
     const auto topMiddle = juce::Point<float>(pointerBounds.getCentreX(), pointerBounds.getTopRight().y);
     juce::Path pointer;
     pointer.addTriangle(pointerBounds.getBottomLeft(), pointerBounds.getBottomRight(), topMiddle);
     g.setColour(colourPoint.getPointColour());
     g.fillPath(pointer);
+    g.setColour(juce::Colours::darkgrey);
+    g.strokePath(pointer, juce::PathStrokeType(1.0f));
 }

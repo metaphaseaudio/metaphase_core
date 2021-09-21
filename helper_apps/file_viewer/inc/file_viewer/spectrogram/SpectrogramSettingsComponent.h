@@ -5,17 +5,22 @@
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <inc/meta/gooey/GradientDesigner.h>
+#include "SpectrogramSettings.h"
 
 
 class SpectrogramSettingsComponent
     : public juce::Component
+    , public juce::ChangeBroadcaster
+    , juce::ChangeListener
 {
 public:
-    SpectrogramSettingsComponent();
+    SpectrogramSettingsComponent(SpectrogramSettings& settings);
     void resized() override;
 
 private:
-    meta::GradientDesigner m_Gradient;
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+    SpectrogramSettings& r_Settings;
+    meta::GradientDesigner m_GradientDesigner;
 };
 
 

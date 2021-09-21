@@ -10,6 +10,7 @@ namespace meta
 {
     class GradientDesigner
         : public juce::Component
+        , public juce::ChangeBroadcaster
         , juce::ChangeListener
     {
     public:
@@ -23,13 +24,6 @@ namespace meta
         private:
             const juce::ColourGradient& r_Gradient;
         };
-//
-//        class PointTrack
-//            : public juce::Component
-//            , public juce::ChangeBroadcaster
-//        {
-//            void mouseDoubleClick(const juce::MouseEvent &event) override;
-//        };
 
         ///////////////////////////////////////////////////////////////////////
         class ColourPoint
@@ -38,20 +32,20 @@ namespace meta
             , juce::ChangeListener
         {
         public:
-            void pickColour();
-            void mouseDown(const juce::MouseEvent& e) override;
-            void mouseDrag(const juce::MouseEvent& e) override;
-            void mouseUp(const juce::MouseEvent& event) override;
             ColourPoint() = default;
             explicit ColourPoint(juce::Colour colour);
 
+            void pickColour();
+            juce::Colour getPointColour() const { return m_Colour; }
+
             void resized() override;
             void paint(juce::Graphics& g) override;
-            juce::Colour getPointColour() const { return m_Colour; }
-            float getColourPosition() const;
+
+            void mouseDown(const juce::MouseEvent& e) override;
+            void mouseDrag(const juce::MouseEvent& e) override;
+            void mouseUp(const juce::MouseEvent& event) override;
 
             void changeListenerCallback(juce::ChangeBroadcaster *source) override;
-
         private:
             juce::ComponentDragger drag_context;
             juce::ComponentBoundsConstrainer m_Constraints;
@@ -60,13 +54,15 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////
         GradientDesigner();
-        void refreshGradient();
+        juce::ColourGradient getGradient() const { return m_Gradient; };
+
         void resized() override;
-        void removePoint(ColourPoint* toRemove);
         void mouseDown(const juce::MouseEvent &event) override;
         void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 
     private:
+        void removePoint(ColourPoint* toRemove);
+        void refreshGradient();
         const int icon_size;
         juce::ColourGradient m_Gradient;
         Display m_Display;

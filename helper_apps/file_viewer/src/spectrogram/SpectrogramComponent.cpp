@@ -47,6 +47,7 @@ SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, int f
     , m_FFTOrder(fftOrder)
     , m_FFTSize(std::pow(2, fftOrder))
     , m_XOverlap(xOverlap)
+    , p_Gradient(std::make_unique<juce::ColourGradient>())
 {
     std::vector<juce::Colour> colours = {
         juce::Colours::black,
@@ -59,13 +60,13 @@ SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, int f
         juce::Colours::white,
     };
 
-    m_Gradient.clearColours();
+    p_Gradient->clearColours();
     const auto increment = 1.0f / (colours.size() - 1);
     float position = 0;
     for (auto& colour : colours)
     {
         const auto log_position = meta::Interpolate<float>::parabolic(0.0f, 1.0f, position, 7);
-        m_Gradient.addColour(log_position, colour);
+        p_Gradient->addColour(log_position, colour);
         position += increment;
     }
 
@@ -107,7 +108,8 @@ void SpectrogramComponent::recalculateFrames()
         juce::dsp::AudioBlock<float> phase_block(phase_data, n_chans, out_chunk_start, out_chunk_size_samps);
 
         const auto chunk_rect = juce::Rectangle<int>(img_start, 0, chunk_size_pixels, p_SpectrogramImage->getHeight());
-        m_Chunks.emplace_back(new SpectrogramChunkCalculator(mag_block, p_SpectrogramImage->getClippedImage(chunk_rect), m_Gradient, m_FFTSize, m_XOverlap));
+        m_Chunks.emplace_back(new SpectrogramChunkCalculator(mag_block, p_SpectrogramImage->getClippedImage(chunk_rect), p_Gradient.get(), m_FFTSize,
+                                                             m_XOverlap));
         m_Chunks.back()->addChangeListener(this);
         m_Calculations.emplace_back(new MagPhaseChunkCalculator(in_block, mag_block, phase_block, 10, 0));
         m_Calculations.back()->addChangeListener(m_Chunks.at(chunk_i).get());
@@ -133,14 +135,40 @@ void SpectrogramComponent::changeListenerCallback(juce::ChangeBroadcaster* sourc
     repaint();
 }
 
+void SpectrogramComponent::setGradient(const juce::ColourGradient& gradient)
+{
+    p_Gradient.reset(new juce::ColourGradient(gradient));
+    for (auto& calc: m_Chunks)
+    {
+        calc->recalculateSpectrogramImage();
+    }
+}
+
+void SpectrogramComponent::fftChanged(const SpectrogramSettings* settings)
+{
+
+}
+
+void SpectrogramComponent::gradientChanged(const SpectrogramSettings* settings)
+{
+    p_Gradient->clearColours();
+    const auto newGradient = settings->getGradient();
+    for (int i = 0; i <= newGradient.getNumColours(); i++)
+        { p_Gradient->addColour(newGradient.getColourPosition(i), newGradient.getColour(i)); }
+
+    for (auto& chunk : m_Chunks)
+        { chunk->recalculateSpectrogramImage(); }
+    repaint();
+}
+
 
 SpectrogramChunkCalculator::SpectrogramChunkCalculator(
         const juce::dsp::AudioBlock<float>& data,
         juce::Image img,
-        const juce::ColourGradient& grad, int fft_size, int xOverlap)
+        const juce::ColourGradient* grad, int fft_size, int xOverlap)
     : r_MagData(data)
     , m_Img(std::move(img))
-    , r_Gradient(grad)
+    , p_Gradient(grad)
     , m_FFTSize(fft_size)
     , m_XOverlap(xOverlap)
 {}
@@ -160,7 +188,7 @@ void SpectrogramChunkCalculator::recalculateSpectrogramImage()
             const int in_sample = s * m_FFTSize + fft_i;
             const auto sample_value = r_MagData.getChannelPointer(0)[in_sample];
 
-            auto colour = r_Gradient.getColourAtPosition(sample_value);
+            auto colour = p_Gradient->getColourAtPosition(sample_value);
             m_Img.setPixelAt(s, bin, colour);
         }
     }

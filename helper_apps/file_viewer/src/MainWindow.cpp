@@ -177,9 +177,9 @@ bool MainWindow::perform (const InvocationInfo& info)
             chooseFileToLoad();
             break;
         case CommandIDs::spectrogram_settings:
-            p_SpectrogramSettingsWindow = std::make_unique<SpectrogramSettingsWindow>();
-            p_SpectrogramSettingsWindow->setResizable(true, true);
-            p_SpectrogramSettingsWindow->setVisible(true);
+            auto spectrogram_settings = std::make_unique<SpectrogramSettingsComponent>(m_ViewHandler.spectrogramSettings);
+            spectrogram_settings->setSize(300, 100);
+            auto& box = juce::CallOutBox::launchAsynchronously(std::move(spectrogram_settings), getScreenBounds(), &m_ViewHandler);
             break;
     }
     return true;
@@ -210,3 +210,4 @@ void MainWindow::load(const juce::File& filepath)
         m_ViewHandler.viewFile(filepath);
     }
 }
+

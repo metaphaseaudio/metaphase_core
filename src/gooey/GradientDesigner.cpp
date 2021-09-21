@@ -14,9 +14,9 @@ meta::GradientDesigner::Display::Display(const juce::ColourGradient& gradient)
 void meta::GradientDesigner::Display::paint(juce::Graphics& g)
 {
     g.setGradientFill(r_Gradient);
-    g.fillRoundedRectangle(getLocalBounds().reduced(3).toFloat(), getHeight() / 2.0f);
+    g.fillRoundedRectangle(getLocalBounds().reduced(1).toFloat(), getHeight() / 2.0f);
     g.setColour(juce::Colours::darkgrey.darker());
-    g.drawRoundedRectangle(getLocalBounds().reduced(3).toFloat(), getHeight() / 2.0f, 3.0f);
+    g.drawRoundedRectangle(getLocalBounds().reduced(1).toFloat(), getHeight() / 3.0f, 1.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,8 +50,6 @@ void meta::GradientDesigner::ColourPoint::changeListenerCallback(juce::ChangeBro
     repaint();
 }
 
-float meta::GradientDesigner::ColourPoint::getColourPosition() const
-    { return getLocalBounds().toFloat().getCentre().x / getParentComponent()->getLocalBounds().toFloat().getWidth(); }
 
 void meta::GradientDesigner::ColourPoint::pickColour()
 {
@@ -67,7 +65,7 @@ void meta::GradientDesigner::ColourPoint::pickColour()
 ///////////////////////////////////////////////////////////////////////////////
 meta::GradientDesigner::GradientDesigner()
     : m_Display(m_Gradient)
-    , icon_size(22)
+    , icon_size(15)
 {
     m_Track.addMouseListener(this, false);
 
@@ -105,12 +103,13 @@ void meta::GradientDesigner::refreshGradient()
     }
 
     m_Display.repaint();
+    sendChangeMessage();
 }
 
 void meta::GradientDesigner::resized()
 {
     auto local_bounds = getLocalBounds();
-    auto display_bounds = local_bounds.removeFromTop(icon_size + 6);  // TODO: get rid of the +6 and get the border from the display
+    auto display_bounds = local_bounds.removeFromTop(icon_size);
     auto track_bounds = local_bounds.removeFromTop(icon_size);
 
     m_Display.setBounds(display_bounds);

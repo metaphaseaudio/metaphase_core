@@ -17,7 +17,8 @@ class FileViewerComponent
 {
     using FFTFrame = meta::dsp::MagPhaseCalculator<float>::MagPhaseFrame;
 public:
-    FileViewerComponent(juce::File filepath, juce::AudioBuffer<float>& data, double sample_rate);
+    FileViewerComponent(juce::File filepath, juce::AudioBuffer<float>& data, double sample_rate, SpectrogramSettings& settings);
+    ~FileViewerComponent();
     void paint (juce::Graphics&) override;
     void resized() override;
     juce::File getFilepath() const;
@@ -27,6 +28,7 @@ private:
     juce::File m_Filepath;
     juce::AudioBuffer<float> m_Data;
     double m_SampleRate;
+    SpectrogramSettings& r_SpectrogramSettings;
     meta::WaveformComponent m_Waveform;
     SpectrogramComponent m_Spectrogram;
     juce::Slider m_SpecWavSlider;

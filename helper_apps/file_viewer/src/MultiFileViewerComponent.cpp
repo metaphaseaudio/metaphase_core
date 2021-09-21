@@ -29,7 +29,7 @@ void MultiFileViewerComponent::resized()
 
 void MultiFileViewerComponent::addFile(const juce::File& filepath, juce::AudioBuffer<float>& data, double sample_rate)
 {
-    auto to_show = m_Views.add(new FileViewerComponent(filepath, data, sample_rate));
+    auto to_show = m_Views.add(new FileViewerComponent(filepath, data, sample_rate, spectrogramSettings));
     m_TabHandler.addTab(filepath.getFileName(), juce::Colours::darkgrey, to_show, false);
     const juce::String tab_name = filepath.getFileName();
     auto btn = m_TabHandler.getTabbedButtonBar().getTabButton(m_TabHandler.getNumTabs() - 1);
