@@ -7,6 +7,7 @@
 
 #include "test/tests/util/test_graphing_plot.h"
 #include "test/tests/util/test_math.h"
+#include "test/tests/util/test_Interpolate.h"
 #include "test/tests/util/test_range.h"
 #include "test/tests/util/test_simd_ops.h"
 #include "test/tests/util/test_BitSize.h"

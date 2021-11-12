@@ -34,20 +34,20 @@ namespace meta
     struct Interpolate
     {
         static constexpr NumericType linear(NumericType a, NumericType b, NumericType weight)
-        { return (a * weight) + (b * (1 - weight)); }
+            { return (b * weight) + (a * (1 - weight)); }
 
         static constexpr NumericType parabolic
         (NumericType a, NumericType b, NumericType weight, NumericType exponent=2)
         {
             if (fabs(exponent) < 0.001) { return linear(a, b, weight); }
-            auto ratio = (1 - exp(exponent * weight)) / (1 - exp(exponent));
+            const auto ratio = (1 - exp(exponent * weight)) / (1 - exp(exponent));
             return a + (b - a) * ratio;
         }
     };
 
 	template <typename NumericType>
 	constexpr NumericType power(NumericType base, size_t exponent)
-	{ return exponent == 0 ? 1 : base * power(base, exponent - 1);}
+	    { return exponent == 0 ? 1 : base * power(base, exponent - 1);}
 
 
     template <size_t base, size_t exponent>
