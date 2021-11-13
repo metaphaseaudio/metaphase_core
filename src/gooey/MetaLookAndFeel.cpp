@@ -5,7 +5,7 @@
 #include <meta/gooey/MetaLookAndFeel.h>
 
 
-void meta::MetaLookAndFeel::drawGradientColourPoint(juce::Graphics& g, const meta::GradientDesigner::ColourPoint& colourPoint)
+void meta::MetaLookAndFeel::drawGradientDesignerColourPoint(juce::Graphics& g, const meta::GradientDesigner::ColourPoint& colourPoint)
 {
     const auto pointerBounds = colourPoint.getLocalBounds().reduced(1).toFloat();
     const auto topMiddle = juce::Point<float>(pointerBounds.getCentreX(), pointerBounds.getTopRight().y);
@@ -15,4 +15,12 @@ void meta::MetaLookAndFeel::drawGradientColourPoint(juce::Graphics& g, const met
     g.fillPath(pointer);
     g.setColour(juce::Colours::darkgrey);
     g.strokePath(pointer, juce::PathStrokeType(1.0f));
+}
+
+void meta::MetaLookAndFeel::drawGradientDesignerDisplay(juce::Graphics& g, const meta::GradientDesigner::Display& display)
+{
+    g.setGradientFill(display.gradient);
+    g.fillRoundedRectangle(display.getLocalBounds().reduced(1).toFloat(), display.getHeight() / 2.0f);
+    g.setColour(juce::Colours::darkgrey.darker());
+    g.drawRoundedRectangle(display.getLocalBounds().reduced(1).toFloat(), display.getHeight() / 3.0f, 1.0f);
 }

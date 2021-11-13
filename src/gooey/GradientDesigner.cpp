@@ -8,24 +8,20 @@
 #include <inc/meta/util/container_helpers/array.h>
 
 meta::GradientDesigner::Display::Display(const juce::ColourGradient& gradient)
-    : r_Gradient(gradient)
+    : gradient(gradient)
 {}
 
 void meta::GradientDesigner::Display::paint(juce::Graphics& g)
-{
-    g.setGradientFill(r_Gradient);
-    g.fillRoundedRectangle(getLocalBounds().reduced(1).toFloat(), getHeight() / 2.0f);
-    g.setColour(juce::Colours::darkgrey.darker());
-    g.drawRoundedRectangle(getLocalBounds().reduced(1).toFloat(), getHeight() / 3.0f, 1.0f);
-}
+    { dynamic_cast<meta::MetaLookAndFeel*>(&getLookAndFeel())->drawGradientDesignerDisplay(g, *this); }
 
 ///////////////////////////////////////////////////////////////////////////////
-meta::GradientDesigner::ColourPoint::ColourPoint(juce::Colour colour)
+meta::GradientDesigner::ColourPoint::ColourPoint(juce::Colour colour, float proportion)
     : m_Colour(colour)
+    , m_Proportion(proportion)
 {}
 
 void meta::GradientDesigner::ColourPoint::paint(juce::Graphics& g)
-    { dynamic_cast<meta::MetaLookAndFeel*>(&getLookAndFeel())->drawGradientColourPoint(g, *this); }
+    { dynamic_cast<meta::MetaLookAndFeel*>(&getLookAndFeel())->drawGradientDesignerColourPoint(g, *this); }
 
 void meta::GradientDesigner::ColourPoint::resized()
     { m_Constraints.setMinimumOnscreenAmounts(getHeight(), getWidth(), getHeight(), getWidth()); }
@@ -34,22 +30,24 @@ void meta::GradientDesigner::ColourPoint::mouseDown(const juce::MouseEvent& e)
 {
     auto clickCount = e.getNumberOfClicks();
     if (clickCount > 1) { pickColour(); }
-    else if (e.mods.isCtrlDown()) { dynamic_cast<GradientDesigner*>(getParentComponent()->getParentComponent())->removePoint(this); }
+    else if (e.mods.isCtrlDown())
+    {
+        const auto designer = dynamic_cast<GradientDesigner*>(getParentComponent()->getParentComponent());
+        designer->removePoint(this);
+        designer->refreshGradient();
+    }
     else { drag_context.startDraggingComponent (this, e); }
 }
 
-void meta::GradientDesigner::ColourPoint::mouseDrag(const juce::MouseEvent& e) { drag_context.dragComponent (this, e, &m_Constraints); }
+void meta::GradientDesigner::ColourPoint::mouseDrag(const juce::MouseEvent& e)
+    { drag_context.dragComponent (this, e, &m_Constraints); }
 
-void meta::GradientDesigner::ColourPoint::mouseUp(const juce::MouseEvent& event) { sendChangeMessage(); }
-
-void meta::GradientDesigner::ColourPoint::changeListenerCallback(juce::ChangeBroadcaster* source)
+void meta::GradientDesigner::ColourPoint::mouseUp(const juce::MouseEvent& event)
 {
-    auto callout = dynamic_cast<juce::ColourSelector*>(source);
-    m_Colour = callout->getCurrentColour();
+    const float x = getPosition().x;
+    m_Proportion = x / getParentWidth();
     sendChangeMessage();
-    repaint();
 }
-
 
 void meta::GradientDesigner::ColourPoint::pickColour()
 {
@@ -60,6 +58,14 @@ void meta::GradientDesigner::ColourPoint::pickColour()
     colourSelector->addChangeListener(this);
 
     auto& box = juce::CallOutBox::launchAsynchronously(std::move(colourSelector), getScreenBounds(), nullptr);
+}
+
+void meta::GradientDesigner::ColourPoint::changeListenerCallback(juce::ChangeBroadcaster* source)
+{
+    auto callout = dynamic_cast<juce::ColourSelector*>(source);
+    m_Colour = callout->getCurrentColour();
+    sendChangeMessage();
+    repaint();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,10 +80,10 @@ meta::GradientDesigner::GradientDesigner()
 
     // Setup default gradient
     m_Gradient.isRadial = false;
-    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::yellow));
-    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::blue));
-    m_Gradient.addColour(0.0f, m_Colours.back()->getPointColour());
-    m_Gradient.addColour(1.0f, m_Colours.begin()->get()->getPointColour());
+    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::yellow, 0));
+    m_Colours.emplace_back(std::make_unique<ColourPoint>(juce::Colours::blue, 1));
+    m_Gradient.addColour(0.0f, m_Colours.front()->getPointColour());
+    m_Gradient.addColour(1.0f, m_Colours.back()->getPointColour());
 
     for (auto& colour : m_Colours)
     {
@@ -88,19 +94,16 @@ meta::GradientDesigner::GradientDesigner()
 
 void meta::GradientDesigner::refreshGradient()
 {
-    std::sort(m_Colours.begin(), m_Colours.end(), [](auto& a, auto& b){ return a->getPosition().getX() < b->getPosition().getX(); });
     m_Gradient.clearColours();
-    m_Gradient.addColour(0, m_Colours.front()->getPointColour());
-    m_Gradient.addColour(1, m_Colours.back()->getPointColour());
+    std::sort(
+        m_Colours.begin(),
+        m_Colours.end(),
+        [](auto& a, auto& b){ return a->getProportionAlongGradient() < b->getProportionAlongGradient(); }
+    );
 
-    for (auto& colour_pointer : m_Colours)
-    {
-        float proportion = colour_pointer->getPosition().toFloat().getX() / float(m_Track.getWidth() - icon_size);
-        if (proportion == 0) { proportion += std::numeric_limits<float>::epsilon(); }
-        if (proportion == 1) { proportion -= std::numeric_limits<float>::epsilon(); }
-
-        m_Gradient.addColour(proportion, colour_pointer->getPointColour());
-    }
+    if (m_Colours.front()->getProportionAlongGradient() != 0) { m_Gradient.addColour(0, m_Colours.front()->getPointColour()); }
+    for (auto& cp : m_Colours) { m_Gradient.addColour(cp->getProportionAlongGradient(), cp->getPointColour()); }
+    if (m_Colours.back()->getProportionAlongGradient() != 1) { m_Gradient.addColour(1, m_Colours.back()->getPointColour()); }
 
     m_Display.repaint();
     sendChangeMessage();
@@ -119,16 +122,11 @@ void meta::GradientDesigner::resized()
     const auto half_icon_size = icon_size / 2.0f;
     const auto track_width = m_Track.getWidth() - icon_size;
 
-    for (auto colour_int : meta::enumerate(m_Colours))
+    for (auto& cp : m_Colours)
     {
-        // Gradients require something at 0 and 1 mechanically, but visually
-        // we don't, so now we need to reconcile that OB1.
-        const auto index = std::get<0>(colour_int) + 1;
-        const auto position = m_Gradient.getColourPosition(index);
-        std::get<1>(colour_int)->setSize(icon_size, icon_size);
-
-        // The 'end' of the track is width - the token size, everything else we can be judged on the 'position' of the pointer (which is
-        std::get<1>(colour_int)->setCentrePosition(float(position * track_width) + track_center_left.x + half_icon_size, track_center_left.y);
+        const auto position = cp->getProportionAlongGradient() * track_width;
+        cp->setSize(icon_size, icon_size);
+        cp->setCentrePosition(position + track_center_left.x + half_icon_size, track_center_left.y);
     }
 
     m_Gradient.point1 = m_Track.getLocalBounds().toFloat().getTopLeft();
@@ -142,19 +140,27 @@ void meta::GradientDesigner::mouseDown(const juce::MouseEvent& event)
     {
         const auto x = juce::jlimit<float>(icon_size / 2.0f, m_Track.getWidth() - (icon_size / 2.0f), event.x);
         const auto proportion = x / float(m_Track.getWidth() - icon_size);
-        m_Colours.emplace_back(std::make_unique<ColourPoint>(m_Gradient.getColourAtPosition(proportion)));
-        auto& colour = m_Colours.back();
-        m_Track.addAndMakeVisible(*colour);
-        colour->addChangeListener(this);
-        colour->setSize(icon_size, icon_size);
-        colour->setCentrePosition(x, icon_size / 2.0f);
+        addPoint(m_Gradient.getColourAtPosition(proportion), proportion);
+        m_Colours.back()->setCentrePosition(x, icon_size / 2.0f);
     }
 }
 
 void meta::GradientDesigner::changeListenerCallback(juce::ChangeBroadcaster* source) { refreshGradient(); }
 
+void meta::GradientDesigner::addPoint(const juce::Colour& colour, float position)
+{
+    jassert(position >= 0 && position <= 1);
+    m_Gradient.addColour(position, colour);
+    m_Colours.emplace_back(std::make_unique<ColourPoint>(colour, position));
+    auto& cp = m_Colours.back();
+    cp->setSize(icon_size, icon_size);
+    cp->addChangeListener(this);
+    m_Track.addAndMakeVisible(cp.get());
+}
+
 void meta::GradientDesigner::removePoint(meta::GradientDesigner::ColourPoint* toRemove)
 {
+    // We at least need a start and an end
     if (m_Colours.size() <= 2) { return; }
 
     for (int i = 0; i < m_Colours.size(); i++)  // noqa. This is so we can iterate and remove at the same time.
@@ -167,5 +173,37 @@ void meta::GradientDesigner::removePoint(meta::GradientDesigner::ColourPoint* to
             break;
         }
     }
-    refreshGradient();
 }
+
+void meta::GradientDesigner::setGradient(const juce::ColourGradient& gradient)
+{
+    m_Colours.clear();
+    m_Gradient.clearColours();
+
+    int firstUniqueColourIndex = 0;
+    int lastUniqueColourIndex = gradient.getNumColours() - 1;
+
+    for (;
+        gradient.getColour(firstUniqueColourIndex) == gradient.getColour(firstUniqueColourIndex + 1)
+        && firstUniqueColourIndex < gradient.getNumColours();
+        firstUniqueColourIndex++)
+    {}
+    m_Gradient.addColour(0, gradient.getColour(0));
+
+    for (;
+        gradient.getColour(lastUniqueColourIndex) == gradient.getColour(lastUniqueColourIndex - 1)
+        && lastUniqueColourIndex > 1;
+        lastUniqueColourIndex--)
+    {}
+
+    for (int i = firstUniqueColourIndex; i <= lastUniqueColourIndex; i++)
+    {
+        const auto c = gradient.getColour(i);
+        const auto p = gradient.getColourPosition(i);
+
+        addPoint(c, p);
+    }
+
+    resized();
+}
+

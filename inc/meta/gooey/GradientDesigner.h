@@ -20,9 +20,7 @@ namespace meta
         public:
             explicit Display(const juce::ColourGradient& gradient);
             void paint(juce::Graphics &g) override;
-
-        private:
-            const juce::ColourGradient& r_Gradient;
+            const juce::ColourGradient& gradient;
         };
 
         ///////////////////////////////////////////////////////////////////////
@@ -33,10 +31,7 @@ namespace meta
         {
         public:
             ColourPoint() = default;
-            explicit ColourPoint(juce::Colour colour);
-
-            void pickColour();
-            juce::Colour getPointColour() const { return m_Colour; }
+            explicit ColourPoint(juce::Colour colour, float proportion);
 
             void resized() override;
             void paint(juce::Graphics& g) override;
@@ -45,15 +40,20 @@ namespace meta
             void mouseDrag(const juce::MouseEvent& e) override;
             void mouseUp(const juce::MouseEvent& event) override;
 
+            void pickColour();
+            juce::Colour getPointColour() const { return m_Colour; }
+            float getProportionAlongGradient() const { return m_Proportion; }
             void changeListenerCallback(juce::ChangeBroadcaster *source) override;
         private:
             juce::ComponentDragger drag_context;
             juce::ComponentBoundsConstrainer m_Constraints;
             juce::Colour m_Colour;
+            float m_Proportion;
         };
 
         ///////////////////////////////////////////////////////////////////////
         GradientDesigner();
+        void setGradient(const juce::ColourGradient& gradient);
         juce::ColourGradient getGradient() const { return m_Gradient; };
 
         void resized() override;
@@ -61,6 +61,7 @@ namespace meta
         void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 
     private:
+        void addPoint(const juce::Colour& colour, float position);
         void removePoint(ColourPoint* toRemove);
         void refreshGradient();
         const int icon_size;
