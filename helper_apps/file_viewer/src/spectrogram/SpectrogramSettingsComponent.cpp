@@ -9,6 +9,7 @@ SpectrogramSettingsComponent::SpectrogramSettingsComponent(SpectrogramSettings& 
     : r_Settings(settings)
 {
     addAndMakeVisible(m_GradientDesigner);
+    m_GradientDesigner.setGradient(r_Settings.getGradient());
     m_GradientDesigner.addChangeListener(this);
     setSize(700, 100);
 }

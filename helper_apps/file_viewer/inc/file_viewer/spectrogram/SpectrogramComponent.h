@@ -64,13 +64,12 @@ class SpectrogramComponent
     , juce::ChangeListener
 {
 public:
-    SpectrogramComponent(juce::AudioBuffer<float>& data, int fftOrder, int xOverlap);
+    SpectrogramComponent(juce::AudioBuffer<float>& data, SpectrogramSettings& settings);
     ~SpectrogramComponent();
 
-    void setGradient(const juce::ColourGradient& gradient);
     void paint(juce::Graphics& g) override;
 
-    int getNFramesPerChan() const { return std::ceil(r_Data.getNumSamples() / m_FFTSize); }
+    int getNFramesPerChan() const { return std::ceil(r_Data.getNumSamples() / r_Settings.getFFTSize()); }
     int getNChunksPerChan() const { return getNFramesPerChan(); }
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
@@ -82,9 +81,8 @@ private:
 
     juce::AudioBuffer<float>& r_Data;
     juce::AudioBuffer<float> m_MagData, m_PhaseData;
-    int m_FFTOrder, m_FFTSize, m_XOverlap;
+    SpectrogramSettings& r_Settings;
 
-    std::unique_ptr<juce::ColourGradient> p_Gradient;
     std::unique_ptr<juce::Image> p_SpectrogramImage;
     std::vector<std::unique_ptr<SpectrogramChunkCalculator>> m_Chunks;
     std::vector<std::unique_ptr<MagPhaseChunkCalculator>> m_Calculations;

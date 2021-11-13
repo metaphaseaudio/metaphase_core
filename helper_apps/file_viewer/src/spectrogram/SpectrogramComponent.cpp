@@ -42,35 +42,18 @@ void MagPhaseChunkCalculator::run()
 }
 
 
-SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, int fftOrder, int xOverlap)
+SpectrogramComponent::SpectrogramComponent(juce::AudioBuffer<float>& data, SpectrogramSettings& settings)
     : r_Data(data)
-    , m_FFTOrder(fftOrder)
-    , m_FFTSize(std::pow(2, fftOrder))
-    , m_XOverlap(xOverlap)
-    , p_Gradient(std::make_unique<juce::ColourGradient>())
+    , r_Settings(settings)
 {
-    std::vector<juce::Colour> colours = {
-        juce::Colours::black,
-        juce::Colours::darkblue,
-        juce::Colours::purple,
-        juce::Colours::darkred,
-        juce::Colours::red,
-        juce::Colours::orange,
-        juce::Colours::yellow,
-        juce::Colours::white,
-    };
-
-    p_Gradient->clearColours();
-    const auto increment = 1.0f / (colours.size() - 1);
-    float position = 0;
-    for (auto& colour : colours)
-    {
-        const auto log_position = meta::Interpolate<float>::parabolic(0.0f, 1.0f, position, 7);
-        p_Gradient->addColour(log_position, colour);
-        position += increment;
-    }
-
+    r_Settings.addListener(this);
     recalculateFrames();
+}
+
+SpectrogramComponent::~SpectrogramComponent()
+{
+    r_Settings.removeListener(this);
+    for (auto& thread : m_Calculations) { thread->stopThread(0); }
 }
 
 void SpectrogramComponent::recalculateFrames()
@@ -78,17 +61,20 @@ void SpectrogramComponent::recalculateFrames()
     // just for shorthands
     const int n_chans = r_Data.getNumChannels();
     const float in_samps = r_Data.getNumSamples();
+    const auto fftSize = r_Settings.getFFTSize();
+    const auto xOverlap = r_Settings.getXOverlap();
+    const auto& gradient = r_Settings.getGradient();
 
     // reset the whole image
-    p_SpectrogramImage = std::make_unique<juce::Image>(juce::Image::RGB, (in_samps / m_FFTSize) * m_XOverlap, m_FFTSize / 2, true);
+    p_SpectrogramImage = std::make_unique<juce::Image>(juce::Image::RGB, (in_samps / fftSize) * xOverlap, fftSize / 2, true);
 
-    const auto total_in_frames = std::ceil(in_samps / (float) m_FFTSize);
+    const auto total_in_frames = std::ceil(in_samps / (float) fftSize);
     const auto n_chunks = std::ceil(total_in_frames / max_frames_per_thread);
-    const auto frames_per_chunk = (total_in_frames / n_chunks) * m_XOverlap;
-    const int in_chunk_size_samps = int(total_in_frames / n_chunks) * m_FFTSize;
-    const int out_chunk_size_samps = in_chunk_size_samps * m_XOverlap;
+    const auto frames_per_chunk = (total_in_frames / n_chunks) * xOverlap;
+    const int in_chunk_size_samps = int(total_in_frames / n_chunks) * fftSize;
+    const int out_chunk_size_samps = in_chunk_size_samps * xOverlap;
     const int out_samps = out_chunk_size_samps * n_chunks;
-    const int chunk_size_pixels = out_chunk_size_samps / m_FFTSize;
+    const int chunk_size_pixels = out_chunk_size_samps / fftSize;
 
     m_MagData.setSize(n_chans, out_samps);
     m_PhaseData.setSize(n_chans, out_samps);
@@ -100,7 +86,7 @@ void SpectrogramComponent::recalculateFrames()
     {
         const auto in_chunk_start = chunk_i * in_chunk_size_samps;
         const auto out_chunk_start = chunk_i * out_chunk_size_samps;
-        const auto img_start = out_chunk_start / m_FFTSize;
+        const auto img_start = out_chunk_start / fftSize;
 
         // we need to worry about the end of the stream on input, but not output.
         juce::dsp::AudioBlock<float> in_block(in_data, n_chans, in_chunk_start, std::min<int>(in_chunk_size_samps, in_samps - in_chunk_start));
@@ -108,19 +94,14 @@ void SpectrogramComponent::recalculateFrames()
         juce::dsp::AudioBlock<float> phase_block(phase_data, n_chans, out_chunk_start, out_chunk_size_samps);
 
         const auto chunk_rect = juce::Rectangle<int>(img_start, 0, chunk_size_pixels, p_SpectrogramImage->getHeight());
-        m_Chunks.emplace_back(new SpectrogramChunkCalculator(mag_block, p_SpectrogramImage->getClippedImage(chunk_rect), p_Gradient.get(), m_FFTSize,
-                                                             m_XOverlap));
+        m_Chunks.emplace_back(
+            new SpectrogramChunkCalculator(mag_block, p_SpectrogramImage->getClippedImage(chunk_rect), &gradient, fftSize, xOverlap)
+        );
         m_Chunks.back()->addChangeListener(this);
         m_Calculations.emplace_back(new MagPhaseChunkCalculator(in_block, mag_block, phase_block, 10, 0));
         m_Calculations.back()->addChangeListener(m_Chunks.at(chunk_i).get());
         m_Calculations.back()->startThread();
     }
-}
-
-
-SpectrogramComponent::~SpectrogramComponent()
-{
-    for (auto& thread : m_Calculations) { thread->stopThread(0); }
 }
 
 void SpectrogramComponent::paint(juce::Graphics& g)
@@ -135,14 +116,6 @@ void SpectrogramComponent::changeListenerCallback(juce::ChangeBroadcaster* sourc
     repaint();
 }
 
-void SpectrogramComponent::setGradient(const juce::ColourGradient& gradient)
-{
-    p_Gradient.reset(new juce::ColourGradient(gradient));
-    for (auto& calc: m_Chunks)
-    {
-        calc->recalculateSpectrogramImage();
-    }
-}
 
 void SpectrogramComponent::fftChanged(const SpectrogramSettings* settings)
 {
@@ -151,11 +124,6 @@ void SpectrogramComponent::fftChanged(const SpectrogramSettings* settings)
 
 void SpectrogramComponent::gradientChanged(const SpectrogramSettings* settings)
 {
-    p_Gradient->clearColours();
-    const auto newGradient = settings->getGradient();
-    for (int i = 0; i <= newGradient.getNumColours(); i++)
-        { p_Gradient->addColour(newGradient.getColourPosition(i), newGradient.getColour(i)); }
-
     for (auto& chunk : m_Chunks)
         { chunk->recalculateSpectrogramImage(); }
     repaint();
@@ -183,10 +151,14 @@ void SpectrogramChunkCalculator::recalculateSpectrogramImage()
         for (int bin = n_bins; --bin > 0;)
         {
             // TODO: This scaling from the juce tutorial kinda works? it also cuts off the top. we'll see about tweaking this.
+
+//            auto skewedProportionY = 1.0f - std::exp (std::log ((float) y / (float) imageHeight) * 0.2f);
+//            auto fftDataIndex = (size_t) juce::jlimit (0, m_FFTSize / 2, (int) (skewedProportionY * fftSize / 2));
 //            const int fft_i = (1.0f - std::exp (std::log ((float) bin / (float) m_FFTSize) * 0.2f)) * n_bins;
             const int fft_i = bin + n_bins;
             const int in_sample = s * m_FFTSize + fft_i;
-            const auto sample_value = r_MagData.getChannelPointer(0)[in_sample];
+            const auto sample_value = r_MagData.getChannelPointer(0)[in_sample] / (m_FFTSize / 2.0f);
+//            jassert(sample_value <= 1.0);
 
             auto colour = p_Gradient->getColourAtPosition(sample_value);
             m_Img.setPixelAt(s, bin, colour);

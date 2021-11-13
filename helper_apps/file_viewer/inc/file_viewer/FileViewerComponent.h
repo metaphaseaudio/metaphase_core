@@ -3,6 +3,7 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <meta/gooey/WaveformComponent.h>
 #include <file_viewer/spectrogram/SpectrogramComponent.h>
+#include <meta/gooey/RulerComponent.h>
 
 //==============================================================================
 /*
@@ -18,7 +19,6 @@ class FileViewerComponent
     using FFTFrame = meta::dsp::MagPhaseCalculator<float>::MagPhaseFrame;
 public:
     FileViewerComponent(juce::File filepath, juce::AudioBuffer<float>& data, double sample_rate, SpectrogramSettings& settings);
-    ~FileViewerComponent();
     void paint (juce::Graphics&) override;
     void resized() override;
     juce::File getFilepath() const;
@@ -28,9 +28,10 @@ private:
     juce::File m_Filepath;
     juce::AudioBuffer<float> m_Data;
     double m_SampleRate;
-    SpectrogramSettings& r_SpectrogramSettings;
     meta::WaveformComponent m_Waveform;
     SpectrogramComponent m_Spectrogram;
     juce::Slider m_SpecWavSlider;
+    meta::RulerComponent m_TimeRuler;
+    meta::RulerComponent m_FreqRuler;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileViewerComponent)
 };
