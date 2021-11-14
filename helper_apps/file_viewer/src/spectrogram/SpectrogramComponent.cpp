@@ -4,6 +4,7 @@
 
 #include <file_viewer/spectrogram/SpectrogramComponent.h>
 #include <utility>
+#include <inc/meta/audio/decibels.h>
 
 static const int max_frames_per_thread = 48000 * 2 * 5; // Guess at this (5 seconds of 48k, 2chan) -- it can be futz'd w/.
 
@@ -138,6 +139,7 @@ SpectrogramChunkCalculator::SpectrogramChunkCalculator(
 
 void SpectrogramChunkCalculator::recalculateSpectrogramImage()
 {
+    const auto dBMin =  meta::gain_coeff_to_db(std::numeric_limits<float>::epsilon());;
     const auto x_size = int(std::ceil(r_MagData.getNumSamples() / r_Settings.getFFTSize()));
     const auto n_bins = r_Settings.getFFTSize() / 2;  // We only want the positive frequencies
 
@@ -155,7 +157,7 @@ void SpectrogramChunkCalculator::recalculateSpectrogramImage()
             const auto ptrValue = r_MagData.getChannelPointer(0)[in_sample];
             const auto sample_value = ptrValue / (r_Settings.getFFTSize() / 2.0f);
 //            jassert(sample_value <= 1.0);
-            const auto scaleApplied = r_Settings.applyScale(sample_value);
+            const auto scaleApplied = 1.0f - (meta::gain_coeff_to_db(sample_value) / dBMin);
             auto colour = r_Settings.getGradient().getColourAtPosition(scaleApplied);
             m_Img.setPixelAt(s, bin, colour);
         }

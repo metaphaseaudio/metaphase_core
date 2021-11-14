@@ -58,18 +58,3 @@ void SpectrogramSettings::setXOverlap(int overlap)
     m_Listeners.call([this] (Listener& l) { l.fftChanged(this); });
 }
 
-float SpectrogramSettings::applyScale(float x) const
-{
-    if (x == 0) { return x; }
-    const auto dBMin =  meta::gain_coeff_to_db(std::numeric_limits<float>::epsilon());;
-    switch (m_Scale)
-    {
-        case Scale::LOG:
-            return 1.0f - (meta::gain_coeff_to_db(x) / dBMin);
-        case Scale::LIN:
-        default:
-            return x;
-    }
-}
-
-
