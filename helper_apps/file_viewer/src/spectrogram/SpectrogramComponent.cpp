@@ -95,7 +95,7 @@ void SpectrogramComponent::recalculateFrames()
 
         const auto chunk_rect = juce::Rectangle<int>(img_start, 0, chunk_size_pixels, p_SpectrogramImage->getHeight());
         m_Chunks.emplace_back(
-            new SpectrogramChunkCalculator(mag_block, p_SpectrogramImage->getClippedImage(chunk_rect), &gradient, fftSize, xOverlap)
+            new SpectrogramChunkCalculator(mag_block, p_SpectrogramImage->getClippedImage(chunk_rect), r_Settings)
         );
         m_Chunks.back()->addChangeListener(this);
         m_Calculations.emplace_back(new MagPhaseChunkCalculator(in_block, mag_block, phase_block, 10, 0));
@@ -111,40 +111,35 @@ void SpectrogramComponent::paint(juce::Graphics& g)
     g.drawImage(*p_SpectrogramImage, local_bounds);
 }
 
-void SpectrogramComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
-{
-    repaint();
-}
+void SpectrogramComponent::changeListenerCallback(juce::ChangeBroadcaster* source) { repaint(); }
 
 
 void SpectrogramComponent::fftChanged(const SpectrogramSettings* settings)
 {
-
+    for (auto& chunk : m_Chunks)
+        { chunk->recalculateSpectrogramImage(); }
 }
 
 void SpectrogramComponent::gradientChanged(const SpectrogramSettings* settings)
 {
     for (auto& chunk : m_Chunks)
         { chunk->recalculateSpectrogramImage(); }
-    repaint();
 }
 
 
 SpectrogramChunkCalculator::SpectrogramChunkCalculator(
         const juce::dsp::AudioBlock<float>& data,
         juce::Image img,
-        const juce::ColourGradient* grad, int fft_size, int xOverlap)
+        const SpectrogramSettings& settings)
     : r_MagData(data)
     , m_Img(std::move(img))
-    , p_Gradient(grad)
-    , m_FFTSize(fft_size)
-    , m_XOverlap(xOverlap)
+    , r_Settings(settings)
 {}
 
 void SpectrogramChunkCalculator::recalculateSpectrogramImage()
 {
-    const auto x_size = int(std::ceil(r_MagData.getNumSamples() / m_FFTSize));
-    const auto n_bins = m_FFTSize / 2;  // We only want the positive frequencies
+    const auto x_size = int(std::ceil(r_MagData.getNumSamples() / r_Settings.getFFTSize()));
+    const auto n_bins = r_Settings.getFFTSize() / 2;  // We only want the positive frequencies
 
     for (int s = x_size; --s >=0;)
     {
@@ -156,11 +151,12 @@ void SpectrogramChunkCalculator::recalculateSpectrogramImage()
 //            auto fftDataIndex = (size_t) juce::jlimit (0, m_FFTSize / 2, (int) (skewedProportionY * fftSize / 2));
 //            const int fft_i = (1.0f - std::exp (std::log ((float) bin / (float) m_FFTSize) * 0.2f)) * n_bins;
             const int fft_i = bin + n_bins;
-            const int in_sample = s * m_FFTSize + fft_i;
-            const auto sample_value = r_MagData.getChannelPointer(0)[in_sample] / (m_FFTSize / 2.0f);
+            const int in_sample = s * r_Settings.getFFTSize() + fft_i;
+            const auto ptrValue = r_MagData.getChannelPointer(0)[in_sample];
+            const auto sample_value = ptrValue / (r_Settings.getFFTSize() / 2.0f);
 //            jassert(sample_value <= 1.0);
-
-            auto colour = p_Gradient->getColourAtPosition(sample_value);
+            const auto scaleApplied = r_Settings.applyScale(sample_value);
+            auto colour = r_Settings.getGradient().getColourAtPosition(scaleApplied);
             m_Img.setPixelAt(s, bin, colour);
         }
     }

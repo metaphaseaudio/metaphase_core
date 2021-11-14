@@ -39,20 +39,15 @@ class SpectrogramChunkCalculator
     , public juce::ChangeBroadcaster
 {
 public:
-    SpectrogramChunkCalculator(
-            const juce::dsp::AudioBlock<float>& data,
-            juce::Image img,
-            const juce::ColourGradient* grad,
-            int fftSize, int xOverlap);
+    SpectrogramChunkCalculator(const juce::dsp::AudioBlock<float>& data, juce::Image img, const SpectrogramSettings& settings);
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void recalculateSpectrogramImage();
 
 private:
     juce::dsp::AudioBlock<float> r_MagData;
-    const juce::ColourGradient* p_Gradient;
     juce::Image m_Img;
-    int m_FFTSize, m_XOverlap;
+    const SpectrogramSettings& r_Settings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramChunkCalculator);
 };

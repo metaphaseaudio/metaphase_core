@@ -4,11 +4,12 @@
 
 #include <file_viewer/spectrogram/SpectrogramSettings.h>
 #include <meta/util/math.h>
+#include <meta/audio/decibels.h>
 
 
 SpectrogramSettings::SpectrogramSettings()
     : m_FFTOrder(10)
-    , m_XOverlap(2)
+    , m_XOverlap(1)
     , m_Scale(Scale::LOG)
 {
     std::vector<juce::Colour> colours = {
@@ -27,7 +28,7 @@ SpectrogramSettings::SpectrogramSettings()
     float position = 0;
     for (auto& colour : colours)
     {
-        const auto log_position = position;  meta::Interpolate<float>::parabolic(0.0f, 1.0f, position, 0);
+        const auto log_position = meta::Interpolate<float>::parabolic(0.0f, 1.0f, position, 0);
         m_Gradient.addColour(log_position, colour);
         position += increment;
     }
@@ -56,4 +57,19 @@ void SpectrogramSettings::setXOverlap(int overlap)
     m_XOverlap = overlap;
     m_Listeners.call([this] (Listener& l) { l.fftChanged(this); });
 }
+
+float SpectrogramSettings::applyScale(float x) const
+{
+    if (x == 0) { return x; }
+    const auto dBMin =  meta::gain_coeff_to_db(std::numeric_limits<float>::epsilon());;
+    switch (m_Scale)
+    {
+        case Scale::LOG:
+            return 1.0f - (meta::gain_coeff_to_db(x) / dBMin);
+        case Scale::LIN:
+        default:
+            return x;
+    }
+}
+
 

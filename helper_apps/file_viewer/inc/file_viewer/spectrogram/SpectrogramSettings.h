@@ -40,10 +40,12 @@ public:
     void setXOverlap(int overlap);
     int getXOverlap() const { return m_XOverlap; }
 
-private:
+    float applyScale(float x) const;
 
+private:
     juce::ListenerList<Listener> m_Listeners;
     int m_FFTOrder, m_XOverlap;
+    float m_dBFSMax, m_dBFSMin;
     juce::ColourGradient m_Gradient;
     Scale m_Scale;
 };

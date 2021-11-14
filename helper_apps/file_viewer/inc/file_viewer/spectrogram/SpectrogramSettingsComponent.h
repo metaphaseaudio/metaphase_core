@@ -12,6 +12,7 @@ class SpectrogramSettingsComponent
     : public juce::Component
     , public juce::ChangeBroadcaster
     , juce::ChangeListener
+    , juce::ComboBox::Listener
 {
 public:
     SpectrogramSettingsComponent(SpectrogramSettings& settings);
@@ -19,8 +20,12 @@ public:
 
 private:
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+    void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
+
     SpectrogramSettings& r_Settings;
     meta::GradientDesigner m_GradientDesigner;
+    juce::Label m_SelectScaleLabel;
+    juce::ComboBox m_SelectScale;
 };
 
 
