@@ -15,7 +15,7 @@ SpectrogramSettingsComponent::SpectrogramSettingsComponent(SpectrogramSettings& 
     m_GradientDesigner.addChangeListener(this);
 
     m_SelectScale.addItemList({"Linear", "Log", "Mel"}, 1);
-    m_SelectScale.setSelectedId(r_Settings.getScale(), juce::dontSendNotification);
+    m_SelectScale.setSelectedId(r_Settings.getScale() + 1, juce::dontSendNotification);
     m_SelectScale.addListener(this);
     setSize(700, 100);
 }
