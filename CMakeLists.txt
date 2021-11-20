@@ -11,8 +11,7 @@ target_include_directories(metaphase_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/
 target_sources(metaphase_core PRIVATE ${META_SHARED_SRC})
 target_link_libraries(metaphase_core
         juce::juce_audio_utils
-        juce::juce_dsp
-        gtest)
+        juce::juce_dsp)
 target_compile_definitions(metaphase_core
     PUBLIC
         JUCE_WEB_BROWSER=0
@@ -26,9 +25,5 @@ set_property(TARGET metaphase_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if (BUILD_TESTS)
     add_subdirectory(${META_PATH}/test)
-endif()
-
-
-if (BUILD_META_HELPER_APP_FILE_VIEWER)
-    add_subdirectory(${META_PATH}/helper_apps/file_viewer)
+    target_link_libraries(metaphase_core gtest)
 endif()
