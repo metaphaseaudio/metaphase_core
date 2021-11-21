@@ -12,6 +12,7 @@ namespace meta
             : public juce::LookAndFeel_V4
     {
     public:
+        MetaLookAndFeel();
         void drawGradientDesignerColourPoint(juce::Graphics& g, const meta::GradientDesigner::ColourPoint& colourPoint);
         void drawGradientDesignerDisplay(juce::Graphics& g, const meta::GradientDesigner::Display& display);
     };

@@ -3,7 +3,13 @@
 //
 
 #include <meta/gooey/MetaLookAndFeel.h>
+#include <inc/meta/gooey/WaveformComponent.h>
 
+meta::MetaLookAndFeel::MetaLookAndFeel()
+{
+    setColour(WaveformComponent::ColourIds::backgroundColourId, juce::Colours::black);
+    setColour(WaveformComponent::ColourIds::foregroundColourId, juce::Colours::yellowgreen);
+}
 
 void meta::MetaLookAndFeel::drawGradientDesignerColourPoint(juce::Graphics& g, const meta::GradientDesigner::ColourPoint& colourPoint)
 {
