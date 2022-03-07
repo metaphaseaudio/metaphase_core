@@ -27,8 +27,8 @@ namespace meta
     constexpr NumericType limit(NumericType low, NumericType high, NumericType value)
     { return value < low ? low : (high < value ? high : value); }
 
-	template <typename T> T abs(T i) { return std::abs(i); }
-	template <typename T> T fabs(T i) { return std::fabs(i); }
+	template <typename T>  constexpr T abs(T i){ return i < 0 ? -1 * i : i; }
+	template <typename T>  constexpr T fabs(T i) { return std::fabs(i); }
 
     template <typename NumericType>
     struct Interpolate

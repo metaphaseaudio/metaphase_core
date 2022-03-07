@@ -20,6 +20,7 @@
 #include "test/tests/util/container_helpers/test_Array.h"
 #include "test/tests/util/container_helpers/test_zip.h"
 #include "test/tests/generators/test_complementary_sequence.h"
+#include "test/tests/generators/test_LoopingAccumulator.h"
 #include "test/tests/generators/test_range_sequence.h"
 #include "test/tests/audio/test_decibels.h"
 #include "test/tests/dsp/test_MagPhaseCalculator.h"

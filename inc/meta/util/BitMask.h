@@ -43,7 +43,7 @@ namespace meta
     }
 
     template <size_t Bits>
-    struct bitfill { static constexpr size_t value = (static_cast<size_t>(1) << Bits - 1) | bitfill<Bits - 1>::value; };
+    struct bitfill { static constexpr size_t value = (static_cast<size_t>(1) << (Bits - 1)) | bitfill<Bits - 1>::value; };
 
     template <>
     struct bitfill<1> { static constexpr size_t value = 1; };

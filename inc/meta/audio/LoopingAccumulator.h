@@ -3,13 +3,15 @@
 //
 
 #pragma once
+#include <meta/util/math.h>
+
 
 namespace meta
 {
     template <int Min, unsigned int Max>
     struct LoopingAccumulator
     {
-        static constexpr unsigned long Range = Max - Min;
+        static constexpr unsigned long Range = meta::abs(Max - Min);
 
         size_t sample_rate = 48000;
         float delta = 0.0f;
