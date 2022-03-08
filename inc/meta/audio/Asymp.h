@@ -70,6 +70,8 @@ namespace meta
         //! Compute and return one output sample.
         float tick();
 
+        bool hasEnded() const { return m_State == 0; }
+
     protected:
         float m_Value;
         float m_Target;
@@ -84,8 +86,13 @@ namespace meta
     {
         if (m_State)
         {
-
-            m_Value = m_Factor * m_Value + m_Constant;
+            // There's a really bonkers edge case in here where, if the values
+            // are within the rounding error of a float, the new value can be
+            // identical to the old value and execution can hang just before
+            // hitting the target value.
+            const auto newValue = m_Factor * m_Value + m_Constant;
+            if (newValue == m_Value) { m_Value = m_Target; }
+            else { m_Value = newValue; }
 
             // Check threshold.
             if (m_Target > m_Value)
