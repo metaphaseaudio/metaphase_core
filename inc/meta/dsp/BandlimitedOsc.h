@@ -4,16 +4,18 @@
 #pragma once
 #include <meta/audio/Blip_Buffer.h>
 #include <meta/audio/LoopingAccumulator.h>
+#include <meta/util/NumericConstants.h>
 
 namespace meta
 {
     template<size_t bit_depth, size_t sub_samples, size_t blip_resolution = 8>
     class BandLimitedOsc
     {
+    public:
         static constexpr int Min = meta::BitInfo<bit_depth, true>::Min;
         static constexpr unsigned int Max = meta::BitInfo<bit_depth, true>::Max;
-        static constexpr unsigned long range = Max - Min;
-    public:
+        static constexpr unsigned long Range = Max - Min;
+
         explicit BandLimitedOsc(long sample_rate)
             : accumulator{sample_rate * sub_samples, 0 , 0}, clock_i(0)
         {
@@ -49,7 +51,7 @@ namespace meta
 
         void tick(int sample_count = 1)
         {
-            jassert(sample_count <= m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail());
+            assert(sample_count <= m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail());
             const auto clock_count = sample_count * sub_samples;
             for (int i = clock_count; --i >= 0; clock_i++)
             {
@@ -60,7 +62,7 @@ namespace meta
             end_block();
         }
 
-    private:
+    protected:
         void end_block()
         {
             m_BlipBuff.end_frame(clock_i);
@@ -108,6 +110,6 @@ namespace meta
         LoopingAccumulator<Min, Max> accumulator;
         int clock_i;
         Blip_Buffer m_BlipBuff;
-        Blip_Synth<blip_resolution, range> synth;
+        Blip_Synth<blip_resolution, Range> synth;
     };
 }

@@ -42,7 +42,7 @@ public:
         }
     }
 
-    std::array<float, 1000> table = meta::BandlimitedWavetable<float, 1000>::makeSquare(100);
+    std::array<float, 1000> table = meta::BandlimitedWavetable<float, 1000>::makeSin();
     meta::WavetableState<float> state;
     meta::WavetableReader<float, 1000> osc;
 

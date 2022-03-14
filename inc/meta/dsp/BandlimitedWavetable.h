@@ -76,18 +76,14 @@ namespace meta
         /**
          * fills a table with a sine wave using a particular gain coefficient
          */
+        template <int partial>
         struct Partial
         {
-            Partial(int p, NumericType g)
-                : partial(p)
-                , gain(g)
-            {};
-
             /**
              * Add this partial's values to an array
              * @param table the table to fill
              */
-            void addToTable(std::array<NumericType, TableSize>& table) const
+            static constexpr void addToTable(std::array<NumericType, TableSize>& table, NumericType gain)
             {
                 for (int i = TableSize; --i >= 0;)
                 {
@@ -97,12 +93,9 @@ namespace meta
                     NumericType denominator = static_cast<NumericType>(i * 2 * partial)
                                             / static_cast<NumericType>(TableSize);
                     NumericType phase = denominator * meta::NumericConstants<NumericType>::PI;
-                    table[i] += sin(phase) * gain;
+                    table[i] += meta::sin(phase) * gain;
                 }
             }
-
-            const int partial;
-            const NumericType gain;
         };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,8 +107,7 @@ namespace meta
         static constexpr std::array<NumericType, TableSize> makeSin()
         {
             std::array<NumericType, TableSize> out{0};
-            Partial part(1, 1);
-            part.addToTable(out);
+            Partial<1>::addToTable(out, 1);
             return out;
         };
 
@@ -134,8 +126,7 @@ namespace meta
             std::array<NumericType, TableSize> out{0};
             for (int harmonic = 1; harmonic <= numHarmonics * 2; harmonic += 2)
             {
-                Partial part(harmonic, getSquarePartialGain<NumericType>(harmonic, numHarmonics));
-                part.addToTable(out);
+//                Partial<harmonic, getSquarePartialGain<NumericType>(harmonic, numHarmonics)>::addToTable(out);
             }
 
             return out;
@@ -156,8 +147,7 @@ namespace meta
             std::array<NumericType, TableSize> out{0};
             for (int harmonic = 1; harmonic <= numHarmonics; harmonic++)
             {
-                Partial part(harmonic, getSawPartialGain<NumericType>(harmonic, numHarmonics));
-                part.addToTable(out);
+//                Partial<harmonic, getSawPartialGain<NumericType>(harmonic, numHarmonics)>::addToTable(out);
             }
 
             return out;
@@ -178,8 +168,7 @@ namespace meta
             std::array<NumericType, TableSize> out{0};
             for (int harmonic = 1; harmonic <= numHarmonics * 2; harmonic += 2)
             {
-                Partial part(harmonic, getTrianglePartialGain<NumericType>(harmonic));
-                part.addToTable(out);
+//                Partial<harmonic, getTrianglePartialGain<NumericType>(harmonic)>::addToTable(out);
             }
 
             return out;

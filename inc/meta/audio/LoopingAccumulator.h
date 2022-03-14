@@ -30,7 +30,8 @@ namespace meta
         void tick()
         {
             value += delta;
-            if (std::floor(value) > Max) { value -= Range; }
+            if (std::floor(value) > Max)
+                { value -= Range + 1; } // W
         }
     };
 }
