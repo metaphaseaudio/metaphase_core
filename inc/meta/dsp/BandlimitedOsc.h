@@ -14,7 +14,7 @@ namespace meta
     public:
         static constexpr int Min = meta::BitInfo<bit_depth, true>::Min;
         static constexpr unsigned int Max = meta::BitInfo<bit_depth, true>::Max;
-        static constexpr unsigned long Range = Max - Min;
+        static constexpr unsigned long Range = meta::abs(Max - Min);
 
         explicit BandLimitedOsc(long sample_rate)
             : accumulator{sample_rate * sub_samples, 0 , 0}, clock_i(0)
