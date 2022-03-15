@@ -31,7 +31,7 @@ namespace meta
         {
             value += delta;
             if (std::floor(value) > Max)
-                { value -= Range + 1; } // W
+                { value -= Range + 1; }
         }
     };
 }

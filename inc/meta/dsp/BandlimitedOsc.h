@@ -45,8 +45,15 @@ namespace meta
 
         void processBlock(float* block, long n_samps)
         {
-            tick(n_samps);
-            relocate_samples(block, n_samps);
+            size_t offset = 0;
+            while (n_samps > 0)
+            {
+                const auto block_size = std::min(m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail(), n_samps);
+                tick(block_size);
+                relocate_samples(block + offset, block_size);
+                n_samps -= block_size;
+                offset += block_size;
+            }
         }
 
         void tick(int sample_count = 1)
@@ -61,6 +68,7 @@ namespace meta
             }
             end_block();
         }
+
 
     protected:
         void end_block()

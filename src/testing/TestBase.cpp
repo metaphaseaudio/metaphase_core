@@ -19,7 +19,7 @@ void meta::TestBase::TearDown()
     if (m_Writer != nullptr)
     {
         m_Writer->flush();
-        m_Writer.reset(nullptr);
+        m_Writer.reset(nullptr);  // Put a breakpoint here to check the file
     }
 }
 #endif
