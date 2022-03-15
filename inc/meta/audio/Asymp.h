@@ -37,9 +37,6 @@ namespace meta
         /// If the sample rate is already known
         explicit Asymp(double sampleRate);
 
-        //! Class destructor.
-        ~Asymp();
-
         // Reset the entire object to a ready state
         void init(double sampleRate);
 
