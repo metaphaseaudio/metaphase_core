@@ -164,4 +164,7 @@ namespace meta
     constexpr inline std::decay_t<T> sin(T x) noexcept {
         return _sincos<detail::_sin<T>,N>(x);
     }
+
+    template<class T>
+    constexpr inline std::decay_t<T> cos(T x) noexcept { return sin(x - meta::NumericConstants<T>::PI);}
 }
