@@ -15,6 +15,8 @@ namespace meta
         static constexpr int Min = meta::BitInfo<bit_depth, true>::Min;
         static constexpr unsigned int Max = meta::BitInfo<bit_depth, true>::Max;
         static constexpr unsigned long Range = meta::abs(Max - Min);
+        static constexpr size_t Latency = blip_resolution;
+        static constexpr size_t OverSample = sub_samples;
 
         explicit BandLimitedOsc(long sample_rate)
             : accumulator{sample_rate * sub_samples, 0 , 0}, clock_i(0)
