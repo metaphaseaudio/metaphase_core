@@ -19,7 +19,7 @@ namespace meta
         static constexpr size_t OverSample = sub_samples;
 
         explicit BandLimitedOsc(long sample_rate)
-            : accumulator{sample_rate * sub_samples, 0 , 0}, clock_i(0)
+            : accumulator(Min, Max, sample_rate * sub_samples, 0), clock_i(0)
         {
             set_sample_rate(sample_rate);
             m_BlipBuff.clock_rate(m_BlipBuff.sample_rate() * sub_samples);
@@ -64,7 +64,7 @@ namespace meta
             const auto clock_count = sample_count * sub_samples;
             for (int i = clock_count; --i >= 0; clock_i++)
             {
-                const auto next = std::floor(wave_shape(accumulator.value));
+                const auto next = std::floor(wave_shape(accumulator.getValue()));
                 synth.update(clock_i, next);
                 accumulator.tick();
             }
@@ -117,7 +117,7 @@ namespace meta
             return count;
         }
 
-        LoopingAccumulator<Min, Max> accumulator;
+        LoopingAccumulator accumulator;
         int clock_i;
         Blip_Buffer m_BlipBuff;
         Blip_Synth<blip_resolution, Range> synth;

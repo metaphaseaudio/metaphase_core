@@ -41,7 +41,7 @@ namespace meta
     struct Interpolate
     {
         static constexpr NumericType linear(NumericType a, NumericType b, NumericType weight)
-            { return (b * weight) + (a * (1 - weight)); }
+            { return (a * (1 - weight)) + (b * weight); }
 
         static constexpr NumericType parabolic
         (NumericType a, NumericType b, NumericType weight, NumericType exponent=2)
@@ -76,12 +76,6 @@ namespace meta
 
     template<std::size_t... Is>
     struct gen_seq<0, Is...> : seq<Is...>{};
-
-
-
-//    constexpr static double pi_v = pi<double>;
-//    constexpr static double two_pi_v = two_pi<double>;
-//    constexpr static double half_pi_v = half_pi<double>;
 
     template<class T,class dcy = std::decay_t<T>>
     constexpr inline std::enable_if_t<std::is_floating_point<T>::value,dcy> inverse(T value){

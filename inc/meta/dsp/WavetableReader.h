@@ -26,6 +26,26 @@ namespace meta
             auto delta = std::fmod(static_cast<NumericType>(table_size) * freq / sample_rate, table_size);
             return (delta < 0) ? table_size + delta : delta;  // Add here because signs are inverted.
         };
+
+        using IFJ = std::tuple<size_t, NumericType, size_t>;
+
+        inline static constexpr IFJ
+            calculateIFJ(const size_t table_size, const NumericType phase)
+        {
+            auto i = static_cast<int>(phase) % table_size;
+            auto f = static_cast<int>(phase) - phase;
+            auto j = (i == table_size - 1) ? 0 : i + 1;
+            return std::make_tuple(i,f, j);
+        }
+
+        inline static constexpr NumericType calculate_sample(NumericType* data, const IFJ& ifj)
+        {
+            return meta::Interpolate<NumericType>::linear(
+                data[std::get<0>(ifj)],
+                data[std::get<2>(ifj)],
+                std::get<1>(ifj)
+            );
+        }
     };
 
 
@@ -46,14 +66,12 @@ namespace meta
         inline NumericType tick()
         {
             r_State.phase += r_State.delta;
-            const auto i = static_cast<int>(r_State.phase) % TableSize;
-            const auto f = r_State.phase - static_cast<int>(r_State.phase);
-            const auto j = (i == TableSize - 1) ? 0 : i + 1;
-            const auto a = r_Wavetable.at(i);
-            const auto b = r_Wavetable.at(j);
+            const auto ifj = WavetableHelpers<NumericType>::calculateIFJ(TableSize, r_State);
+            const auto a = r_Wavetable.at(std::get<0>(ifj));
+            const auto b = r_Wavetable.at(std::get<2>(ifj));
             // If we looped, this will keep things within table bounds.
-            r_State.phase = i + f;
-            return (a * (1 - f)) + (b * f);
+            r_State.phase = std::get<0>(ifj) + std::get<1>(ifj);
+            return meta::Interpolate<NumericType>::linear(a, b, std::get<1>(ifj));
         }
 
     private:
