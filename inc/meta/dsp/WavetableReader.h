@@ -66,7 +66,7 @@ namespace meta
         inline NumericType tick()
         {
             r_State.phase += r_State.delta;
-            const auto ifj = WavetableHelpers<NumericType>::calculateIFJ(TableSize, r_State);
+            const auto ifj = WavetableHelpers<NumericType>::calculateIFJ(TableSize, r_State.phase);
             const auto a = r_Wavetable.at(std::get<0>(ifj));
             const auto b = r_Wavetable.at(std::get<2>(ifj));
             // If we looped, this will keep things within table bounds.
