@@ -10,6 +10,6 @@
 
 TEST(LoopingAccumulatorTest, one_tick)
 {
-    auto accum = meta::LoopingAccumulator<0, 100>();
+    auto accum = meta::LoopingAccumulator(0, 100, 48000);
     accum.tick();
 }

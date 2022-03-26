@@ -30,12 +30,9 @@ namespace meta
 
     template <typename NumericType>
     struct NumericConstants
-    {};
-
-    template <>
-    struct NumericConstants<float>
-    { 
-		constexpr static const float PI { 3.14159f };
-	};
-
+    {
+        static constexpr NumericType PI = NumericType(3.14159265358979323846264338327);
+        static constexpr NumericType TWO_PI = NumericType(6.28318530717958647692528676656);
+        static constexpr NumericType HALF_PI = NumericConstants<NumericType>::PI * 0.5;
+    };
 }

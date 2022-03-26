@@ -50,11 +50,7 @@ public:
 TEST_F(BlipSynthTest, generate)
 {
     initializeTestFile("blip_osc.wav");
-//    osc.set_freq(125 * 16);
-
     osc.set_freq(125);
     float n_seconds = 2;
     runOscillator(BLIP_OSC_SAMPLE_RATE * n_seconds);
-//    osc.set_freq(250);
-//    runOscillator(BLIP_OSC_SAMPLE_RATE * n_seconds);
 }

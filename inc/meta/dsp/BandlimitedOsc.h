@@ -4,18 +4,22 @@
 #pragma once
 #include <meta/audio/Blip_Buffer.h>
 #include <meta/audio/LoopingAccumulator.h>
+#include <meta/util/NumericConstants.h>
 
 namespace meta
 {
     template<size_t bit_depth, size_t sub_samples, size_t blip_resolution = 8>
     class BandLimitedOsc
     {
+    public:
         static constexpr int Min = meta::BitInfo<bit_depth, true>::Min;
         static constexpr unsigned int Max = meta::BitInfo<bit_depth, true>::Max;
-        static constexpr unsigned long range = Max - Min;
-    public:
+        static constexpr unsigned long Range = meta::abs(Max - Min);
+        static constexpr size_t Latency = blip_resolution;
+        static constexpr size_t OverSample = sub_samples;
+
         explicit BandLimitedOsc(long sample_rate)
-            : accumulator{sample_rate * sub_samples, 0 , 0}, clock_i(0)
+            : accumulator(Min, Max, sample_rate * sub_samples, 0), clock_i(0)
         {
             set_sample_rate(sample_rate);
             m_BlipBuff.clock_rate(m_BlipBuff.sample_rate() * sub_samples);
@@ -43,24 +47,32 @@ namespace meta
 
         void processBlock(float* block, long n_samps)
         {
-            tick(n_samps);
-            relocate_samples(block, n_samps);
+            size_t offset = 0;
+            while (n_samps > 0)
+            {
+                const auto block_size = std::min(m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail(), n_samps);
+                tick(block_size);
+                relocate_samples(block + offset, block_size);
+                n_samps -= block_size;
+                offset += block_size;
+            }
         }
 
         void tick(int sample_count = 1)
         {
-            jassert(sample_count <= m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail());
+            assert(sample_count <= m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail());
             const auto clock_count = sample_count * sub_samples;
             for (int i = clock_count; --i >= 0; clock_i++)
             {
-                const auto next = std::floor(wave_shape(accumulator.value));
+                const auto next = std::floor(wave_shape(accumulator.getValue()));
                 synth.update(clock_i, next);
                 accumulator.tick();
             }
             end_block();
         }
 
-    private:
+
+    protected:
         void end_block()
         {
             m_BlipBuff.end_frame(clock_i);
@@ -105,9 +117,9 @@ namespace meta
             return count;
         }
 
-        LoopingAccumulator<Min, Max> accumulator;
+        LoopingAccumulator accumulator;
         int clock_i;
         Blip_Buffer m_BlipBuff;
-        Blip_Synth<blip_resolution, range> synth;
+        Blip_Synth<blip_resolution, Range> synth;
     };
 }

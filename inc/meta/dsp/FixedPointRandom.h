@@ -34,7 +34,7 @@ namespace meta
         /**
          * Initialize a FixedPointRandom number generator.  Care must be taken
          * when selecting the variables below to ensure that an even
-         * distribution of numbers is genrated.
+         * distribution of numbers is generated.
          * @param seed - Can be any arbitrary value
          * @param mult - should be chosen such that the last three digits are
          *               even-2-1 (such as xx821,x421, etc.)
