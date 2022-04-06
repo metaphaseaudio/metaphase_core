@@ -5,10 +5,11 @@
 #include <meta/audio/Blip_Buffer.h>
 #include <meta/audio/LoopingAccumulator.h>
 #include <meta/util/NumericConstants.h>
+#include <meta/util/container_helpers/array.h>
 
 namespace meta
 {
-    template<size_t bit_depth, size_t sub_samples, size_t blip_resolution = 8>
+    template<size_t bit_depth, size_t sub_samples, size_t blip_resolution = 8, size_t chans = 1>
     class BandLimitedOsc
     {
     public:
@@ -22,16 +23,19 @@ namespace meta
             : accumulator(Min, Max, sample_rate * sub_samples, 0), clock_i(0)
         {
             set_sample_rate(sample_rate);
-            m_BlipBuff.clock_rate(m_BlipBuff.sample_rate() * sub_samples);
-            m_BlipBuff.bass_freq(0); // makes waveforms perfectly flat
-            synth.volume(0.8);
-            synth.output(&m_BlipBuff);
+            for (int i = chans; --i >=0;)
+            {
+                m_BlipBuffs[i].clock_rate(m_BlipBuffs[i].sample_rate() * sub_samples);
+                m_BlipBuffs[i].bass_freq(0); // makes waveforms perfectly flat
+                synths[i].volume(0.8);
+                synths[i].output(&m_BlipBuffs[i]);
+            }
         }
 
         void set_sample_rate(long sample_rate)
         {
             // use a second's worth of buffer, it's plenty.
-            m_BlipBuff.set_sample_rate(sample_rate, 1000);
+            for (int i = chans; --i >=0;) { m_BlipBuffs[i].set_sample_rate(sample_rate, 1000); }
         }
 
         void set_freq(float freq) { accumulator.set_freq(freq); }
@@ -43,14 +47,14 @@ namespace meta
          * state by default
          * @return the next value of the wave to produce
          */
-        virtual float wave_shape(float accumulator_state) { return accumulator_state; }
+        virtual float wave_shape(float accumulator_state, int chan) { return accumulator_state; }
 
         void processBlock(float* block, long n_samps)
         {
             size_t offset = 0;
             while (n_samps > 0)
             {
-                const auto block_size = std::min(m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail(), n_samps);
+                const auto block_size = std::min(m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail(), n_samps);
                 tick(block_size);
                 relocate_samples(block + offset, block_size);
                 n_samps -= block_size;
@@ -60,12 +64,15 @@ namespace meta
 
         void tick(int sample_count = 1)
         {
-            assert(sample_count <= m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail());
+            assert(sample_count <= m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail());
             const auto clock_count = sample_count * sub_samples;
             for (int i = clock_count; --i >= 0; clock_i++)
             {
-                const auto next = std::floor(wave_shape(accumulator.getValue()));
-                synth.update(clock_i, next);
+                for (int c = chans; --c >=0;)
+                {
+                    const auto next = std::floor(wave_shape(accumulator.getValue(), c));
+                    synths[c].update(clock_i, next);
+                }
                 accumulator.tick();
             }
             end_block();
@@ -75,20 +82,24 @@ namespace meta
     protected:
         void end_block()
         {
-            m_BlipBuff.end_frame(clock_i);
-            clock_i = 0;
+            for (auto& buff : m_BlipBuffs)
+            {
+                buff.end_frame(clock_i);
+                clock_i = 0;
+            }
         }
 
-        long relocate_samples(float* out, long out_size, float low = -1.0f, float high = 1.0f)
+        long relocate_samples(float* out, long out_size, int chan = 1, float low = -1.0f, float high = 1.0f)
         {
+            const auto& buff = m_BlipBuffs[chan];
             // Limit number of samples read to those available
-            long count = m_BlipBuff.samples_avail();
+            long count = buff.samples_avail();
             if (count > out_size)
                 count = out_size;
 
             // Begin reading samples from Blip_Buffer
             auto reader = Blip_Reader();
-            int bass = reader.begin(m_BlipBuff);
+            int bass = reader.begin(buff);
 
             float factor = (high - low) * 0.5f;
             float offset = low + 1.0f * factor;
@@ -101,25 +112,25 @@ namespace meta
                 long s = reader.read_raw();
                 reader.next(bass);
                 *out++ = s * factor + offset;
+
+                // Clamp the values
                 if ((unsigned long) (s + sample_range / 2) >= sample_range)
                 {
-                    // clamp
                     out[-1] = high;
-                    if (s < 0)
-                        out[-1] = low;
+                    if (s < 0) { out[-1] = low; }
                 }
             }
 
             // End reading and remove the samples
-            reader.end(m_BlipBuff);
-            m_BlipBuff.remove_samples(count);
+            reader.end(buff);
+            buff.remove_samples(count);
 
             return count;
         }
 
         LoopingAccumulator accumulator;
         int clock_i;
-        Blip_Buffer m_BlipBuff;
-        Blip_Synth<blip_resolution, Range> synth;
+        std::array<Blip_Buffer, chans> m_BlipBuffs;
+        std::array<Blip_Synth<blip_resolution, Range>, chans> synths;
     };
 }
