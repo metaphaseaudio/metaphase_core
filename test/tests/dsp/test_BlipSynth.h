@@ -34,16 +34,15 @@ public:
         {
             const auto n_samps = std::min<int>(chunk_size, samples);
 
-            juce::AudioBuffer<float> buffer(1, n_samps);
+            juce::AudioBuffer<float> buffer(2, n_samps);
             buffer.clear();
-            osc.processBlock(buffer.getWritePointer(0), n_samps);
+            osc.processBlock(buffer.getArrayOfWritePointers(), n_samps);
             m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
             samples -= chunk_size;
         }
-
     }
 
-    meta::BandLimitedOsc<16, 128, 12> osc;
+    meta::BandLimitedOsc<16, 128, 12, 2> osc;
 };
 
 

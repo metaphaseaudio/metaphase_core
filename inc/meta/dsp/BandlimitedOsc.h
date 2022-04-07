@@ -35,7 +35,8 @@ namespace meta
         void set_sample_rate(long sample_rate)
         {
             // use a second's worth of buffer, it's plenty.
-            for (int i = chans; --i >=0;) { m_BlipBuffs[i].set_sample_rate(sample_rate, 1000); }
+            for (int i = chans; --i >=0;)
+                { m_BlipBuffs[i].set_sample_rate(sample_rate, 1000); }
         }
 
         void set_freq(float freq) { accumulator.set_freq(freq); }
@@ -49,14 +50,15 @@ namespace meta
          */
         virtual float wave_shape(float accumulator_state, int chan) { return accumulator_state; }
 
-        void processBlock(float* block, long n_samps)
+        void processBlock(float** block, long n_samps)
         {
             size_t offset = 0;
             while (n_samps > 0)
             {
                 const auto block_size = std::min(m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail(), n_samps);
                 tick(block_size);
-                relocate_samples(block + offset, block_size);
+                for (int c = chans; --c >= 0;)
+                    { relocate_samples(block[c] + offset, block_size, c); }
                 n_samps -= block_size;
                 offset += block_size;
             }
@@ -73,6 +75,7 @@ namespace meta
                     const auto next = std::floor(wave_shape(accumulator.getValue(), c));
                     synths[c].update(clock_i, next);
                 }
+
                 accumulator.tick();
             }
             end_block();
@@ -83,15 +86,14 @@ namespace meta
         void end_block()
         {
             for (auto& buff : m_BlipBuffs)
-            {
-                buff.end_frame(clock_i);
-                clock_i = 0;
-            }
+                { buff.end_frame(clock_i); }
+
+            clock_i = 0;
         }
 
         long relocate_samples(float* out, long out_size, int chan = 1, float low = -1.0f, float high = 1.0f)
         {
-            const auto& buff = m_BlipBuffs[chan];
+            Blip_Buffer& buff = m_BlipBuffs[chan];
             // Limit number of samples read to those available
             long count = buff.samples_avail();
             if (count > out_size)
