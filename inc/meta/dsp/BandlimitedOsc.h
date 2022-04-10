@@ -68,16 +68,20 @@ namespace meta
         void tick(int sample_count = 1)
         {
             assert(sample_count <= m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail());
-            const auto clock_count = sample_count * sub_samples;
-            for (int i = clock_count; --i >= 0; clock_i++)
+            const auto n_clock = sample_count * sub_samples;
+            for (; clock_i < n_clock; clock_i++)
             {
-                for (const auto i_value : meta::enumerate(onTick(accumulator.tick())))
-                    { synths.at(std::get<0>(i_value)).update(clock_i, std::get<1>(i_value)); }
+                if (! (clock_i % sub_samples))
+                    { onSample(accumulator.getValue()); }
+
+                for (const auto chan_value : meta::enumerate(onTick(accumulator.tick())))
+                    { synths.at(std::get<0>(chan_value)).update(clock_i, std::get<1>(chan_value)); }
             }
             end_block();
         }
 
     protected:
+        virtual void onSample(float accum_state) {};
         virtual std::array<float, chans> onTick(float accum_state) {
             return meta::make_initialized_array<float, chans>(accum_state);
         };
