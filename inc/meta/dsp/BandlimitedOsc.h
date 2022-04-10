@@ -9,7 +9,7 @@
 
 namespace meta
 {
-    template<size_t bit_depth, size_t sub_samples, size_t blip_resolution = 8, size_t chans = 1>
+    template<size_t bit_depth, size_t sub_samples, size_t blip_resolution=8, size_t chans=1>
     class BandLimitedOsc
     {
     public:
@@ -50,6 +50,10 @@ namespace meta
          */
         virtual float wave_shape(float accumulator_state, int chan) { return accumulator_state; }
 
+        virtual std::array<float, chans> onTick(float accum_state) {
+            return meta::make_initialized_array<float, chans>(accum_state);
+        };
+
         void processBlock(float** block, long n_samps)
         {
             size_t offset = 0;
@@ -70,17 +74,13 @@ namespace meta
             const auto clock_count = sample_count * sub_samples;
             for (int i = clock_count; --i >= 0; clock_i++)
             {
-                for (int c = chans; --c >=0;)
-                {
-                    const auto next = std::floor(wave_shape(accumulator.getValue(), c));
-                    synths[c].update(clock_i, next);
-                }
+                for (const auto i_value : meta::enumerate(onTick(accumulator.getValue())))
+                    { synths.at(std::get<0>(i_value)).update(clock_i, std::get<1>(i_value)); }
 
                 accumulator.tick();
             }
             end_block();
         }
-
 
     protected:
         void end_block()
