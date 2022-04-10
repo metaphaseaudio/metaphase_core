@@ -30,11 +30,13 @@ namespace meta
             delta = frange / samples_per_cycle;
         }
 
-        void tick()
+        float tick()
         {
+            const auto rv = value;
             value += delta;
             if (std::floor(value) > max)
                 { value -= range + 1; }
+            return rv;
         }
 
         [[ nodiscard ]] float getValue() const { return value; }

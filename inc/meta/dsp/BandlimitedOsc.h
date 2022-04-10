@@ -20,7 +20,7 @@ namespace meta
         static constexpr size_t OverSample = sub_samples;
 
         explicit BandLimitedOsc(long sample_rate)
-            : accumulator(Min, Max, sample_rate * sub_samples, 0), clock_i(0)
+            : accumulator(Min, Max, sample_rate * sub_samples), clock_i(0)
         {
             set_sample_rate(sample_rate);
             for (int i = chans; --i >=0;)
@@ -39,7 +39,8 @@ namespace meta
                 { m_BlipBuffs[i].set_sample_rate(sample_rate, 1000); }
         }
 
-        void set_freq(float freq) { accumulator.set_freq(freq); }
+        void set_freq(float freq)
+            { accumulator.set_freq(freq); }
 
         void sync(float value) { accumulator.sync(value); }
 
@@ -49,10 +50,6 @@ namespace meta
          * @return the next value of the wave to produce
          */
         virtual float wave_shape(float accumulator_state, int chan) { return accumulator_state; }
-
-        virtual std::array<float, chans> onTick(float accum_state) {
-            return meta::make_initialized_array<float, chans>(accum_state);
-        };
 
         void processBlock(float** block, long n_samps)
         {
@@ -74,15 +71,17 @@ namespace meta
             const auto clock_count = sample_count * sub_samples;
             for (int i = clock_count; --i >= 0; clock_i++)
             {
-                for (const auto i_value : meta::enumerate(onTick(accumulator.getValue())))
+                for (const auto i_value : meta::enumerate(onTick(accumulator.tick())))
                     { synths.at(std::get<0>(i_value)).update(clock_i, std::get<1>(i_value)); }
-
-                accumulator.tick();
             }
             end_block();
         }
 
     protected:
+        virtual std::array<float, chans> onTick(float accum_state) {
+            return meta::make_initialized_array<float, chans>(accum_state);
+        };
+
         void end_block()
         {
             for (auto& buff : m_BlipBuffs)
@@ -91,7 +90,7 @@ namespace meta
             clock_i = 0;
         }
 
-        long relocate_samples(float* out, long out_size, int chan = 1, float low = -1.0f, float high = 1.0f)
+        long relocate_samples(float* out, long out_size, int chan = 0, float low = -1.0f, float high = 1.0f)
         {
             Blip_Buffer& buff = m_BlipBuffs[chan];
             // Limit number of samples read to those available
