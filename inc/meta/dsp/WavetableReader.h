@@ -33,7 +33,7 @@ namespace meta
             calculateIFJ(const size_t table_size, const NumericType phase)
         {
             auto i = static_cast<int>(phase) % table_size;
-            auto f = static_cast<int>(phase) - phase;
+            auto f = phase - static_cast<int>(phase);
             auto j = (i == table_size - 1) ? 0 : i + 1;
             return std::make_tuple(i,f, j);
         }
