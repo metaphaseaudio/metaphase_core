@@ -23,7 +23,7 @@ namespace meta
 
         ~TimedParameterListener() override { r_Parameter.removeListener (this); }
 
-        juce::AudioProcessorParameter& getParameter() noexcept { return r_Parameter; }
+        juce::AudioProcessorParameter& getParameter() const noexcept { return r_Parameter; }
 
         virtual void handleNewParameterValue() = 0;
 
