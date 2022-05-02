@@ -49,10 +49,24 @@ namespace meta
 
             for (int c = 0; c < chans; c++)
             {
-                for (int s = 0; s < inData.getNumSamples(); s++)
-                    { m_BlipSynths[c].update(s, tmpData.getSample(c, s)); }
-                m_BlipBuffs[c].end_frame(inData.getNumSamples());
-                relocate_samples(m_BlipBuffs[c], outBuffer.getWritePointer(c), outBuffer.getNumSamples());
+                auto offset = 0;
+                auto samps = inData.getNumSamples();
+
+                while (samps > 0)
+                {
+                    const auto samps_available = (m_BlipBuffs[c].sample_rate() - m_BlipBuffs[c].samples_avail()) * OverSample;
+                    const auto to_render = std::min<int>(samps, samps_available);
+                    const auto resampled_offset = offset / OverSample;
+
+                    for (int s = 0; s < to_render; s++)
+                        { m_BlipSynths[c].update(s, tmpData.getSample(c, s + offset)); }
+
+                    m_BlipBuffs[c].end_frame(to_render);
+
+                    relocate_samples(m_BlipBuffs[c], outBuffer.getWritePointer(c) + resampled_offset, outBuffer.getNumSamples() - resampled_offset);
+                    offset += to_render;
+                    samps -= to_render;
+                }
             }
         }
 

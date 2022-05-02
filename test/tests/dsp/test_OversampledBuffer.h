@@ -28,10 +28,11 @@ TEST_F(OSBufferTest, generate_transition)
 {
     initializeTestFile("os_buff_test.wav");
 
-    const int sampCount = 500;
+    const int sampCount = 50000;
     juce::AudioBuffer<float> outDat(2, sampCount);
     juce::AudioBuffer<float> inDat(2, sampCount * buff.OverSample);
     inDat.clear();
+    outDat.clear();
 
     const int rampEnd = (sampCount * buff.OverSample) / 2;
     for (int s = 0; s < rampEnd; s++)
