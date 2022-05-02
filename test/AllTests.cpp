@@ -28,6 +28,7 @@
 #include "test/tests/dsp/test_FindInSignal.h"
 #include "test/tests/dsp/test_Wavetable.h"
 #include "test/tests/dsp/test_BlipSynth.h"
+#include "test/tests/dsp/test_OversampledBuffer.h"
 #include "test/tests/dsp/test_MultiChanConvolve.h"
 #include "test/tests/generators/test_LinearRamp.h"
 #include "test/tests/generators/test_SineSweep.h"
