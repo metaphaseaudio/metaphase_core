@@ -19,7 +19,6 @@ public:
     void initializeTestFile(const juce::String& f)
         { meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f)); }
 
-
     meta::OversampledBuffer<16, 128, 12, 2> buff;
 };
 

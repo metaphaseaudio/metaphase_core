@@ -12,6 +12,7 @@
 #include "test/tests/util/test_simd_ops.h"
 #include "test/tests/util/test_BitSize.h"
 #include "test/tests/util/test_BitMask.h"
+#include "test/tests/util/test_Countdown.h"
 #include "test/tests/util/test_FixedPoint.h"
 #include "test/tests/util/test_FixedPointMath.h"
 #include "test/tests/util/container_helpers/test_TwoDimensionalHeap.h"
