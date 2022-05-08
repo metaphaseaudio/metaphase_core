@@ -25,9 +25,16 @@ namespace meta
         void set_freq(float freq)
         {
             // At least two samples are required to represent nyquist. Higher than this shall not pass.
+            this->freq = freq;
             const auto samples_per_cycle = std::max(2.0f, sample_rate / freq);
             const float frange = range;
             delta = frange / samples_per_cycle;
+        }
+
+        void set_sample_rate(float sr)
+        {
+            sample_rate = sr;
+            set_freq(freq);
         }
 
         float tick()
@@ -43,6 +50,7 @@ namespace meta
 
     private:
         const float min, max, range;
+        float freq = 250;
         float sample_rate = 48000;
         float delta = 0.0f;
         float value = 0.0f;

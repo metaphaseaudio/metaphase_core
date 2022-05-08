@@ -36,7 +36,10 @@ namespace meta
         {
             // use a second's worth of buffer, it's plenty.
             for (int i = chans; --i >=0;)
-            { m_BlipBuffs[i].set_sample_rate(sample_rate, 1000); }
+            {
+                m_BlipBuffs[i].set_sample_rate(sample_rate, 1000);
+                m_BlipBuffs[i].clock_rate(m_BlipBuffs[i].sample_rate() * sub_samples);
+            }
         }
 
         void downsampleBuffer(const juce::AudioBuffer<float>& inData, juce::AudioBuffer<float>& outBuffer)

@@ -12,7 +12,7 @@ namespace meta
     class Countdown
     {
     public:
-        explicit Countdown(std::function<void()> onZero, int startingCount=tickCount)
+        explicit Countdown(std::function<void()> onZero = [](){}, int startingCount=tickCount)
             : onZero(std::move(onZero))
         { sync(startingCount); }
 
@@ -36,8 +36,9 @@ namespace meta
             return count;
         }
 
-    private:
         std::function<void()> onZero;
+
+    private:
         int count;
     };
 }
