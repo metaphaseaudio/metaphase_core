@@ -20,19 +20,18 @@ namespace meta
         static constexpr unsigned long Range = meta::abs(Max - Min);
         static constexpr size_t OverSample = sub_samples;
 
-        explicit OversampledBuffer(long sample_rate)
+        explicit OversampledBuffer(int sample_rate)
         {
             set_sample_rate(sample_rate);
             for (int i = chans; --i >=0;)
             {
-                m_BlipBuffs[i].clock_rate(m_BlipBuffs[i].sample_rate() * sub_samples);
                 m_BlipBuffs[i].bass_freq(0); // makes waveforms perfectly flat
                 m_BlipSynths[i].volume(1.0);
                 m_BlipSynths[i].output(&m_BlipBuffs[i]);
             }
         }
 
-        void set_sample_rate(long sample_rate)
+        void set_sample_rate(int sample_rate)
         {
             // use a second's worth of buffer, it's plenty.
             for (int i = chans; --i >=0;)
@@ -75,7 +74,7 @@ namespace meta
 
 
     private:
-        long relocate_samples(Blip_Buffer& buff, float* out, long out_size, float low = -1.0f, float high = 1.0f)
+        int relocate_samples(Blip_Buffer& buff, float* out, int out_size, float low = -1.0f, float high = 1.0f)
         {
             // Limit number of samples read to those available
             long count = buff.samples_avail();
@@ -83,6 +82,8 @@ namespace meta
                 count = out_size;
 
             // Begin reading samples from Blip_Buffer
+
+            Blip_Reader reader;
             int bass = reader.begin(buff);
 
             float factor = (high - low) * 0.5f;
@@ -112,7 +113,6 @@ namespace meta
             return count;
         }
 
-        Blip_Reader reader;
         std::array<Blip_Synth<blip_resolution, Range>, chans> m_BlipSynths;
         std::array<Blip_Buffer, chans> m_BlipBuffs;
     };

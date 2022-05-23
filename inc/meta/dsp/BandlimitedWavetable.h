@@ -76,7 +76,7 @@ namespace meta
         /**
          * fills a table with a sine wave using a particular gain coefficient
          */
-        template <int partial, NumericType phase=0>
+        template <int partial, int phase_num=0, int phase_denom=1>
         struct Partial
         {
             /**
@@ -92,7 +92,8 @@ namespace meta
                     // inserted.
                     NumericType denominator = static_cast<NumericType>(i * 2 * partial)
                                             / static_cast<NumericType>(TableSize);
-                    NumericType total_phase = denominator * meta::NumericConstants<NumericType>::PI + phase;
+                    NumericType total_phase = denominator * meta::NumericConstants<NumericType>::PI +
+                            phase_num * meta::NumericConstants<NumericType>::PI / NumericType(phase_denom);
                     table[i] += meta::sin(total_phase) * gain;
                 }
             }
@@ -115,7 +116,7 @@ namespace meta
         static constexpr std::array<NumericType, TableSize> makeCosin()
         {
             std::array<NumericType, TableSize> out{0};
-            Partial<1, meta::NumericConstants<NumericType>::HALF_PI>::addToTable(out, 1);
+            Partial<1, 1, 2>::addToTable(out, 1);
             return out;
         };
 
