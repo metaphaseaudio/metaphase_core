@@ -43,7 +43,7 @@ namespace meta
 
         void downsampleBuffer(const juce::AudioBuffer<float>& inData, juce::AudioBuffer<float>& outBuffer)
         {
-            jassert(inData.getNumSamples() == outBuffer.getNumSamples() * OverSample);
+            jassert(inData.getNumSamples() >= outBuffer.getNumSamples() * OverSample);
             jassert(inData.getNumChannels() == outBuffer.getNumChannels());
 
             juce::AudioBuffer<float> tmpData = inData;
@@ -52,7 +52,7 @@ namespace meta
             for (int c = 0; c < chans; c++)
             {
                 auto offset = 0;
-                auto samps = inData.getNumSamples();
+                auto samps = outBuffer.getNumSamples() * OverSample;
 
                 while (samps > 0)
                 {
