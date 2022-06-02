@@ -8,7 +8,7 @@
 
 namespace meta
 {
-    void linearUpsample(float* dataIn, float* dataOut, int nSampsIn, int nSampsOut)
+    void linearUpsample(const float* dataIn, float* dataOut, int nSampsIn, int nSampsOut)
     {
         auto resample = float(nSampsOut - 1) / (nSampsIn - 1);
 

@@ -16,7 +16,5 @@ TEST(LinearResampleTest, linear_upsample)
 
     meta::linearUpsample(in, out, sizeIn, sizeOut);
     for (int i = 0; i < 5; i++)
-    {
-        ASSERT_EQ(out[i], i);
-    }
+        { ASSERT_EQ(out[i], i); }
 }
