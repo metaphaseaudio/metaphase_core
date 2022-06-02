@@ -7,6 +7,7 @@
 #include <meta/dsp/OversampledBuffer.h>
 
 #define OS_BUFFER_SAMPLE_RATE 48000
+#define OS_COUNT 128
 
 class OSBufferTest
     : public meta::TestBase
@@ -19,7 +20,7 @@ public:
     void initializeTestFile(const juce::String& f)
         { meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f)); }
 
-    meta::OversampledBuffer<16, 128, 12, 2> buff;
+    meta::OversampledBuffer<16, OS_COUNT, 12, 2> buff;
 };
 
 
