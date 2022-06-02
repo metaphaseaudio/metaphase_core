@@ -6,7 +6,7 @@
 
 #pragma once
 #include <meta/util/BitMask.h>
-
+#include <type_traits>
 
 namespace meta
 {
