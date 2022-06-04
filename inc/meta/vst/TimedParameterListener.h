@@ -13,22 +13,26 @@ namespace meta
         , juce::Timer
     {
     public:
-        explicit TimedParameterListener(juce::AudioProcessorParameter& param)
-            : m_value_changed(true)
-            , r_Parameter(param)
+        explicit TimedParameterListener(juce::AudioProcessorParameter* param)
+            : m_value_changed(param != nullptr)
+            , p_Parameter(param)
         {
-            r_Parameter.addListener (this);
+            if (param == nullptr) { return; }
+            p_Parameter->addListener (this);
             startTimer (100);
         }
 
-        ~TimedParameterListener() override { r_Parameter.removeListener (this); }
+        ~TimedParameterListener() override
+        {
+            if (p_Parameter == nullptr) { return; }
+            p_Parameter->removeListener (this);
+        }
 
-        juce::AudioProcessorParameter& getParameter() const noexcept { return r_Parameter; }
 
         virtual void handleNewParameterValue() = 0;
 
     protected:
-        juce::AudioProcessorParameter& r_Parameter;
+        juce::AudioProcessorParameter* p_Parameter;
 
     private:
         //==============================================================================
