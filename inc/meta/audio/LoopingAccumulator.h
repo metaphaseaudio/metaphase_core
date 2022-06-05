@@ -3,6 +3,8 @@
 //
 
 #pragma once
+
+#include <juce_core/juce_core.h>
 #include <meta/util/math.h>
 
 
@@ -17,7 +19,13 @@ namespace meta
             , max(max)
             , range(meta::abs(max - min))
             , sample_rate(sample_rate)
-        { set_freq(frequency); }
+        {
+            jassert(min != max);
+            set_freq(frequency);
+        }
+
+        void set_end(float end_value) { end = end_value; }
+
 
         void sync(float new_value)
             { value = meta::limit(min + 1, max, new_value); }
@@ -40,7 +48,12 @@ namespace meta
         float tick()
         {
             const auto rv = value;
+
             value += delta;
+
+            if (end > min && value >= end)
+                { value = end; }
+
             if (std::floor(value) > max)
                 { value -= range + 1; }
             return rv;
@@ -54,5 +67,6 @@ namespace meta
         float sample_rate = 48000;
         float delta = 0.0f;
         float value = 0.0f;
+        float end = max;
     };
 }
