@@ -19,6 +19,7 @@ namespace meta
             , max(max)
             , range(meta::abs(max - min))
             , sample_rate(sample_rate)
+            , end(min)
         {
             jassert(min != max);
             set_freq(frequency);
