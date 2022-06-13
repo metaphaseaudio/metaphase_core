@@ -11,7 +11,7 @@
 
 namespace meta
 {
-    template<size_t bit_depth, size_t sub_samples, size_t blip_resolution=8, size_t chans=1>
+    template<size_t bit_depth, size_t sub_samples, size_t blip_resolution=8>
     class OversampledBuffer
     {
     public:
@@ -20,24 +20,29 @@ namespace meta
         static constexpr unsigned long Range = meta::abs(Max - Min);
         static constexpr size_t OverSample = sub_samples;
 
-        explicit OversampledBuffer(int sample_rate)
+        explicit OversampledBuffer(int sample_rate, int chans)
+            : m_Chans(chans)
         {
-            set_sample_rate(sample_rate);
-            for (int i = chans; --i >=0;)
+            for (int i = 0; i < chans; i++)
             {
-                m_BlipBuffs[i].bass_freq(0); // makes waveforms perfectly flat
-                m_BlipSynths[i].volume(1.0);
-                m_BlipSynths[i].output(&m_BlipBuffs[i]);
+                m_BlipBuffs.emplace_back(new Blip_Buffer());
+                m_BlipBuffs[i]->bass_freq(0); // makes waveforms perfectly flat
+
+                m_BlipSynths.emplace_back(new Blip_Synth<blip_resolution, Range>());
+                m_BlipSynths[i]->volume(1.0);
+                m_BlipSynths[i]->output(m_BlipBuffs[i].get());
             }
+
+            set_sample_rate(sample_rate);
         }
 
         void set_sample_rate(int sample_rate)
         {
             // use a second's worth of buffer, it's plenty.
-            for (int i = chans; --i >=0;)
+            for (int i = m_Chans; --i >=0;)
             {
-                m_BlipBuffs[i].set_sample_rate(sample_rate, 1000);
-                m_BlipBuffs[i].clock_rate(m_BlipBuffs[i].sample_rate() * sub_samples);
+                m_BlipBuffs[i]->set_sample_rate(sample_rate, 1000);
+                m_BlipBuffs[i]->clock_rate(m_BlipBuffs[i]->sample_rate() * sub_samples);
             }
         }
 
@@ -45,35 +50,43 @@ namespace meta
         {
             jassert(inData.getNumSamples() >= outBuffer.getNumSamples() * OverSample);
             jassert(inData.getNumChannels() == outBuffer.getNumChannels());
+            jassert(inData.getNumChannels() <= m_Chans);
 
             juce::AudioBuffer<float> tmpData = inData;
             tmpData.applyGain(-Min);
 
-            for (int c = 0; c < chans; c++)
+            for (int c = 0; c < inData.getNumChannels(); c++)
             {
                 auto offset = 0;
                 auto samps = outBuffer.getNumSamples() * OverSample;
 
                 while (samps > 0)
                 {
-                    const auto samps_available = (m_BlipBuffs[c].sample_rate() - m_BlipBuffs[c].samples_avail()) * OverSample;
+                    const auto samps_available = (m_BlipBuffs[c]->sample_rate() - m_BlipBuffs[c]->samples_avail()) * OverSample;
                     const auto to_render = std::min<int>(samps, samps_available);
                     const auto resampled_offset = offset / OverSample;
 
                     for (int s = 0; s < to_render; s++)
-                        { m_BlipSynths[c].update(s, tmpData.getSample(c, s + offset)); }
+                        { m_BlipSynths[c]->update(s, tmpData.getSample(c, s + offset)); }
 
-                    m_BlipBuffs[c].end_frame(to_render);
+                    m_BlipBuffs[c]->end_frame(to_render);
 
-                    relocate_samples(m_BlipBuffs[c], outBuffer.getWritePointer(c) + resampled_offset, outBuffer.getNumSamples() - resampled_offset);
+                    relocate_samples(
+                        *m_BlipBuffs[c],
+                        outBuffer.getWritePointer(c) + resampled_offset,
+                        outBuffer.getNumSamples() - resampled_offset
+                    );
                     offset += to_render;
                     samps -= to_render;
                 }
             }
         }
 
-
+        // Non-copyable.
+        OversampledBuffer(const OversampledBuffer&) = delete;
+        OversampledBuffer& operator=(const OversampledBuffer&) = delete;
     private:
+
         int relocate_samples(Blip_Buffer& buff, float* out, int out_size, float low = -1.0f, float high = 1.0f)
         {
             // Limit number of samples read to those available
@@ -113,7 +126,8 @@ namespace meta
             return count;
         }
 
-        std::array<Blip_Synth<blip_resolution, Range>, chans> m_BlipSynths;
-        std::array<Blip_Buffer, chans> m_BlipBuffs;
+        int m_Chans;
+        std::vector<std::unique_ptr<Blip_Synth<blip_resolution, Range>>> m_BlipSynths;
+        std::vector<std::unique_ptr<Blip_Buffer>> m_BlipBuffs;
     };
 }
