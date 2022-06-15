@@ -31,11 +31,11 @@ namespace meta
         void sync(float new_value)
             { value = meta::limit(min + 1, max, new_value); }
 
-        void set_freq(float freq)
+        void set_freq(float inFreq)
         {
             // At least two samples are required to represent nyquist. Higher than this shall not pass.
-            this->freq = freq;
-            const auto samples_per_cycle = std::max(2.0f, sample_rate / freq);
+            freq = inFreq;
+            const auto samples_per_cycle = std::max(2.0f, sample_rate / inFreq);
             const float frange = range;
             delta = frange / samples_per_cycle;
         }

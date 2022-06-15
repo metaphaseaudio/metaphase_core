@@ -20,8 +20,8 @@ namespace meta
         MidiLearnBroadcaster() = default;
         virtual ~MidiLearnBroadcaster() = default;
 
-        void addListener(Listener* const listener);
-        void removeListener(Listener* const listener);
+        void addMidiLearnListener(Listener* const listener);
+        void removeMidiLearnListener(Listener* const listener);
 
         void sendLearn();
         void sendUnlearn();
@@ -33,5 +33,18 @@ namespace meta
         juce::ListenerList<Listener> m_LearnListeners;
 
         JUCE_DECLARE_NON_COPYABLE(MidiLearnBroadcaster);
+    };
+
+    //-------------------------------------------------------------------------
+    class MidiLearnableAudioParameterFloat
+        : public MidiLearnBroadcaster
+        , public juce::AudioParameterFloat
+    {
+    public:
+        using juce::AudioParameterFloat::AudioParameterFloat;
+
+        MidiLearnableAudioParameterFloat& operator=(float);
+
+        void handleMidiMessage(const juce::MidiMessage& msg) override;
     };
 }
