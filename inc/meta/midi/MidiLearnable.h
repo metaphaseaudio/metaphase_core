@@ -23,6 +23,9 @@ namespace meta
         void addMidiLearnListener(Listener* const listener);
         void removeMidiLearnListener(Listener* const listener);
 
+        void setLearnedCtrlNumber(int ctrl) { m_CtrlNumber = ctrl; }
+        int getLearnedCtrlNumber() const { return m_CtrlNumber; }
+
         void sendLearn();
         void sendUnlearn();
         void removeAllListeners();
@@ -30,6 +33,8 @@ namespace meta
         virtual void handleMidiMessage(const juce::MidiMessage& msg) = 0;
 
     private:
+
+        int m_CtrlNumber;
         juce::ListenerList<Listener> m_LearnListeners;
 
         JUCE_DECLARE_NON_COPYABLE(MidiLearnBroadcaster);
