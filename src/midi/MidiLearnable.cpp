@@ -24,7 +24,12 @@ void meta::MidiLearnBroadcaster::removeAllListeners()
 //=============================================================================
 
 void meta::MidiLearnableAudioParameterFloat::handleMidiMessage(const juce::MidiMessage& msg)
-    { setValueNotifyingHost(float(msg.getControllerValue()) / 127.0f); }
+{
+    if (m_Ctrl.getControllerNumber() == msg.getControllerNumber() && m_Ctrl.getChannel() == msg.getChannel())
+    {
+        setValueNotifyingHost(float(msg.getControllerValue()) / 127.0f);
+    }
+}
 
 meta::MidiLearnableAudioParameterFloat& meta::MidiLearnableAudioParameterFloat::operator=(float value)
 {
