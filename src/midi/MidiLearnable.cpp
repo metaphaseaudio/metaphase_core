@@ -22,9 +22,7 @@ void meta::MidiLearnBroadcaster::removeAllListeners()
     { m_LearnListeners.clear(); }
 
 bool meta::MidiLearnBroadcaster::isLearned() const
-{
-    return m_Ctrl.isSysEx() && m_Ctrl.getSysExDataSize() == 0;
-}
+    { return m_Ctrl.isController(); }
 
 //=============================================================================
 
