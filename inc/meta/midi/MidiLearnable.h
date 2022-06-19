@@ -24,6 +24,8 @@ namespace meta
         void removeMidiLearnListener(Listener* const listener);
 
         void setLearnedControl(juce::MidiMessage ctrl) { m_Ctrl = ctrl; }
+
+        bool isLearned() const;
         [[ nodiscard ]] const juce::MidiMessage& getLearnedControl() const { return m_Ctrl; }
 
         void sendLearn();

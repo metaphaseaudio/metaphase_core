@@ -21,6 +21,11 @@ void meta::MidiLearnBroadcaster::removeMidiLearnListener(meta::MidiLearnBroadcas
 void meta::MidiLearnBroadcaster::removeAllListeners()
     { m_LearnListeners.clear(); }
 
+bool meta::MidiLearnBroadcaster::isLearned() const
+{
+    return m_Ctrl.isSysEx() && m_Ctrl.getSysExDataSize() == 0;
+}
+
 //=============================================================================
 
 void meta::MidiLearnableAudioParameterFloat::handleMidiMessage(const juce::MidiMessage& msg)
