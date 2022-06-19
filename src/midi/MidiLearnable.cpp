@@ -5,7 +5,7 @@
 #include "meta/midi/MidiLearnable.h"
 
 void meta::MidiLearnBroadcaster::sendLearn()
-    { m_LearnListeners.call([this](Listener& l) { l.learn(this); }); }
+    { m_LearnListeners.call([this](Listener& l) { l.startLearn(this); }); }
 
 void meta::MidiLearnBroadcaster::sendUnlearn()
     { m_LearnListeners.call([this](Listener& l) { l.unlearn(this); }); }

@@ -13,7 +13,7 @@ namespace meta
         class Listener
         {
         public:
-            virtual void learn(MidiLearnBroadcaster* learnable) = 0;
+            virtual void startLearn(MidiLearnBroadcaster* learnable) = 0;
             virtual void unlearn(MidiLearnBroadcaster* learnable) = 0;
         };
 
