@@ -23,19 +23,3 @@ void meta::MidiLearnBroadcaster::removeAllListeners()
 
 bool meta::MidiLearnBroadcaster::isLearned() const
     { return m_Ctrl.isController(); }
-
-//=============================================================================
-
-void meta::MidiLearnableAudioParameterFloat::handleMidiMessage(const juce::MidiMessage& msg)
-{
-    if (m_Ctrl.getControllerNumber() == msg.getControllerNumber() && m_Ctrl.getChannel() == msg.getChannel())
-    {
-        setValueNotifyingHost(float(msg.getControllerValue()) / 127.0f);
-    }
-}
-
-meta::MidiLearnableAudioParameterFloat& meta::MidiLearnableAudioParameterFloat::operator=(float value)
-{
-    juce::AudioParameterFloat::operator=(value);
-    return *this;
-}

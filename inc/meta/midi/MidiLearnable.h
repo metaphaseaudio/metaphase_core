@@ -41,17 +41,4 @@ namespace meta
 
         JUCE_DECLARE_NON_COPYABLE(MidiLearnBroadcaster);
     };
-
-    //-------------------------------------------------------------------------
-    class MidiLearnableAudioParameterFloat
-        : public MidiLearnBroadcaster
-        , public juce::AudioParameterFloat
-    {
-    public:
-        using juce::AudioParameterFloat::AudioParameterFloat;
-
-        MidiLearnableAudioParameterFloat& operator=(float);
-
-        void handleMidiMessage(const juce::MidiMessage& msg) override;
-    };
 }
