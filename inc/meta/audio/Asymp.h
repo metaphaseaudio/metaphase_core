@@ -60,6 +60,7 @@ namespace meta
 
         //! Set current and target values to \e value.
         void setValue(float value);
+        float getValue() const;
 
         //! Return the current envelope \e state (0 = at target, 1 otherwise).
         int getState() const { return m_State; };
@@ -112,4 +113,5 @@ namespace meta
 
         return m_Value;
     }
+
 }

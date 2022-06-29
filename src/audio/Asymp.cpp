@@ -69,4 +69,8 @@ void Asymp::setValue(float value)
 }
 
 
+float Asymp::getValue() const
+{
+    return m_Value;
+}
 
