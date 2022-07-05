@@ -96,7 +96,6 @@ namespace meta
             {
                 m_Value = m_Target;
                 m_State = 0;
-                std::cout << "hit edge case" << std::endl;
             }
             else { m_Value = newValue; }
 
@@ -107,7 +106,6 @@ namespace meta
                 {
                     m_Value = m_Target;
                     m_State = 0;
-                    std::cout << "hit positive end" << std::endl;
                 }
             }
             else
@@ -116,7 +114,6 @@ namespace meta
                 {
                     m_Value = m_Target;
                     m_State = 0;
-                    std::cout << "hit negative end" << std::endl;
                 }
             }
         }
