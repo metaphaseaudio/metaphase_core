@@ -26,6 +26,8 @@
  */
 
 #pragma once
+#include <iostream>
+
 namespace meta
 {
     class Asymp
@@ -70,6 +72,7 @@ namespace meta
 
         bool hasEnded() const { return m_State == 0; }
 
+        explicit Asymp(const Asymp& other) = delete;
     protected:
         float m_Value;
         float m_Target;
@@ -89,7 +92,12 @@ namespace meta
             // identical to the old value and execution can hang just before
             // hitting the target value.
             const auto newValue = m_Factor * m_Value + m_Constant;
-            if (newValue == m_Value) { m_Value = m_Target; }
+            if (newValue == m_Value)
+            {
+                m_Value = m_Target;
+                m_State = 0;
+                std::cout << "hit edge case" << std::endl;
+            }
             else { m_Value = newValue; }
 
             // Check threshold.
@@ -99,6 +107,7 @@ namespace meta
                 {
                     m_Value = m_Target;
                     m_State = 0;
+                    std::cout << "hit positive end" << std::endl;
                 }
             }
             else
@@ -107,6 +116,7 @@ namespace meta
                 {
                     m_Value = m_Target;
                     m_State = 0;
+                    std::cout << "hit negative end" << std::endl;
                 }
             }
         }

@@ -43,14 +43,12 @@ void Asymp::setTime(float time, float sampleRate)
     if (time <= 0.0) { return; }
 
     float tau = -time / std::log(TARGET_THRESHOLD);
-    m_Factor = std::exp(-1.0f / (tau * sampleRate));
-    m_Constant = (1.0f - m_Factor) * m_Target;
+    setTau(tau, sampleRate);
 }
 
 void Asymp::setT60(float t60, float sampleRate)
 {
     if (t60 <= 0.0) { return; }
-
     setTau(t60 / 6.91f, sampleRate);
 }
 
