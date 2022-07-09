@@ -7,7 +7,6 @@ using namespace meta;
 Asymp::Asymp()
     : m_Value(0.0f)
     , m_Target(0.0f)
-    , m_State(0)
     , m_Factor(0.01f)
     , m_Constant(0.0f)
 {}
@@ -15,7 +14,6 @@ Asymp::Asymp()
 Asymp::Asymp(double sampleRate)
     : m_Value(0.0f)
     , m_Target(0.0f)
-    , m_State(0)
     , m_Factor(float(exp(-1.0 / (0.3 * sampleRate))))
     , m_Constant(0.0f)
 {}
@@ -25,7 +23,6 @@ void Asymp::init(double sampleRate)
 {
     m_Value = 0.0;
     m_Target = 0.0;
-    m_State = 0;
     m_Factor = float(exp(-1.0 / (0.3 * sampleRate)));
     m_Constant = 0.0;
 }
@@ -55,17 +52,13 @@ void Asymp::setT60(float t60, float sampleRate)
 void Asymp::setTarget(float target)
 {
     m_Target = target;
-    if (m_Value != m_Target) { m_State = 1; }
     m_Constant = (1.0f - m_Factor) * m_Target;
 }
 
 void Asymp::setValue(float value)
 {
-    m_State = 0;
-    m_Target = value;
     m_Value = value;
 }
-
 
 float Asymp::getValue() const
 {

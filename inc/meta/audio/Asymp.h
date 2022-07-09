@@ -57,20 +57,19 @@ namespace meta
         //! Set the asymptotic rate such that the target value is perceptually reached (to within -60dB of the target) in \e t60 seconds.
         void setT60(float t60, float sampleRate);
 
-        //! Set the target value.
+        //! Set/get the target value.
         void setTarget(float target);
+        float getTarget() const { return m_Target; };
 
-        //! Set current and target values to \e value.
+        //! Set/get current value to \e value.
         void setValue(float value);
         float getValue() const;
 
-        //! Return the current envelope \e state (0 = at target, 1 otherwise).
-        int getState() const { return m_State; };
 
         //! Compute and return one output sample.
         float tick();
 
-        bool hasEnded() const { return m_State == 0; }
+        bool hasEnded() const { return m_Value == m_Target; }
 
         explicit Asymp(const Asymp& other) = delete;
     protected:
@@ -78,14 +77,13 @@ namespace meta
         float m_Target;
         float m_Factor;
         float m_Constant;
-        int m_State;
 
         static const constexpr float TARGET_THRESHOLD = 0.000001f;
     };
 
     inline float Asymp::tick()
     {
-        if (m_State)
+        if (!hasEnded())
         {
             // There's a really bonkers edge case in here where, if the values
             // are within the rounding error of a float, the new value can be
@@ -95,7 +93,6 @@ namespace meta
             if (newValue == m_Value)
             {
                 m_Value = m_Target;
-                m_State = 0;
             }
             else { m_Value = newValue; }
 
@@ -105,7 +102,6 @@ namespace meta
                 if (m_Target - m_Value <= TARGET_THRESHOLD)
                 {
                     m_Value = m_Target;
-                    m_State = 0;
                 }
             }
             else
@@ -113,7 +109,6 @@ namespace meta
                 if (m_Value - m_Target <= TARGET_THRESHOLD)
                 {
                     m_Value = m_Target;
-                    m_State = 0;
                 }
             }
         }
