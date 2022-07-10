@@ -62,8 +62,9 @@ namespace meta
 
         [[ nodiscard ]] float getValue() const { return value; }
 
-    private:
         const float min, max, range;
+
+    private:
         float freq = 250;
         float sample_rate = 48000;
         float delta = 0.0f;
