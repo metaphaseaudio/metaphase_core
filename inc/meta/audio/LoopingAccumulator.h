@@ -23,21 +23,21 @@ namespace meta
         {
             jassert(min != max);
             set_freq(frequency);
+            sync(min);
         }
 
         void set_end(float end_value) { end = end_value; }
 
 
         void sync(float new_value)
-            { value = meta::limit(min + 1, max, new_value); }
+            { value = meta::limit(min, max, new_value); }
 
         void set_freq(float inFreq)
         {
             // At least two samples are required to represent nyquist. Higher than this shall not pass.
             freq = inFreq;
             const auto samples_per_cycle = std::max(2.0f, sample_rate / inFreq);
-            const float frange = range;
-            delta = frange / samples_per_cycle;
+            delta = range / samples_per_cycle;
         }
 
         void set_sample_rate(float sr)
@@ -55,8 +55,8 @@ namespace meta
             if (end > min && value >= end)
                 { value = end; }
 
-            if (std::floor(value) > max)
-                { value -= range + 1; }
+            if (value > max)
+                { value -= range; }
             return rv;
         }
 

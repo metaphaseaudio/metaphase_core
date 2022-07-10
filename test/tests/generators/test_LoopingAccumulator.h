@@ -26,7 +26,7 @@ TEST_F(LoopingAccumulatorTest, nyquist)
 {
     LoopingAccumulatorTest::initializeTestFile("looping_accum.wav");
     int nSamps = 48000;
-    auto accum = meta::LoopingAccumulator(-1, 1, 48000, 23099);
+    auto accum = meta::LoopingAccumulator(-1, 1, 48000, 24000);
     auto buffer = juce::AudioBuffer<float>(2, nSamps);
 
     for (int i = nSamps; --i >= 0;)
