@@ -22,15 +22,29 @@ public:
 };
 
 
-TEST_F(LoopingAccumulatorTest, one_tick)
+TEST_F(LoopingAccumulatorTest, nyquist)
 {
     LoopingAccumulatorTest::initializeTestFile("looping_accum.wav");
     int nSamps = 48000;
-    auto accum = meta::LoopingAccumulator(-1, 1, 48000, 24000);
+    auto accum = meta::LoopingAccumulator(-1, 1, 48000, 23099);
     auto buffer = juce::AudioBuffer<float>(2, nSamps);
 
     for (int i = nSamps; --i >= 0;)
         { buffer.setSample(0, i, accum.tick()); }
+
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0 , nSamps);
+}
+
+
+TEST_F(LoopingAccumulatorTest, one_hundred_hz)
+{
+    LoopingAccumulatorTest::initializeTestFile("looping_accum.wav");
+    int nSamps = 48000;
+    auto accum = meta::LoopingAccumulator(-1, 1, 48000, 100);
+    auto buffer = juce::AudioBuffer<float>(2, nSamps);
+
+    for (int i = nSamps; --i >= 0;)
+    { buffer.setSample(0, i, accum.tick()); }
 
     m_Writer->writeFromAudioSampleBuffer(buffer, 0 , nSamps);
 }
