@@ -14,13 +14,13 @@ class OSBufferTest
 {
 public:
     OSBufferTest()
-        : buff(OS_BUFFER_SAMPLE_RATE)
+        : buff(OS_BUFFER_SAMPLE_RATE, 2)
     {};
 
     void initializeTestFile(const juce::String& f)
         { meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f)); }
 
-    meta::OversampledBuffer<16, OS_COUNT, 12, 2> buff;
+    meta::OversampledBuffer<16, OS_COUNT, 12> buff;
 };
 
 
