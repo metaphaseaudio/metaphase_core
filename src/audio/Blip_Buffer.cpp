@@ -183,8 +183,8 @@ static void gen_sinc( float* out, int count, double oversample, double treble, d
 	
 	if ( treble < -300.0 )
 		treble = -300.0;
-	if ( treble > 5.0 )
-		treble = 5.0;
+	if ( treble > 100.0 )
+		treble = 100.0;
 	
 	double const maxh = 4096.0;
 	double const rolloff = pow( 10.0, 1.0 / (maxh * 20.0) * treble / (1.0 - cutoff) );

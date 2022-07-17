@@ -27,6 +27,7 @@ namespace meta
             {
                 m_BlipBuffs.emplace_back(new Blip_Buffer());
                 m_BlipBuffs[i]->bass_freq(0); // makes waveforms perfectly flat
+//                m_BlipBuffs[i]->tr
 
                 m_BlipSynths.emplace_back(new Blip_Synth<blip_resolution, Range>());
                 m_BlipSynths[i]->volume(1.0);
@@ -43,6 +44,7 @@ namespace meta
             {
                 m_BlipBuffs[i]->set_sample_rate(sample_rate, 1000);
                 m_BlipBuffs[i]->clock_rate(m_BlipBuffs[i]->sample_rate() * sub_samples);
+                m_BlipSynths[i]->treble_eq(blip_eq_t(12.0f, 0, sample_rate, 0));
             }
         }
 

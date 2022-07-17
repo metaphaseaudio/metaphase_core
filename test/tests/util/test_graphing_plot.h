@@ -7,6 +7,7 @@
 #include <meta/util/file/AudioFileHelpers.h>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <meta/dsp/MagPhaseCalculator.h>
+#include "meta/util/file/Exceptions.h"
 
 using FFTCalc = meta::dsp::MagPhaseCalculator<float>;
 using FFTFrame = FFTCalc::MagPhaseFrame;
@@ -59,7 +60,16 @@ TEST(GraphingPlot, basic_window)
     FFTCalc window_calc(10);
     auto file = juce::File::getSpecialLocation(juce::File::SpecialLocationType::userHomeDirectory)
                            .getChildFile("Downloads/car_interior_impulse_response.wav");
-    std::unique_ptr<juce::AudioFormatReader> reader(meta::AudioFileHelpers::createReader(file));
+    std::unique_ptr<juce::AudioFormatReader> reader;
+    try
+    {
+        reader.reset(meta::AudioFileHelpers::createReader(file));
+    }
+    catch(meta::FileWriteException& e)
+    {
+        return;
+    }
+
     juce::AudioBuffer<float> in_data(reader->numChannels, reader->lengthInSamples);
     reader->read(in_data.getArrayOfWritePointers(), reader->numChannels, 0, reader->lengthInSamples);
 
