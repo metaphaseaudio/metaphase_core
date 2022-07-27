@@ -3,9 +3,8 @@
 //
 
 #pragma once
-
-#include <juce_core/juce_core.h>
 #include <meta/util/math.h>
+#include <functional>
 
 
 namespace meta
@@ -21,7 +20,7 @@ namespace meta
             , sample_rate(sample_rate)
             , end(min)
         {
-            jassert(min != max);
+//            jassert(min != max);
             set_freq(frequency);
             sync(min);
         }
@@ -56,13 +55,19 @@ namespace meta
                 { value = end; }
 
             if (value > max)
-                { value -= range; }
+            {
+                value -= range;
+                onReset(value);
+            }
+
             return rv;
         }
 
         [[ nodiscard ]] float getValue() const { return value; }
 
         const float min, max, range;
+
+        std::function<void(float)> onReset = [](float){};
 
     private:
         float freq = 250;
