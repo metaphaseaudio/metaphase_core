@@ -12,6 +12,7 @@ namespace meta
     {
     public:
         Filmstrip(juce::Image* image, int sliceSizePx, meta::Orientation sliceOrientation);
+        int getNFrames() const;
         [[nodiscard]] juce::Image getFrame(int index) const;
 
     private:

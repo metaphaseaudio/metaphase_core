@@ -16,7 +16,7 @@ meta::Filmstrip::Filmstrip(juce::Image* image, int sliceSizePx, meta::Orientatio
 juce::Image meta::Filmstrip::getFrame(int index) const
 {
     // This will return an empty image so , but the caller should
-    jassert(index * m_SliceSizePx + m_SliceSizePx < (m_Orient == meta::Orientation::HORIZ ? p_Img->getWidth() : p_Img->getHeight()));
+    jassert(index * m_SliceSizePx + m_SliceSizePx <= (m_Orient == meta::Orientation::HORIZ ? p_Img->getWidth() : p_Img->getHeight()));
 
     auto bounds = juce::Rectangle<int>(
         m_Orient == meta::Orientation::HORIZ ? m_SliceSizePx * index : 0,
@@ -26,4 +26,9 @@ juce::Image meta::Filmstrip::getFrame(int index) const
     );
 
     return p_Img->getClippedImage(bounds);
+}
+
+int meta::Filmstrip::getNFrames() const
+{
+    return ((m_Orient == HORIZ ? p_Img->getWidth() : p_Img->getHeight()) / m_SliceSizePx) - 1;
 }
