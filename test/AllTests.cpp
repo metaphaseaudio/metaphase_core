@@ -35,6 +35,7 @@
 #include "test/tests/dsp/test_MultiChanConvolve.h"
 #include "test/tests/generators/test_LinearRamp.h"
 #include "test/tests/generators/test_SineSweep.h"
+#include "test/tests/util/test_StringHelpers.h"
 
 
 int main(int argc, char **argv)
