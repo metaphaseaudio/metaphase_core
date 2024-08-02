@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <thread>
 #include <juce_core/juce_core.h>
 
 namespace meta
