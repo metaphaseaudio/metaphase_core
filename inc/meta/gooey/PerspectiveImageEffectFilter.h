@@ -10,7 +10,7 @@
 namespace meta
 {
     class PerspectiveImageEffectFilter
-            : public juce::ImageEffectFilter
+        : public juce::ImageEffectFilter
     {
     public:
         void applyEffect(juce::Image& sourceImage, juce::Graphics& destContext, float scaleFactor, float alpha) override;
