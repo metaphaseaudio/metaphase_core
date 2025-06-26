@@ -18,6 +18,13 @@ namespace meta
     template <typename Type, Type Value>
     struct static_negate { static constexpr Type value = -Value; };
 
+    template <typename T>
+    std::tuple<int, T> make_integral_and_fractional(T value)
+    {
+        auto i = static_cast<int>(value);
+        auto f = value - i;
+        return {i, f};
+    }
 
     template <typename NumericType>
     NumericType wrap(NumericType x, NumericType lower, NumericType upper)
@@ -131,6 +138,7 @@ namespace meta
         }
         return result;
     }
+
     namespace detail{
         template<class T>
         struct _sin{

@@ -16,6 +16,7 @@
 
 #include <array>
 #include <meta/util/NumericConstants.h>
+#include <meta/util/math.h>
 
 #define GIBBS_CONSTANT 0.089489872236
 

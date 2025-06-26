@@ -50,4 +50,39 @@ namespace meta
 
     template <>
     struct bitfill<0> { static constexpr size_t value = 0; };
+
+
+    template <int N, size_t First, size_t... Rest>
+    struct SumToNth
+    {
+        static constexpr auto value = First + SumToNth<N - 1, Rest...>::value;
+    };
+
+    template <size_t First, size_t... Rest>
+    struct SumToNth<0, First, Rest...>
+    {
+        static constexpr auto value = First;
+    };
+
+    template <int N, size_t First, size_t... Rest>
+    struct GetNth
+    {
+        static constexpr auto value = GetNth<N - 1, Rest...>::value;
+    };
+
+    template <size_t First, size_t... Rest>
+    struct GetNth<0, First, Rest...>
+    {
+        static constexpr auto value = First;
+    };
+
+    constexpr unsigned floorlog2(unsigned x)
+    {
+        return x == 1 ? 0 : 1 + floorlog2(x >> 1);
+    }
+
+    constexpr unsigned ceillog2(unsigned x)
+    {
+        return x == 1 ? 0 : floorlog2(x - 1) + 1;
+    }
 }

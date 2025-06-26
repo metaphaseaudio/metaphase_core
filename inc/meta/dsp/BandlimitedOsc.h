@@ -51,7 +51,7 @@ namespace meta
          */
         virtual float wave_shape(float accumulator_state, int chan) { return accumulator_state; }
 
-        void processBlock(float** block, long n_samps)
+        void processBlock(float* const* block, long n_samps)
         {
             size_t offset = 0;
             while (n_samps > 0)
