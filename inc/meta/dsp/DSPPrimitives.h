@@ -46,16 +46,19 @@ namespace meta {
             }
 
             template <size_t N>
-            inline void processAllPass(float scale)
+            inline void processAllPass(float coeff, float size=1.0f)
             {
+                jassert(size >= 0.1f);
+                jassert(size <= 1.0f);
+
                 constexpr auto length = GetNth<N, Reservations...>::value;
                 constexpr auto base = SumToNth<N, Reservations...>::value - length;
-                const auto readIndex = (m_Offset + base + length - 1) & MASK;
+                const auto readIndex = (m_Offset + base + static_cast<size_t>(length * size) - 1) & MASK;
                 const auto writeIndex = (m_Offset + base) & MASK;
 
                 const T delayedOut = r_Buffer[readIndex];
-                const T input = delayedOut * -scale + m_Accum;
-                const T output = delayedOut + input * scale;
+                const T input = delayedOut * -coeff + m_Accum;
+                const T output = delayedOut + input * coeff;
                 r_Buffer[writeIndex] = input;
                 m_Accum = output;
             }
