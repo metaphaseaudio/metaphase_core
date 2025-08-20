@@ -62,6 +62,18 @@ namespace dsp
             return out;
         }
 
+        void run_fft(const T* data, const T* out, int n_samples) const
+        {
+            std::vector<std::complex<T>> in(fft_size);
+
+            // copy * window into complex type for fft. only calculate a window or less.
+            for (auto i = std::min<int>(n_samples, fft_size); --i >=0;) { in.at(i) = *(data + i) * m_Window.at(i); }
+
+            m_FFT.perform(in.data(), out, false);
+
+            return out;
+        }
+
         void convert_results(const std::vector<std::complex<T>>& in, T* mag_out, T* phase_out) const
         {
             for (int i = fft_size; --i >=0;)

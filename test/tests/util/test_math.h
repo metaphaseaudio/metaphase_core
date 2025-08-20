@@ -20,7 +20,10 @@ TEST(MetaMath, power)
 TEST(MetaMath, static_power)
 {
     constexpr auto value = meta::static_power<2, 2>::value;
-    ASSERT_EQ(value, 4);
+    static_assert(meta::static_power<2, 2>::value == 4, "meta::static_power compiler failure: 2^2 != 4");
+    static_assert(meta::static_power<2, 3>::value == 8, "meta::static_power compiler failure: 2^2 != 4");
+    static_assert(meta::static_power<2, 12>::value == 4096, "meta::static_power compiler failure: 2^2 != 4");
+
 }
 
 TEST(MetaMath, static_negate)
