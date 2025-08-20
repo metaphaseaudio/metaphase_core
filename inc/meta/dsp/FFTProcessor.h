@@ -10,7 +10,8 @@
 
 namespace meta::dsp
 {
-    template <typename FloatType, size_t FFTOrder, juce::dsp::WindowingFunction<FloatType>::WindowingMethod window>
+    template <typename FloatType, size_t FFTOrder, size_t
+        NOverlap, juce::dsp::WindowingFunction<FloatType>::WindowingMethod window>
     class FFTProcessor
     {
     public:

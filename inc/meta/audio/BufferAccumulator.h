@@ -36,7 +36,7 @@ namespace meta
                 auto s = m_Buffer.getNumSamples() - m_SamplesRemaining;
                 for (int c = 0; c < x.getNumChannels(); c++)
                 {
-                    m_Buffer.copyFrom(0, s, x, c, x.getNumSamples() - inSamplesRemaining, nToCopy);
+                    m_Buffer.copyFrom(c, s, x, c, x.getNumSamples() - inSamplesRemaining, nToCopy);
                 }
 
                 m_SamplesRemaining -= nToCopy;
