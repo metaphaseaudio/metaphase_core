@@ -9,8 +9,8 @@
 void meta::TestBase::initializeTestFile(const juce::File &f, int sampleRate, int chans)
 {
     testFile = f;
-    if (testFile.exists()) { testFile.deleteFile(); }
-    testFile.create();
+    if (testFile.exists()) { std::ignore = testFile.deleteFile(); }
+    std::ignore = testFile.create();
     m_Writer.reset(meta::AudioFileHelpers::createWriter(testFile, sampleRate, chans));
 }
 

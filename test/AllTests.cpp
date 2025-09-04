@@ -28,7 +28,9 @@
 #include "test/tests/dsp/test_Decimate.h"
 #include "test/tests/audio/test_BufferAccumulator.h"
 #include "test/tests/audio/test_BufferBuffer.h"
+#include "test/tests/audio/test_OverlapAndAdd.h"
 #include "test/tests/dsp/test_MagPhaseCalculator.h"
+#include "test/tests/dsp/test_FFTProcessor.h"
 #include "test/tests/dsp/test_LinearResample.h"
 #include "test/tests/dsp/test_FindInSignal.h"
 #include "test/tests/dsp/test_Wavetable.h"
@@ -40,11 +42,11 @@
 #include "test/tests/generators/test_SineSweep.h"
 #include "test/tests/util/test_StringHelpers.h"
 
-
-int main(int argc, char **argv)
-{
-    testing::InitGoogleTest(&argc, argv);
-    meta::TestingJUCEContextHandler juce_context_handler;
-	const auto result = RUN_ALL_TESTS();
-	return result;
-}
+//
+// int main(int argc, char **argv)
+// {
+//     testing::InitGoogleTest(&argc, argv);
+//     meta::TestingJUCEContextHandler juce_context_handler;
+// 	const auto result = RUN_ALL_TESTS();
+// 	return result;
+// }

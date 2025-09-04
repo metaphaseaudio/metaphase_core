@@ -19,13 +19,14 @@ namespace meta
     {
     public:
         BufferBuffer(int nChans, int bufferSize)
-            : m_Buffer(nChans, bufferSize)
-            , m_FIFO(bufferSize)
+            : m_FIFO(bufferSize + 1)
+            , m_Buffer(nChans, bufferSize + 1)
         {};
 
         void push(const juce::AudioBuffer<FloatType>& x)
         {
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
+            jassert(m_FIFO.getFreeSpace() >= x.getNumSamples()); // overrun
             const auto scope = m_FIFO.write(x.getNumSamples());
 
             for (int c = x.getNumChannels(); --c >= 0;)
@@ -45,6 +46,7 @@ namespace meta
         void pop(juce::AudioBuffer<FloatType>& x)
         {
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
+            jassert(m_FIFO.getNumReady() >= x.getNumSamples()); // underrun
             x.clear();
 
             const auto scope = m_FIFO.read(x.getNumSamples());
@@ -63,7 +65,13 @@ namespace meta
             }
         }
 
-        int getFreeSpace() { return m_FIFO.getFreeSpace(); }
+        void addAtOffset(juce::AudioBuffer<FloatType>& x)
+        {
+
+        }
+
+        [[ nodiscard ]] int getFreeSpace() const { return m_FIFO.getFreeSpace(); }
+        [[ nodiscard ]] int getNumSamplesReady() const { return m_FIFO.getNumReady(); }
 
     private:
         juce::AbstractFifo m_FIFO;

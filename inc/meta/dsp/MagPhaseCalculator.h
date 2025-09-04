@@ -70,8 +70,6 @@ namespace dsp
             for (auto i = std::min<int>(n_samples, fft_size); --i >=0;) { in.at(i) = *(data + i) * m_Window.at(i); }
 
             m_FFT.perform(in.data(), out, false);
-
-            return out;
         }
 
         void convert_results(const std::vector<std::complex<T>>& in, T* mag_out, T* phase_out) const

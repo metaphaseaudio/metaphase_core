@@ -10,8 +10,7 @@
 
 namespace meta::dsp
 {
-    template <typename FloatType, size_t FFTOrder, size_t
-        NOverlap, juce::dsp::WindowingFunction<FloatType>::WindowingMethod window>
+    template <typename FloatType, size_t FFTOrder, juce::dsp::WindowingFunction<FloatType>::WindowingMethod Window>
     class FFTProcessor
     {
     public:
@@ -29,16 +28,16 @@ namespace meta::dsp
             jassert(in.getNumChannels() == out.size());
             jassert(in.getNumSamples() == FFTSize);
 
-
             for (int c = 0; c < in.getNumChannels(); c++)
             {
+
                 m_WindowedInput.copyFrom(0, 0, in, c, 0, FFTSize);
                 m_Window.multiplyWithWindowingTable(m_WindowedInput.getArrayOfWritePointers()[0], FFTSize);
 
-                for (int s = 0; s < FFTSize; s++)
-                    { m_Input[s] = m_WindowedInput.getArrayOfReadPointers()[0][s]; }
+                auto input = reinterpret_cast<float*>(out[c].data());
+                std::memcpy(input, m_WindowedInput.getArrayOfReadPointers()[0], sizeof(float) * FFTSize);
 
-                m_FFT.perform(m_Input.data(), out[c].data(), false);
+                m_FFT.performRealOnlyForwardTransform(input, false);
             }
         }
 
@@ -48,13 +47,15 @@ namespace meta::dsp
 
             for (int c = 0; c < out.getNumChannels(); c++)
             {
-                m_FFT.perform(in[c].data(), m_Input.data(), true);
+                auto input = reinterpret_cast<float*>(m_Tmp.data());
+                std::memcpy(m_Tmp.data(), in[c].data(), sizeof(std::complex<float>) * FFTSize);
+                m_WindowedInput.getArrayOfWritePointers()[c];
+                m_FFT.performRealOnlyInverseTransform(input);
 
-                for (int s = 0; s < FFTSize; s++)
-                    { out.getArrayOfWritePointers()[c][s] = m_Input[s].real(); }
+                std::memcpy(out.getArrayOfWritePointers()[c], input, sizeof(float) * FFTSize);
+
+                m_Window.multiplyWithWindowingTable(out.getArrayOfWritePointers()[c], FFTSize);
             }
-
-
         }
 
 
@@ -66,7 +67,7 @@ namespace meta::dsp
     private:
         juce::dsp::FFT m_FFT;
         juce::AudioBuffer<FloatType> m_WindowedInput;
-        juce::dsp::WindowingFunction<FloatType> m_Window{FFTSize, window};
-        std::array<std::complex<FloatType>, FFTSize> m_Input;
+        juce::dsp::WindowingFunction<FloatType> m_Window{FFTSize, Window, true};
+        std::array<std::complex<FloatType>, FFTSize> m_Tmp;
     };
 }
