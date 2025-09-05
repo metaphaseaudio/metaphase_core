@@ -65,9 +65,42 @@ namespace meta
             }
         }
 
-        void addAtOffset(juce::AudioBuffer<FloatType>& x)
+        void addAtOffsetFromReadHead(juce::AudioBuffer<FloatType>& x, int offset)
         {
+            const auto totalRequiredSpace = x.getNumSamples() + offset;
+            const auto extraRequiredSpace = totalRequiredSpace - m_FIFO.getNumReady();
+            const auto totalToAdd = totalRequiredSpace - extraRequiredSpace;
 
+            jassert(extraRequiredSpace <= m_FIFO.getFreeSpace());
+
+            // Use prepare to read so as to not update the read head
+            int startIndex1, blockSize1, startIndex2, blockSize2;
+            m_FIFO.prepareToRead(totalToAdd, startIndex1, blockSize1, startIndex2, blockSize2);
+
+            const auto block1WriteSize = std::max(blockSize1 - offset, 0);
+            const auto block2WriteSize = totalToAdd - block1WriteSize;
+            const auto block2Offset = std::max(offset - blockSize1, 0);
+
+            for (auto c = x.getNumChannels(); --c >= 0;)
+            {
+                if (block1WriteSize > 0)
+                {
+                    m_Buffer.addFrom(c, startIndex1 + offset, x, c, 0, block1WriteSize);
+                }
+
+                if (block2WriteSize > 0)
+                {
+                    m_Buffer.addFrom(c, startIndex2 + block2Offset, x, c, blockSize1, block2WriteSize);
+                }
+            }
+
+            // Adding off the end == pushing the remaining data
+            if (extraRequiredSpace)
+            {
+                juce::AudioBuffer<FloatType> view;
+                view.setDataToReferTo(x.getArrayOfWritePointers(), x.getNumChannels(), x.getNumSamples() - extraRequiredSpace, extraRequiredSpace);
+                push(view);
+            }
         }
 
         [[ nodiscard ]] int getFreeSpace() const { return m_FIFO.getFreeSpace(); }
