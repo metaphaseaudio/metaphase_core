@@ -12,24 +12,25 @@ namespace meta
     class OverlapAndAdd
     {
     public:
-        OverlapAndAdd(int nChans, int nSamps, int nOverlap)
+
+        OverlapAndAdd(int nChans, int nSamps, int nOverlap, int maxExpectedSamples=0)
             : m_NSamps(nSamps)
             , m_Stride(static_cast<int>(std::round(static_cast<float>(nSamps) / static_cast<float>(nOverlap))))
             , m_WindowGain(1.0f / nOverlap)
             , m_ChunkTmp(nChans, nSamps)
-            , m_InputBuffer(nChans, nSamps * nOverlap)
-            , m_OutputBuffer(nChans, nSamps * nOverlap)
+            , m_InputBuffer(nChans, nSamps + maxExpectedSamples)
+            , m_OutputBuffer(nChans, nSamps + maxExpectedSamples)
             , m_CurrentOffset(m_NSamps)
-
         {
             m_ChunkTmp.clear();
-            m_InputBuffer.pushZeros(m_NSamps / 2);
+
             m_OutputBuffer.pushZeros(m_NSamps);
+            m_CurrentOffset = m_NSamps;
         };
 
         std::function<void(juce::AudioBuffer<float>& chunk)> processChunk;
 
-        [[ nodiscard ]] int getLatency() const { return m_NSamps / 2; }
+        [[ nodiscard ]] int getLatency() const { return m_NSamps; }
 
         void process(juce::AudioBuffer<FloatType>& x)
         {
