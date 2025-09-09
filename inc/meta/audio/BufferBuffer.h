@@ -3,13 +3,6 @@
 //
 
 #pragma once
-//
-// Created by Matt on 8/15/2025.
-//
-
-#pragma once
-
-#include <functional>
 #include "juce_audio_basics/juce_audio_basics.h"
 
 namespace meta
@@ -43,6 +36,82 @@ namespace meta
             }
         }
 
+        void peek(juce::AudioBuffer<FloatType>& x, int offset=0)
+        {
+            jassert(offset >= 0);
+            jassert(x.getNumChannels() == m_Buffer.getNumChannels());
+            jassert(x.getNumSamples() + offset < m_FIFO.getNumReady());
+
+            int startIndex1, blockSize1, startIndex2, blockSize2;
+            m_FIFO.prepareToRead(x.getNumSamples() + offset, startIndex1, blockSize1, startIndex2, blockSize2);
+
+            const auto block1ReadSize = std::max(blockSize1 - offset, 0);
+            const auto block2Offset = std::max(offset - blockSize1, 0);
+            const auto block2ReadSize = x.getNumSamples() - block1ReadSize - block2Offset;
+
+            for (int c = x.getNumChannels(); --c >= 0;)
+            {
+                if (block1ReadSize > 0)
+                {
+                    x.copyFrom(c, 0, m_Buffer, c, startIndex1 + offset, block1ReadSize);
+                }
+
+                if (block2ReadSize > 0)
+                {
+                    x.copyFrom(c, block1ReadSize, m_Buffer, c, startIndex2 + block2Offset, block2ReadSize);
+                }
+            }
+        }
+
+        void pushZeros(int nZeros)
+        {
+            auto scope = m_FIFO.write(nZeros);
+
+            if (scope.blockSize1 > 0)
+            {
+                m_Buffer.clear(scope.startIndex1, scope.blockSize1);
+            }
+
+            if (scope.blockSize2 > 0)
+            {
+                m_Buffer.clear(scope.startIndex2, scope.blockSize2);
+            }
+        }
+
+        void addAtOffsetFromReadHead(juce::AudioBuffer<FloatType>& x, int offset, float gain=1.0f)
+        {
+            jassert(offset >= 0);
+            jassert(x.getNumChannels() == m_Buffer.getNumChannels());
+
+            const auto totalRequiredSpace = x.getNumSamples() + offset;  // How much space is needed overall
+            const auto leadingZeros = std::max(offset - m_FIFO.getNumReady(), 0);  // Special case for offset > ready
+            const auto extraRequiredSpace = std::max(totalRequiredSpace - m_FIFO.getNumReady() - leadingZeros, 0);
+            jassert(extraRequiredSpace <= m_FIFO.getFreeSpace());
+
+            pushZeros(extraRequiredSpace + leadingZeros);
+
+            // Use prepare to read so as to retrieve, but not update the read head
+            int startIndex1, blockSize1, startIndex2, blockSize2;
+            m_FIFO.prepareToRead(totalRequiredSpace, startIndex1, blockSize1, startIndex2, blockSize2);
+
+            const auto block1WriteSize = std::max(blockSize1 - offset, 0);
+            const auto block2Offset = std::max(offset - blockSize1, 0);
+            const auto block2WriteSize = x.getNumSamples() - block1WriteSize - block2Offset;
+
+            for (auto c = x.getNumChannels(); --c >= 0;)
+            {
+                if (block1WriteSize > 0)
+                {
+                    m_Buffer.addFrom(c, startIndex1 + offset, x, c, 0, block1WriteSize, gain);
+                }
+
+                if (block2WriteSize > 0)
+                {
+                    m_Buffer.addFrom(c, startIndex2 + block2Offset, x, c, block1WriteSize, block2WriteSize, gain);
+                }
+            }
+        }
+
         void pop(juce::AudioBuffer<FloatType>& x)
         {
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
@@ -65,42 +134,30 @@ namespace meta
             }
         }
 
-        void addAtOffsetFromReadHead(juce::AudioBuffer<FloatType>& x, int offset)
+        void discard(int nToDiscard)
         {
-            const auto totalRequiredSpace = x.getNumSamples() + offset;
-            const auto extraRequiredSpace = totalRequiredSpace - m_FIFO.getNumReady();
-            const auto totalToAdd = totalRequiredSpace - extraRequiredSpace;
+            m_FIFO.read(nToDiscard);
+        }
 
-            jassert(extraRequiredSpace <= m_FIFO.getFreeSpace());
+        void transferFromOther(BufferBuffer<FloatType>& other, int nToTransfer)
+        {
+            auto scope = m_FIFO.write(nToTransfer);
 
-            // Use prepare to read so as to not update the read head
-            int startIndex1, blockSize1, startIndex2, blockSize2;
-            m_FIFO.prepareToRead(totalToAdd, startIndex1, blockSize1, startIndex2, blockSize2);
+            juce::AudioBuffer<FloatType> tmp;
 
-            const auto block1WriteSize = std::max(blockSize1 - offset, 0);
-            const auto block2WriteSize = totalToAdd - block1WriteSize;
-            const auto block2Offset = std::max(offset - blockSize1, 0);
+            tmp.setDataToReferTo(
+                m_Buffer.getArrayOfWritePointers(),
+                m_Buffer.getNumChannels(),
+                scope.blockSize1, scope.startIndex1
+            );
+            other.pop(tmp);
 
-            for (auto c = x.getNumChannels(); --c >= 0;)
-            {
-                if (block1WriteSize > 0)
-                {
-                    m_Buffer.addFrom(c, startIndex1 + offset, x, c, 0, block1WriteSize);
-                }
-
-                if (block2WriteSize > 0)
-                {
-                    m_Buffer.addFrom(c, startIndex2 + block2Offset, x, c, blockSize1, block2WriteSize);
-                }
-            }
-
-            // Adding off the end == pushing the remaining data
-            if (extraRequiredSpace)
-            {
-                juce::AudioBuffer<FloatType> view;
-                view.setDataToReferTo(x.getArrayOfWritePointers(), x.getNumChannels(), x.getNumSamples() - extraRequiredSpace, extraRequiredSpace);
-                push(view);
-            }
+            tmp.setDataToReferTo(
+                m_Buffer.getArrayOfWritePointers(),
+                m_Buffer.getNumChannels(),
+                scope.blockSize2, scope.startIndex2
+            );
+            other.pop(tmp);
         }
 
         [[ nodiscard ]] int getFreeSpace() const { return m_FIFO.getFreeSpace(); }

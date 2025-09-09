@@ -14,19 +14,20 @@ namespace meta
     public:
         OverlapAndAdd(int nChans, int nSamps, int nOverlap)
             : m_NSamps(nSamps)
-            , m_NOverlap(nOverlap)
             , m_Stride(static_cast<int>(std::round(static_cast<float>(nSamps) / static_cast<float>(nOverlap))))
-            , m_Tail((nOverlap - 1) * m_Stride)
-            , m_Out(nChans, nSamps + m_Tail)
-            , m_In(nChans, nSamps + m_Tail)
+            , m_WindowGain(1.0f / nOverlap)
             , m_ChunkTmp(nChans, nSamps)
+            , m_InputBuffer(nChans, nSamps * nOverlap)
+            , m_OutputBuffer(nChans, nSamps * nOverlap)
+            , m_CurrentOffset(m_NSamps)
+
         {
-            m_Out.clear();
-            m_In.clear();
             m_ChunkTmp.clear();
+            m_InputBuffer.pushZeros(m_NSamps / 2);
+            m_OutputBuffer.pushZeros(m_NSamps);
         };
 
-        std::function<void(const juce::AudioBuffer<float>& input, juce::AudioBuffer<float>& output)> forEachChunk;
+        std::function<void(juce::AudioBuffer<float>& chunk)> processChunk;
 
         [[ nodiscard ]] int getLatency() const { return m_NSamps / 2; }
 
@@ -34,58 +35,27 @@ namespace meta
         {
             m_InputBuffer.push(x);
 
-            if (m_InputBuffer.getUsedSpace())
-
-            jassert(x.getNumChannels() == m_Out.getNumChannels());
-            // jassert(x.getNumSamples() == m_NSamps);
-
-            for (int c = x.getNumChannels(); --c >= 0;)
+            while (m_InputBuffer.getNumSamplesReady() > m_NSamps)
             {
-                // Copy the data into the input buffer at the end
-                m_In.copyFrom(c, m_Tail, x, c, 0, m_NSamps);
-                // Copy the output data into the buffer from the front
-                x.copyFrom(c, 0, m_Out, c, 0, m_NSamps);
+                // Process and discard the input
+                m_InputBuffer.peek(m_ChunkTmp);
+                processChunk(m_ChunkTmp);
+                m_InputBuffer.discard(m_Stride);
+
+
+                m_OutputBuffer.addAtOffsetFromReadHead(m_ChunkTmp, m_CurrentOffset, m_WindowGain);
+                m_CurrentOffset += m_Stride;
             }
 
-            auto in = m_In.getArrayOfWritePointers();
-            auto out = m_Out.getArrayOfWritePointers();
-
-            // Process the chunks
-            for (int i = 0; i < m_NOverlap; i++)
-            {
-                juce::AudioBuffer<float> chunk;
-
-                // Create a view of the input for each chunk
-                const auto offset = m_Stride * i;
-                chunk.setDataToReferTo(in, m_In.getNumChannels(), offset, m_NSamps);
-
-                // process the chunk
-                forEachChunk(chunk, m_ChunkTmp);
-
-                // Add the chunk to the output buffer
-                for (int c = x.getNumChannels(); --c >= 0;)
-                {
-                    m_Out.addFrom(c, offset, m_ChunkTmp, c, 0, m_NSamps, 1.0f / m_NOverlap);
-                }
-            }
-
-            const auto nTailBytes = sizeof(FloatType) * m_Tail;
-            const auto nChunkBytes = sizeof(FloatType) * m_NSamps;
-
-            for (int c = x.getNumChannels(); --c >= 0;)
-            {
-                x.copyFrom(c, 0, m_Out, c, 0, m_NSamps);  // Copy the current value out to the caller
-                std::memcpy(out[c], out[c] + m_NSamps, nTailBytes);  // Move the tail to the start
-                std::memcpy(in[c], in[c] + m_NSamps, nTailBytes);  // do the same with the input buffer
-
-                std::memset(out[c] + m_Tail, 0, nChunkBytes);  // Clear the remaining room for adding.
-                // No need to do that with the input, that gets copied, not added.
-            }
+            m_OutputBuffer.pop(x);
+            m_CurrentOffset -= x.getNumSamples();
         };
 
     private:
-        const int m_NSamps, m_NOverlap, m_Stride, m_Tail;
-        juce::AudioBuffer<FloatType> m_Out, m_In, m_ChunkTmp;
+        const int m_NSamps, m_Stride;
+        float m_WindowGain;
+        int m_CurrentOffset;
+        juce::AudioBuffer<FloatType> m_ChunkTmp;
         BufferBuffer<FloatType> m_InputBuffer, m_OutputBuffer;
     };
 }

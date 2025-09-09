@@ -7,28 +7,24 @@
 #include <meta/audio/OverlapAndAdd.h>
 
 
-
-
-
 TEST(OverlapAndAddTest, overlap_3x)
 {
     const auto nOverlap = 3;
     const auto buffSize = 6;
-    meta::OverlapAndAdd<float> oaa(2, buffSize, nOverlap);
-    juce::AudioBuffer<float> inBuff(2, buffSize);
+    meta::OverlapAndAdd<float> oaa(2, buffSize, nOverlap, );
+    juce::AudioBuffer<float> inBuff(2, buffSize * 2);
 
     inBuff.clear();
 
     inBuff.getArrayOfWritePointers()[0][0] = -1;
 
-    for (int s = 0; s < buffSize; s++)
+    for (int s = 0; s < buffSize * 2; s++)
     {
         inBuff.getArrayOfWritePointers()[1][s] = 1;
     }
 
-    oaa.forEachChunk = [](auto& x, auto& y)
+    oaa.processChunk = [](auto)
     {
-        y.makeCopyOf(x, true);
     };
 
     for (int i = 5; --i >= 0;)
