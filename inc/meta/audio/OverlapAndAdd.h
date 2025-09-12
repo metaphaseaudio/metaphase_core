@@ -41,10 +41,9 @@ namespace meta
                 // Process and discard the input
                 m_InputBuffer.peek(m_ChunkTmp);
                 processChunk(m_ChunkTmp);
-                m_InputBuffer.discard(m_Stride);
-
-
                 m_OutputBuffer.addAtOffsetFromReadHead(m_ChunkTmp, m_CurrentOffset, m_WindowGain);
+
+                m_InputBuffer.discard(m_Stride);
                 m_CurrentOffset += m_Stride;
             }
 

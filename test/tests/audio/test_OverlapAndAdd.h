@@ -9,10 +9,10 @@
 
 TEST(OverlapAndAddTest, overlap_3x)
 {
-    const auto nOverlap = 3;
-    const auto buffSize = 6;
-    meta::OverlapAndAdd<float> oaa(2, buffSize, nOverlap, 12);
-    juce::AudioBuffer<float> inBuff(2, buffSize / 2);
+    const auto nOverlap = 4;
+    const auto buffSize = 16;
+    meta::OverlapAndAdd<float> oaa(2, buffSize, nOverlap, 5);
+    juce::AudioBuffer<float> inBuff(2, 5);
 
     inBuff.clear();
 
@@ -29,7 +29,7 @@ TEST(OverlapAndAddTest, overlap_3x)
 
     juce::AudioBuffer<float> x(2, inBuff.getNumSamples());
 
-    for (int i = 5; --i >= 0;)
+    for (int i = 20; --i >= 0;)
     {
         x.makeCopyOf(inBuff);
 

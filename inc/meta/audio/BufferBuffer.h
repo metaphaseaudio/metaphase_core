@@ -65,6 +65,7 @@ namespace meta
 
         void pushZeros(int nZeros)
         {
+            jassert(nZeros <= m_FIFO.getFreeSpace());
             auto scope = m_FIFO.write(nZeros);
 
             if (scope.blockSize1 > 0)
@@ -96,7 +97,7 @@ namespace meta
 
             const auto block1WriteSize = std::max(blockSize1 - offset, 0);
             const auto block2Offset = std::max(offset - blockSize1, 0);
-            const auto block2WriteSize = x.getNumSamples() - block1WriteSize - block2Offset;
+            const auto block2WriteSize = x.getNumSamples() - block1WriteSize;
 
             for (auto c = x.getNumChannels(); --c >= 0;)
             {
