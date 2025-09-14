@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <meta/audio/BufferBuffer.h>
 #include "juce_audio_basics/juce_audio_basics.h"
 
 namespace meta
@@ -23,7 +24,6 @@ namespace meta
             , m_CurrentOffset(m_NSamps)
         {
             m_ChunkTmp.clear();
-
             m_OutputBuffer.pushZeros(m_NSamps);
             m_CurrentOffset = m_NSamps;
         };
