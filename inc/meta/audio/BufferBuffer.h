@@ -40,7 +40,7 @@ namespace meta
         {
             jassert(offset >= 0);
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
-            jassert(x.getNumSamples() + offset < m_FIFO.getNumReady());
+            jassert(x.getNumSamples() + offset <= m_FIFO.getNumReady());
 
             int startIndex1, blockSize1, startIndex2, blockSize2;
             m_FIFO.prepareToRead(x.getNumSamples() + offset, startIndex1, blockSize1, startIndex2, blockSize2);
