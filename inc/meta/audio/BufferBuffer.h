@@ -47,7 +47,7 @@ namespace meta
 
             const auto block1ReadSize = std::max(blockSize1 - offset, 0);
             const auto block2Offset = std::max(offset - blockSize1, 0);
-            const auto block2ReadSize = x.getNumSamples() - block1ReadSize - block2Offset;
+            const auto block2ReadSize = x.getNumSamples() - block1ReadSize;
 
             for (int c = x.getNumChannels(); --c >= 0;)
             {
