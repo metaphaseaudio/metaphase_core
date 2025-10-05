@@ -11,16 +11,19 @@ namespace meta
     class Filmstrip
     {
     public:
-        Filmstrip(juce::Image image, int frameCount, meta::Orientation sliceOrientation);
-        Filmstrip (Filmstrip&&) noexcept;
+        Filmstrip(juce::Image image, int frameCount, Orientation sliceOrientation);
+        Filmstrip(const Filmstrip& other) = default;
+        Filmstrip (Filmstrip&& other) noexcept;
+        Filmstrip& operator=(const Filmstrip& other);
+        Filmstrip& operator=(Filmstrip&& other) noexcept;
 
         [[nodiscard]] int getNFrames() const { return m_FrameCount; };
         [[nodiscard]] juce::Rectangle<int> getFrameDimensions() const;
         [[nodiscard]] juce::Image getFrame(int index) const;
 
     private:
-        const juce::Image m_Img;
+        juce::Image m_Img;
         int m_FrameCount, m_SliceSizePx;
-        meta::Orientation m_Orient;
+        Orientation m_Orient;
     };
 }

@@ -15,6 +15,27 @@ meta::Filmstrip::Filmstrip(juce::Image image, int frameCount, meta::Orientation 
     jassert(frameCount >= 1);  // There has to be at least one frame
 }
 
+meta::Filmstrip& meta::Filmstrip::operator=(const Filmstrip& other)
+{
+    if (this == &other)
+        return *this;
+    m_Img = other.m_Img;
+    m_FrameCount = other.m_FrameCount;
+    m_SliceSizePx = other.m_SliceSizePx;
+    m_Orient = other.m_Orient;
+    return *this;
+}
+
+meta::Filmstrip& meta::Filmstrip::operator=(Filmstrip&& other) noexcept
+{
+    if (this == &other)
+        return *this;
+    m_Img = std::move(other.m_Img);
+    m_FrameCount = other.m_FrameCount;
+    m_SliceSizePx = other.m_SliceSizePx;
+    m_Orient = other.m_Orient;
+    return *this;
+}
 
 meta::Filmstrip::Filmstrip(meta::Filmstrip&& other) noexcept
     : m_Img(other.m_Img)
