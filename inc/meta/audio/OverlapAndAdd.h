@@ -26,7 +26,7 @@ namespace meta
             m_ChunkTmp.clear();
             m_OutputBuffer.pushZeros(m_NSamps);
             m_CurrentOffset = m_NSamps;
-        };
+        }
 
         using ProcessCallback = std::function<void(juce::AudioBuffer<float>& chunk)>;
 
@@ -47,14 +47,12 @@ namespace meta
 
                 m_OutputBuffer.addAtOffsetFromReadHead(m_ChunkTmp, m_CurrentOffset, m_WindowGain);
 
-                m_InputBuffer.discard(m_Stride);
+                m_InputBuffer.drop(m_Stride);
                 m_CurrentOffset += m_Stride;
             }
-
             m_OutputBuffer.pop(x);
             m_CurrentOffset -= x.getNumSamples();
         }
-
 
     private:
         const int m_NSamps, m_Stride;

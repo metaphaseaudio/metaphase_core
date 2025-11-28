@@ -14,12 +14,13 @@ namespace meta
         BufferBuffer(int nChans, int bufferSize)
             : m_FIFO(bufferSize + 1)
             , m_Buffer(nChans, bufferSize + 1)
-        {};
+        {}
 
         void push(const juce::AudioBuffer<FloatType>& x)
         {
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
             jassert(m_FIFO.getFreeSpace() >= x.getNumSamples()); // overrun
+
             const auto scope = m_FIFO.write(x.getNumSamples());
 
             for (int c = x.getNumChannels(); --c >= 0;)
@@ -91,7 +92,7 @@ namespace meta
 
             pushZeros(extraRequiredSpace + leadingZeros);
 
-            // Use prepare to read so as to retrieve, but not update the read head
+            // Use prepare to read so as to retrieve, but not update, the read head
             int startIndex1, blockSize1, startIndex2, blockSize2;
             m_FIFO.prepareToRead(totalRequiredSpace, startIndex1, blockSize1, startIndex2, blockSize2);
 
@@ -135,9 +136,9 @@ namespace meta
             }
         }
 
-        void discard(int nToDiscard)
+        void drop(int nToDiscard)
         {
-            m_FIFO.read(nToDiscard);
+            std::ignore = m_FIFO.read(nToDiscard);
         }
 
         void transferFromOther(BufferBuffer<FloatType>& other, int nToTransfer)
