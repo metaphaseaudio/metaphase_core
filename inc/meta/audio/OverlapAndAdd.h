@@ -28,7 +28,9 @@ namespace meta
             m_CurrentOffset = m_NSamps;
         };
 
-        std::function<void(juce::AudioBuffer<float>& chunk)> processChunk;
+        using ProcessCallback = std::function<void(juce::AudioBuffer<float>& chunk)>;
+
+        ProcessCallback processChunk;
 
         [[ nodiscard ]] int getLatency() const { return m_NSamps; }
 
@@ -40,7 +42,9 @@ namespace meta
             {
                 // Process and discard the input
                 m_InputBuffer.peek(m_ChunkTmp);
+
                 processChunk(m_ChunkTmp);
+
                 m_OutputBuffer.addAtOffsetFromReadHead(m_ChunkTmp, m_CurrentOffset, m_WindowGain);
 
                 m_InputBuffer.discard(m_Stride);
@@ -49,7 +53,8 @@ namespace meta
 
             m_OutputBuffer.pop(x);
             m_CurrentOffset -= x.getNumSamples();
-        };
+        }
+
 
     private:
         const int m_NSamps, m_Stride;

@@ -3,8 +3,11 @@
 //
 #pragma once
 
-#include <juce_dsp/juce_dsp.h>
+#ifdef METAPHASE_HAS_SIMD
+
+#include <juce_core/juce_core.h>
 #include <stdint.h>
+#include <xmmintrin.h>
 
 
 namespace meta
@@ -216,3 +219,5 @@ namespace meta
 		}
 	};
 }
+#endif
+

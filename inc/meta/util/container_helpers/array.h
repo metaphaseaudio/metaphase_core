@@ -3,6 +3,7 @@
 //
 #pragma once
 #include <array>
+#include <utility>
 
 namespace meta
 {
@@ -25,7 +26,6 @@ namespace meta
     template <typename T, size_t N, typename Is = std::make_index_sequence<N>>
 	constexpr std::array<T, N> negate_array(const std::array<T, N>& x)
 	{ return negate_array_impl<T, N>(x, Is{}); }
-
 
 
     template <typename T, std::size_t N, size_t... Is, typename... Args>

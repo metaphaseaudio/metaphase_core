@@ -16,7 +16,7 @@ void meta::MidiState::enqueueMessage(const juce::MidiMessage& msg)
 void meta::MidiState::processNextMidiEvent(const juce::MidiMessage& message)
     { for (auto listener : m_Listeners) { listener->handleMessage(message); } }
 
-void meta::MidiState::processNextMidiBuffer(juce:: MidiBuffer& buffer, const int startSample, const int numSamples, const bool injectIndirectEvents)
+void meta::MidiState::processNextMidiBuffer(juce::MidiBuffer& buffer, const int startSample, const int numSamples, const bool injectIndirectEvents)
 {
     juce::MidiBuffer::Iterator i (buffer);
     juce::MidiMessage message;

@@ -2,9 +2,9 @@
 // Created by Matt Zapp on 3/31/2020.
 //
 #pragma once
+#ifdef METAPHASE_HAS_SIMD
 #include <meta/util/simd_ops.h>
-#include <stdint.h>
-#include <xmmintrin.h>
+
 
 
 TEST(MetaSIMDOps, eq_5_true)
@@ -56,3 +56,5 @@ TEST(MetaSIMDOps, accumulate)
 	float out = meta::simd<float>::accumulate(in, 5);
 	ASSERT_EQ(out, 15);
 }
+#endif
+

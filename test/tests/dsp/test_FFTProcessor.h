@@ -1,4 +1,5 @@
 #pragma once
+#include <ranges>
 #include <meta/dsp/BandlimitedWavetable.h>
 #include <meta/dsp/WavetableReader.h>
 #include <meta/dsp/FFTProcessor.h>
@@ -13,7 +14,7 @@ public:
 
     FFTCalculatorTest()
         : osc(table, state)
-    { osc.setFrequency(SAMPLE_RATE, 0); };
+    { osc.setFrequency(SAMPLE_RATE, 12000); };
 
     void init_signal_buffer(int samples)
     {
@@ -37,7 +38,7 @@ public:
 TEST_F(FFTCalculatorTest, calculate)
 {
     using FFT = meta::dsp::FFTProcessor<float, 4, juce::dsp::WindowingFunction<float>::WindowingMethod::hamming>;
-    osc.setFrequency(SAMPLE_RATE, 1000);
+    osc.setFrequency(SAMPLE_RATE, 12000);
     init_signal_buffer(FFT::FFTSize);
     juce::AudioBuffer<float> test_buffer(1, FFT::FFTSize);
     test_buffer.clear();
@@ -46,8 +47,12 @@ TEST_F(FFTCalculatorTest, calculate)
     FFT calc;
     FFT::FFTFrame frame = {{0}};
     calc.process(test_buffer, frame);
-
+    auto magnitude_transform = [](const std::complex<float>& c) {
+        return std::abs(c);
+    };
+    std::array<std::complex<float>, 16>& channel_frame = frame.at(0);
     test_buffer.clear();
+    auto mags = channel_frame | std::views::transform(magnitude_transform) | std::ranges::to<std::vector>();
     calc.inverse(frame, test_buffer);
 
     auto distance = 21;
