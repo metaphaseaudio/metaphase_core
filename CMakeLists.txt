@@ -23,7 +23,7 @@ target_compile_definitions(metaphase_core
 set_property(TARGET metaphase_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 
-if (BUILD_TESTS)
+if (METAPHASE_BUILD_TESTS)
     add_subdirectory(${META_PATH}/test)
     target_link_libraries(metaphase_core gtest)
 endif()
