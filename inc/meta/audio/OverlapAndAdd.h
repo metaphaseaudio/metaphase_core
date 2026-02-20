@@ -25,10 +25,9 @@ namespace meta
         {
             m_ChunkTmp.clear();
             m_OutputBuffer.pushZeros(m_NSamps);
-            m_CurrentOffset = m_NSamps;
         }
 
-        using ProcessCallback = std::function<void(juce::AudioBuffer<float>& chunk)>;
+        using ProcessCallback = std::function<void(juce::AudioBuffer<FloatType>& chunk)>;
 
         ProcessCallback processChunk;
 
@@ -38,7 +37,7 @@ namespace meta
         {
             m_InputBuffer.push(x);
 
-            while (m_InputBuffer.getNumSamplesReady() > m_NSamps)
+            while (m_InputBuffer.getNumSamplesReady() >= m_NSamps)
             {
                 // Process and discard the input
                 m_InputBuffer.peek(m_ChunkTmp);
