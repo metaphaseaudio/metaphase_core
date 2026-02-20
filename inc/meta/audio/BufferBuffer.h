@@ -150,16 +150,19 @@ namespace meta
             tmp.setDataToReferTo(
                 m_Buffer.getArrayOfWritePointers(),
                 m_Buffer.getNumChannels(),
-                scope.blockSize1, scope.startIndex1
+                scope.startIndex1, scope.blockSize1
             );
             other.pop(tmp);
 
-            tmp.setDataToReferTo(
-                m_Buffer.getArrayOfWritePointers(),
-                m_Buffer.getNumChannels(),
-                scope.blockSize2, scope.startIndex2
-            );
-            other.pop(tmp);
+            if (scope.blockSize2 > 0)
+            {
+                tmp.setDataToReferTo(
+                    m_Buffer.getArrayOfWritePointers(),
+                    m_Buffer.getNumChannels(),
+                    scope.startIndex2, scope.blockSize2
+                );
+                other.pop(tmp);
+            }
         }
 
         [[ nodiscard ]] int getFreeSpace() const { return m_FIFO.getFreeSpace(); }
