@@ -93,7 +93,7 @@ TEST(BufferBufferTest, full_loop_values)
 
     for (int i = 0; i < 10; ++i) { in.getArrayOfWritePointers()[0][i] = static_cast<float>(i); }
 
-    meta::BufferBuffer<float> bufferBuffer(1, 11);
+    meta::BufferBuffer<float> bufferBuffer(1, 10);
     bufferBuffer.push(in);
     ASSERT_EQ(bufferBuffer.getFreeSpace(), 0);
 
@@ -123,14 +123,14 @@ TEST(BufferBufferTest, push_pop_wrap_boundary)
     bb.push(a);
 
     auto discard = make({0, 0, 0});
-    bb.pop(discard); // consume 3, read head now at 3
+    bb.pop(discard); // consume 3, read head now at 3, value 40
 
     auto b = make({1, 2, 3, 4}); // write will wrap around
     bb.push(b);
 
     auto out = make({0, 0, 0, 0});
     bb.pop(out);
-    ASSERT_TRUE(meta::TestHelpers::bufferIsEqual(out, {{1, 2, 3, 4}}));
+    ASSERT_TRUE(meta::TestHelpers::bufferIsEqual(out, {{40, 1, 2, 3}}));
 }
 
 TEST(BufferBufferTest, peek_no_offset)
