@@ -19,7 +19,11 @@ namespace meta
         void push(const juce::AudioBuffer<FloatType>& x)
         {
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
-            jassert(m_FIFO.getFreeSpace() >= x.getNumSamples()); // overrun
+            if (m_FIFO.getFreeSpace() < x.getNumSamples())
+            {
+                DBG("FIFO OVERRUN: needed " + juce::String(x.getNumSamples()) + " free, had " + juce::String(m_FIFO.getFreeSpace()));
+                return;
+            }
 
             const auto scope = m_FIFO.write(x.getNumSamples());
 
@@ -41,7 +45,12 @@ namespace meta
         {
             jassert(offset >= 0);
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
-            jassert(x.getNumSamples() + offset <= m_FIFO.getNumReady());
+            if (x.getNumSamples() + offset > m_FIFO.getNumReady())
+            {
+                DBG("FIFO UNDERRUN in peek: needed " + juce::String(x.getNumSamples() + offset) + " ready, had " + juce::String(m_FIFO.getNumReady()));
+                x.clear();
+                return;
+            }
 
             int startIndex1, blockSize1, startIndex2, blockSize2;
             m_FIFO.prepareToRead(x.getNumSamples() + offset, startIndex1, blockSize1, startIndex2, blockSize2);
@@ -66,7 +75,11 @@ namespace meta
 
         void pushZeros(int nZeros)
         {
-            jassert(nZeros <= m_FIFO.getFreeSpace());
+            if (nZeros > m_FIFO.getFreeSpace())
+            {
+                DBG("FIFO OVERRUN in pushZeros: needed " + juce::String(nZeros) + " free, had " + juce::String(m_FIFO.getFreeSpace()));
+                return;
+            }
             auto scope = m_FIFO.write(nZeros);
 
             if (scope.blockSize1 > 0)
@@ -88,7 +101,11 @@ namespace meta
             const auto totalRequiredSpace = x.getNumSamples() + offset;  // How much space is needed overall
             const auto leadingZeros = std::max(offset - m_FIFO.getNumReady(), 0);  // Special case for offset > ready
             const auto extraRequiredSpace = std::max(totalRequiredSpace - m_FIFO.getNumReady() - leadingZeros, 0);
-            jassert(extraRequiredSpace <= m_FIFO.getFreeSpace());
+            if (extraRequiredSpace > m_FIFO.getFreeSpace())
+            {
+                DBG("FIFO OVERRUN in addAtOffset: needed " + juce::String(extraRequiredSpace) + " free, had " + juce::String(m_FIFO.getFreeSpace()));
+                return;
+            }
 
             pushZeros(extraRequiredSpace + leadingZeros);
 
@@ -117,7 +134,12 @@ namespace meta
         void pop(juce::AudioBuffer<FloatType>& x)
         {
             jassert(x.getNumChannels() == m_Buffer.getNumChannels());
-            jassert(m_FIFO.getNumReady() >= x.getNumSamples()); // underrun
+            if (m_FIFO.getNumReady() < x.getNumSamples())
+            {
+                DBG("FIFO UNDERRUN in pop: needed " + juce::String(x.getNumSamples()) + " ready, had " + juce::String(m_FIFO.getNumReady()));
+                x.clear();
+                return;
+            }
             x.clear();
 
             const auto scope = m_FIFO.read(x.getNumSamples());

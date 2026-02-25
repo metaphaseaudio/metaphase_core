@@ -5,11 +5,13 @@
 #pragma once
 
 #include <meta/audio/BufferBuffer.h>
+
+#include "AudioBuffer.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 
 namespace meta
 {
-    template <typename FloatType>
+    template <typename FloatType, typename Allocator=meta::DefaultAllocator<FloatType>>
     class OverlapAndAdd
     {
     public:
@@ -40,11 +42,11 @@ namespace meta
             while (m_InputBuffer.getNumSamplesReady() >= m_NSamps)
             {
                 // Process and discard the input
-                m_InputBuffer.peek(m_ChunkTmp);
+                m_InputBuffer.peek(m_ChunkTmp.getJUCEBuffer());
 
-                processChunk(m_ChunkTmp);
+                processChunk(m_ChunkTmp.getJUCEBuffer());
 
-                m_OutputBuffer.addAtOffsetFromReadHead(m_ChunkTmp, m_CurrentOffset, m_WindowGain);
+                m_OutputBuffer.addAtOffsetFromReadHead(m_ChunkTmp.getJUCEBuffer(), m_CurrentOffset, m_WindowGain);
 
                 m_InputBuffer.drop(m_Stride);
                 m_CurrentOffset += m_Stride;
@@ -57,7 +59,7 @@ namespace meta
         const int m_NSamps, m_Stride;
         float m_WindowGain;
         int m_CurrentOffset;
-        juce::AudioBuffer<FloatType> m_ChunkTmp;
+        meta::AudioBuffer<FloatType, Allocator> m_ChunkTmp;
         BufferBuffer<FloatType> m_InputBuffer, m_OutputBuffer;
     };
 }

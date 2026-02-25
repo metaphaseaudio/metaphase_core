@@ -5,7 +5,6 @@
 #pragma once
 
 #include <meta/audio/OverlapAndAdd.h>
-#include <meta/testing/TestHelpers.h>
 
 
 TEST(OverlapAndAddTest, overlap_4x)
