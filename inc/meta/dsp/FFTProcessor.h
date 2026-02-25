@@ -49,7 +49,7 @@ namespace meta::dsp
             {
                 auto input = reinterpret_cast<float*>(m_Tmp.data());
                 std::memcpy(m_Tmp.data(), in[c].data(), sizeof(std::complex<float>) * FFTSize);
-                m_WindowedInput.getArrayOfWritePointers()[c];
+
                 m_FFT.performRealOnlyInverseTransform(input);
 
                 std::memcpy(out.getArrayOfWritePointers()[c], input, sizeof(float) * FFTSize);
